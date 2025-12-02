@@ -44,7 +44,7 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
         <div className="absolute inset-0 z-0">
             <video 
                 ref={videoRef}
-                src="https://www.dropbox.com/scl/fi/oyn12cio5cnryq1oopiw7/123.mp4?rlkey=lr90iuwz75p4y0cv7lrkwity7&st=q74zn2pw&raw=1" 
+                src="/assets/videos/hero.mp4" 
                 autoPlay loop muted playsInline 
                 className="w-full h-full object-cover scale-135 opacity-100"
             ></video>
