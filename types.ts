@@ -24,6 +24,12 @@ declare global {
   namespace JSX {
     interface IntrinsicElements {
       [elemName: string]: any;
+      group: any;
+      primitive: any;
+      mesh: any;
+      boxGeometry: any;
+      meshBasicMaterial: any;
+      meshStandardMaterial: any;
     }
   }
 }

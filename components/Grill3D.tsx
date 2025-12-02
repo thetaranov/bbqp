@@ -5,6 +5,19 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import * as THREE from 'three';
 import { Loader2, RotateCw } from 'lucide-react';
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      group: any;
+      primitive: any;
+      mesh: any;
+      boxGeometry: any;
+      meshBasicMaterial: any;
+      meshStandardMaterial: any;
+    }
+  }
+}
+
 THREE.Cache.enabled = true;
 
 // Direct Transparent Pixel
