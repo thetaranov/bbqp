@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Flame, Wind } from 'lucide-react';
 import Reveal from './Reveal';

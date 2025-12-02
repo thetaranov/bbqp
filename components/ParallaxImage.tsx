@@ -20,13 +20,13 @@ const ParallaxImage: React.FC<ParallaxImageProps> = ({
 
   useEffect(() => {
     let rafId: number;
-    
+
     const handleScroll = () => {
       if (!containerRef.current) return;
-      
+
       const rect = containerRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
-      
+
       // Only calculate if the element is close to being visible or is visible
       if (rect.top < windowHeight && rect.bottom > 0) {
         const centerY = windowHeight / 2;

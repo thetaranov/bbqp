@@ -104,11 +104,23 @@ const MarqueeImage = React.memo(({ src, className }: { src: string, className?: 
 });
 
 const OptimizedMarqueeRow = ({ reverse = false, items, speed = 1, itemClassName = "" }: { reverse?: boolean, items: typeof DETAILS_ITEMS, speed?: number, itemClassName?: string }) => {
+    const [containerWidth, setContainerWidth] = useState(0);
     const rowRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const positionRef = useRef(0);
     const animationFrameRef = useRef<number>(0);
     const marqueeItems = useMemo(() => [...items, ...items, ...items, ...items], [items]); 
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const resizeObserver = new ResizeObserver((entries) => {
+             for (const entry of entries) {
+                 setContainerWidth(entry.contentRect.width);
+             }
+        });
+        resizeObserver.observe(containerRef.current);
+        return () => resizeObserver.disconnect();
+    }, []);
 
     useEffect(() => {
         const el = rowRef.current;

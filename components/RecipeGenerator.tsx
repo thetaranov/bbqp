@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, ChefHat, Flame } from 'lucide-react';
 import { generateBBQRecipe } from '../services/geminiService';
@@ -21,7 +20,7 @@ const FLOATING_IMAGES = [
 
 const FloatingImage: React.FC<{ src: string, style: React.CSSProperties }> = ({ src, style }) => {
     const [isVisible, setIsVisible] = useState(true);
-    
+
     if (!isVisible) return null;
 
     return (
@@ -54,7 +53,7 @@ const RecipeGenerator: React.FC = () => {
     if (!input.trim()) return;
     setLoading(true);
     setRecipe(null);
-    
+
     try {
       const result = await generateBBQRecipe(input);
       setRecipe(result);
@@ -71,7 +70,7 @@ const RecipeGenerator: React.FC = () => {
     const randomDelay = Math.random() * 10;
     const randomX = Math.random() * 90;
     const randomY = Math.random() * 80;
-    
+
     return {
       animation: `float-${index} ${randomDuration}s infinite ease-in-out ${randomDelay}s`,
       left: `${randomX}%`,
@@ -103,7 +102,7 @@ const RecipeGenerator: React.FC = () => {
 
       {/* Main Content - Dynamically adjust padding based on state */}
       <div className={`relative z-10 max-w-4xl w-full px-6 flex flex-col h-[80vh] transition-all duration-500 ${isResultMode ? 'pt-24' : 'pt-32'}`}>
-        
+
         {/* Header - Hidden when result is shown */}
         {!isResultMode && (
             <Reveal className="text-center mb-8">
@@ -120,7 +119,7 @@ const RecipeGenerator: React.FC = () => {
         {/* Chat/Result Container - Dark Glass + Glare */}
         <Reveal delay={200} className={`flex-1 flex flex-col overflow-hidden ${isResultMode ? 'h-full' : ''}`}>
             <div className={`flex-1 bg-black/60 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl relative transition-all duration-500 ${isResultMode ? 'h-full' : ''}`}>
-                
+
                 {/* Output Area */}
                 <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
                     {!recipe && !loading && (

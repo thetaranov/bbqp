@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { NAV_LINKS } from '../constants';
 import { Menu, X, MessageSquare } from 'lucide-react';
@@ -12,7 +11,7 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete = true, onChatToggle }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
-  
+
   const itemsRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const navRef = useRef<HTMLElement>(null);
 
@@ -27,7 +26,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
   // Update the sliding indicator based on activeSection
   useEffect(() => {
     const activeIndex = NAV_LINKS.findIndex(link => link.href.substring(1) === activeSection);
-    
+
     if (activeIndex !== -1 && itemsRef.current[activeIndex]) {
       const element = itemsRef.current[activeIndex];
       if (element) {
@@ -47,11 +46,11 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
     e.preventDefault();
     const targetId = href.replace('#', '');
     const element = document.getElementById(targetId);
-    
+
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
-    
+
     setIsMobileMenuOpen(false);
   };
 
@@ -61,7 +60,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
       className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-1000 py-4 shadow-sm ${bgClass} ${blurClass} ${isIntroComplete ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
     >
       <div className="max-w-[95rem] mx-auto px-6 lg:px-8 flex justify-between items-center min-h-[40px]">
-        
+
         {/* DESKTOP LOGO */}
         <a 
           href="#" 
@@ -82,7 +81,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
 
         {/* Desktop Menu - Liquid Drop Style */}
         <div className="hidden lg:flex items-center relative rounded-full p-1 border transition-colors duration-500 bg-white/5 border-white/5 bg-gradient-to-b from-white/5 to-transparent">
-          
+
           {/* The "Liquid Drop" Indicator */}
           <div 
             className="absolute h-[calc(100%-8px)] top-1 bg-orange-600 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.5)]"

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 
 interface ParticlesOverlayProps {
@@ -20,7 +19,7 @@ const ParticlesOverlay: React.FC<ParticlesOverlayProps> = ({ flipped = false, cl
         if (entry.isIntersecting) videoRef.current?.play().catch(() => {});
         else videoRef.current?.pause();
     }, { threshold: 0.1 });
-    
+
     if (containerRef.current) observer.observe(containerRef.current);
     return () => { if (containerRef.current) observer.unobserve(containerRef.current); };
   }, [active]);

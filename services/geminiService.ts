@@ -78,9 +78,9 @@ export const generateBBQRecipe = async (userPrompt: string): Promise<{ text: str
         model: 'gemini-2.5-flash-image',
         contents: `Professional, mouth-watering food photography of ${userPrompt} prepared on a high-end BBQ grill. Dark moody lighting, smoke, embers, 4k, cinematic, detailed texture.`,
       });
-  
+
       const [textResponse, imageResponse] = await Promise.all([textPromise, imagePromise]);
-  
+
       const text = textResponse.text || "Шеф сейчас отошел от гриля. Попробуйте спросить еще раз!";
       let image: string | undefined;
 

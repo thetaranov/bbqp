@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Send, Loader2, X, HelpCircle } from 'lucide-react';
 import { askPitmaster } from '../services/geminiService';
@@ -17,7 +16,7 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'model', text: 'Здравствуйте! Я специалист по продукции bbqp. Готов рассказать о характеристиках, режимах работы или помочь с выбором модели.' }
   ]);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Determine if we use internal state or external props
