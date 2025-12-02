@@ -15,42 +15,42 @@ export const DETAILS_ITEMS: DetailItem[] = [
     id: 1,
     title: "Индикация температуры",
     description: "Встроенный высокоточный термометр. Полный контроль температуры внутри камеры для идеального результата.",
-    image: "./assets/images/termo.png" 
+    image: "/assets/images/termo.png" 
   },
   {
     id: 2,
     title: "Удобное перемещение",
     description: "Плавные колесики. Перемещайте печь-мангал без усилий по любой поверхности.",
-    image: "./assets/images/wheel.png" 
+    image: "/assets/images/wheel.png" 
   },
   {
     id: 3,
     title: "Дозация поддува",
     description: "Регулируемая перегородка. Полный контроль интенсивности горения для идеального результата.",
-    image: "./assets/images/turbo.png" 
+    image: "/assets/images/turbo.png" 
   },
   {
     id: 4,
     title: "Лаконичный дизайн",
     description: "Эстетика в каждой линии. Идеально вписывается в любой ландшафт.",
-    image: "./assets/images/design.png"
+    image: "/assets/images/design.png"
   },
   {
     id: 5,
     title: "Модульная система",
     description: "Легкость сборки и модификации под ваши задачи.",
-    image: "./assets/images/modular.png"
+    image: "/assets/images/modular.png"
   },
   {
     id: 6,
     title: "Надежность",
     description: "Прочная конструкция, рассчитанная на годы службы.",
-    image: "./assets/images/reliability.png"
+    image: "/assets/images/reliability.png"
   },
   {
     id: 7,
     title: "Качественные материалы",
     description: "Использование стали высокого класса для максимальной долговечности.",
-    image: "./assets/images/steel.png"
+    image: "/assets/images/steel.png"
   }
 ];

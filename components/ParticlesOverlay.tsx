@@ -28,7 +28,7 @@ const ParticlesOverlay: React.FC<ParticlesOverlayProps> = ({ flipped = false, cl
     <div ref={containerRef} className={`absolute inset-0 z-50 w-full h-full pointer-events-none mix-blend-screen ${className}`}>
          <video
             ref={videoRef}
-            src="./assets/videos/particles.mp4"
+            src="/assets/videos/particles.mp4"
             autoPlay
             loop
             muted

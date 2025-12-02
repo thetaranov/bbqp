@@ -157,7 +157,7 @@ const OptimizedMarqueeRow = ({ reverse = false, items, speed = 1, itemClassName 
 
 function App() {
   const TELEGRAM_LINK = "https://t.me/thetaranov";
-  const MODEL_URL = "./assets/models/mangal.obj";
+  const MODEL_URL = "/assets/models/mangal.obj";
 
   // Config State - DEFAULT: Stainless (1), Standard (1)
   const [config, setConfig] = useState<Record<string, Option>>({
@@ -410,10 +410,10 @@ function App() {
            {shouldRenderSection('autodraft') && (
             <>
                <div className="hidden md:flex absolute inset-0 w-full h-full z-0 justify-center items-center pt-0 md:pt-0">
-                  <img src="./assets/images/model-preview.png" alt="Grill AutoDraft System" className="w-full h-full md:h-[75%] object-contain object-center md:object-[center_right] md:mr-12 opacity-100 translate-y-0 md:translate-y-8" />
+                  <img src="/assets/images/model-preview.png" alt="Grill AutoDraft System" className="w-full h-full md:h-[75%] object-contain object-center md:object-[center_right] md:mr-12 opacity-100 translate-y-0 md:translate-y-8" />
                </div>
                <div className="md:hidden absolute top-1/2 left-0 w-full h-[40vh] z-[1] flex items-center justify-center pointer-events-none -translate-y-1/2">
-                   <img src="./assets/images/model-preview.png" alt="Grill AutoDraft System Mobile" className="h-full object-contain mix-blend-multiply" />
+                   <img src="/assets/images/model-preview.png" alt="Grill AutoDraft System Mobile" className="h-full object-contain mix-blend-multiply" />
                </div>
                <div className="absolute inset-0 z-[5] overflow-hidden pointer-events-none">
                  {formulaData.map((item, i) => <FloatingFormula key={i} item={item} pool={PHYSICS_FORMULAS} />)}
@@ -461,7 +461,7 @@ function App() {
            {shouldRenderSection('personalize') && (
             <>
                <div className="absolute inset-0 z-0">
-                    <video ref={personalizationVideoRef} src="./assets/videos/personalize.mp4" autoPlay loop muted playsInline onLoadedMetadata={() => { if (personalizationVideoRef.current) personalizationVideoRef.current.playbackRate = 1.0; }} className="w-full h-full object-cover object-[100%_50%] scale-[1.35] translate-x-0 md:translate-x-0 md:scale-100 md:object-center opacity-70" />
+                    <video ref={personalizationVideoRef} src="/assets/videos/personalize.mp4" autoPlay loop muted playsInline onLoadedMetadata={() => { if (personalizationVideoRef.current) personalizationVideoRef.current.playbackRate = 1.0; }} className="w-full h-full object-cover object-[100%_50%] scale-[1.35] translate-x-0 md:translate-x-0 md:scale-100 md:object-center opacity-70" />
                     <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent hidden md:block"></div>
                </div>
                <div className="container mx-auto px-6 relative z-20 w-full h-full flex flex-col justify-center items-center md:items-start text-center md:text-left">
@@ -494,10 +494,10 @@ function App() {
            {shouldRenderSection('military') && (
             <>
                <div className="hidden md:block absolute inset-0 z-0 opacity-100">
-                    <ParallaxImage src="./assets/images/military-bg.png" alt="Military Background" className="w-full h-full" imageClassName="object-cover" speed={0.1} />
+                    <ParallaxImage src="/assets/images/military-bg.png" alt="Military Background" className="w-full h-full" imageClassName="object-cover" speed={0.1} />
                </div>
                <div className="md:hidden absolute inset-0 z-0 opacity-100 overflow-hidden">
-                    <img src="./assets/images/military-bg-mobile.png" alt="Military Background Mobile" className="w-full h-[110%] object-cover -translate-y-[10%]" />
+                    <img src="/assets/images/military-bg-mobile.png" alt="Military Background Mobile" className="w-full h-[110%] object-cover -translate-y-[10%]" />
                     <div className="absolute inset-0 bg-black/30"></div>
                     <div className="absolute bottom-0 left-0 w-full h-[40%] bg-gradient-to-t from-black via-black/80 to-transparent"></div>
                </div>
@@ -533,7 +533,7 @@ function App() {
                <div className="absolute inset-0 w-full h-full">
                     {/* Placeholder - CENTERED */}
                     <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center bg-gray-200 transition-opacity duration-500 ${is3DActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                        <img src="./assets/images/model-preview.png" alt="3D Preview" className="hidden md:block absolute inset-0 w-full h-full object-cover opacity-60 blur-sm scale-105" />
+                        <img src="/assets/images/model-preview.png" alt="3D Preview" className="hidden md:block absolute inset-0 w-full h-full object-cover opacity-60 blur-sm scale-105" />
                         <button onClick={() => setIs3DActive(true)} className="relative z-30 group flex flex-col items-center gap-4 transition-transform hover:scale-105">
                             <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors">
                                 <Box size={40} strokeWidth={1.2} className="ml-1" />

@@ -16,7 +16,7 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ isActive = false }) =
         </div>
         <div className="w-full md:w-1/2 flex items-center justify-center relative order-2 md:order-1 mb-6 md:mb-0 h-[35vh] md:h-full">
              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-orange-500/10 blur-[100px] rounded-full pointer-events-none"></div>
-             <img src="./assets/images/partition-mechanism.png" alt="Grill Partition Mechanism" className="w-full h-full md:h-[75vh] object-contain drop-shadow-2xl relative z-10" loading="lazy" />
+             <img src="/assets/images/partition-mechanism.png" alt="Grill Partition Mechanism" className="w-full h-full md:h-[75vh] object-contain drop-shadow-2xl relative z-10" loading="lazy" />
         </div>
         <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start text-center md:text-left pl-0 md:pl-16 order-3 md:order-2 pt-0 md:pt-24 md:scale-90 md:origin-left">
             <Reveal>
