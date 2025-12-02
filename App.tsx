@@ -395,8 +395,8 @@ function App() {
 
       <Navigation activeSection={activeSection} isIntroComplete={isIntroComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
 
-      {/* Changed initial opacity to 100 to prevent black screen if intro logic fails */}
-      <main className={`snap-container h-full w-full transition-opacity duration-1000 ${introStep >= 1 ? 'opacity-100' : 'opacity-100'}`}>
+      {/* FORCE VISIBILITY TO FIX BLACK SCREEN ISSUE */}
+      <main className={`snap-container h-full w-full transition-opacity duration-1000 opacity-100`}>
 
         <div id="hero" ref={setRef('hero')} className="snap-section min-h-[100svh] transition-opacity duration-[2500ms] ease-in-out">
             {shouldRenderSection('hero') && <Hero startAnimation={isIntroComplete} isActive={activeSection === 'hero'} />}
