@@ -7,19 +7,18 @@ import Reveal from './components/Reveal';
 import ParticlesOverlay from './components/ParticlesOverlay';
 import { DETAILS_ITEMS } from './constants';
 import { Check, ArrowRight, Upload, ChevronLeft, Loader2, Settings2, X, MoveRight, Box, ScanLine, RotateCcw } from 'lucide-react';
-
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
 const Grill3D = lazy(() => import('./components/Grill3D'));
 const RecipeGenerator = lazy(() => import('./components/RecipeGenerator'));
+const Manual = lazy(() => import('./components/Manual')); // New component for PDF content
 
 // Optimization Constants
-const SECTION_ORDER = ['hero', 'features', 'autodraft', 'details', 'personalize', 'military', 'models', 'ai-chef'];
+const SECTION_ORDER = ['hero', 'features', 'autodraft', 'details', 'personalize', 'military', 'models', 'ai-chef', 'manual']; // Added manual
 
 // Configuration Data
 type Option = { label: string; price: number; value: string };
 type ConfigCategory = { id: string; name: string; options: Option[] };
-
 const CONFIG_OPTIONS: ConfigCategory[] = [
   {
     id: 'model',
@@ -47,35 +46,31 @@ const CONFIG_OPTIONS: ConfigCategory[] = [
     ]
   }
 ];
-
 const PHYSICS_FORMULAS = [
   "Q = c·m·Δt", "C + O₂ → CO₂ + Q", "F = m·a", "P + ρv²/2 = const", "PV = nRT",
   "Q = q·m", "v = √(2ΔP/ρ)", "ΔU = Q - W", "Q = L·m", "Q = r·m", "η = 1 - T₂/T₁", "dQ = dU + pdV"
 ];
-
 function shuffleArray<T>(array: T[]): T[] {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        [newArray[i], newArray[j] = [newArray[j], newArray[i]];
     }
     return newArray;
 }
-
 const FloatingFormula: React.FC<{ item: any, pool: string[] }> = ({ item, pool }) => {
   const [text, setText] = useState(item.formula);
   return (
      <div
         className="absolute font-scientific font-bold text-gray-800 select-none whitespace-nowrap pointer-events-none opacity-0"
         style={{
-          left: `${item.left}%`, 
-          top: `${item.top}%`, 
-          fontSize: `${1.0 + (item.scale * 0.4)}rem`, 
+          left: `${item.left}%`,
+          top: `${item.top}%`,
+          fontSize: `${1.0 + (item.scale * 0.4)}rem`,
           filter: `blur(${item.blur}px)`,
-          // Pass CSS variables for the animation to use
           '--scale': item.scale,
           '--max-opacity': item.opacity,
-          animation: `comet-move ${item.duration}s linear infinite`, 
+          animation: `comet-move ${item.duration}s linear infinite`,
           animationDelay: `${item.delay}s`,
         } as React.CSSProperties}
         onAnimationIteration={() => {
@@ -86,31 +81,28 @@ const FloatingFormula: React.FC<{ item: any, pool: string[] }> = ({ item, pool }
      </div>
   );
 };
-
 const MarqueeImage = React.memo(({ src, className }: { src: string, className?: string }) => {
   const [loaded, setLoaded] = useState(false);
   return (
     <div className={`relative overflow-hidden bg-black/40 border border-white/5 rounded-2xl ${className}`}>
-        <img 
-            src={src} 
-            alt="" 
+        <img
+            src={src}
+            alt=""
             loading="lazy"
             decoding="async"
             onLoad={() => setLoaded(true)}
-            className={`w-full h-full object-cover transition-opacity duration-700 ease-out ${loaded ? 'opacity-80' : 'opacity-0'}`} 
+            className={`w-full h-full object-cover transition-opacity duration-700 ease-out ${loaded ? 'opacity-80' : 'opacity-0'}`}
         />
     </div>
   );
 });
-
 const OptimizedMarqueeRow = ({ reverse = false, items, speed = 1, itemClassName = "" }: { reverse?: boolean, items: typeof DETAILS_ITEMS, speed?: number, itemClassName?: string }) => {
     const [containerWidth, setContainerWidth] = useState(0);
     const rowRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const positionRef = useRef(0);
     const animationFrameRef = useRef<number>(0);
-    const marqueeItems = useMemo(() => [...items, ...items, ...items, ...items], [items]); 
-
+    const marqueeItems = useMemo(() => [...items, ...items, ...items, ...items], [items]);
     useEffect(() => {
         if (!containerRef.current) return;
         const resizeObserver = new ResizeObserver((entries) => {
@@ -121,7 +113,6 @@ const OptimizedMarqueeRow = ({ reverse = false, items, speed = 1, itemClassName 
         resizeObserver.observe(containerRef.current);
         return () => resizeObserver.disconnect();
     }, []);
-
     useEffect(() => {
         const el = rowRef.current;
         if (!el) return;
@@ -143,7 +134,6 @@ const OptimizedMarqueeRow = ({ reverse = false, items, speed = 1, itemClassName 
         animationFrameRef.current = requestAnimationFrame(animate);
         return () => { if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current); };
     }, [reverse, speed]);
-
     return (
         <div ref={containerRef} className="relative w-full overflow-hidden select-none pointer-events-none">
             <div ref={rowRef} className="flex gap-4 md:gap-6 w-max will-change-transform" style={{ transform: 'translate3d(0,0,0)' }}>
@@ -154,36 +144,30 @@ const OptimizedMarqueeRow = ({ reverse = false, items, speed = 1, itemClassName 
         </div>
     );
 };
-
 function App() {
   const TELEGRAM_LINK = "https://t.me/thetaranov";
   const MODEL_URL = "/assets/models/mangal.obj";
-
   // Config State - DEFAULT: Stainless (1), Standard (1)
   const [config, setConfig] = useState<Record<string, Option>>({
-    model: CONFIG_OPTIONS[0].options[0], 
-    color: CONFIG_OPTIONS[1].options[1], 
-    engraving: CONFIG_OPTIONS[2].options[1], 
+    model: CONFIG_OPTIONS[0].options[0],
+    color: CONFIG_OPTIONS[1].options[1],
+    engraving: CONFIG_OPTIONS[2].options[1],
   });
-
   const [customFile, setCustomFile] = useState<File | null>(null);
   const [customTextureUrl, setCustomTextureUrl] = useState<string | null>(null);
-  const [openCategory, setOpenCategory] = useState<string | null>('model'); 
+  const [openCategory, setOpenCategory] = useState<string | null>('model');
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [mobileConfigOpen, setMobileConfigOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [is3DActive, setIs3DActive] = useState(false);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
-  const [introStep, setIntroStep] = useState(0); 
-
+  const [introStep, setIntroStep] = useState(0);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const personalizationVideoRef = useRef<HTMLVideoElement>(null);
-
   const row1Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
   const row2Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
   const row3Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
-
   const formulaData = useMemo(() => {
     const pos: any[] = [];
     const usedRects: {l: number, t: number, w: number, h: number}[] = [];
@@ -195,22 +179,20 @@ function App() {
             const l = Math.random() * 95, t = Math.random() * 95;
             const overlap = usedRects.some(r => l < r.l + 22 && l + 22 > r.l && t < r.t + 14 && t + 14 > r.t);
             const imageOverlap = (l > 70 && t > 20 && t < 80);
-
             if (!overlap && !imageOverlap) {
                 const scale = 0.5 + Math.random() * 1.0;
-                let blur = 0; 
+                let blur = 0;
                 if (scale > 1.2) blur = (scale - 1.2) * 1.5;
                 if (l < 45 && t > 20 && t < 75) blur += 1.5;
-
                 pos.push({
-                    left: l, 
-                    top: t, 
+                    left: l,
+                    top: t,
                     // duration from 6 to 14 seconds (doubled from 3-7)
-                    duration: 6 + (Math.random() * 8), 
+                    duration: 6 + (Math.random() * 8),
                     delay: -Math.random() * 10,
-                    scale, 
-                    blur, 
-                    opacity: scale > 1.2 ? 0.35 : 0.5, 
+                    scale,
+                    blur,
+                    opacity: scale > 1.2 ? 0.35 : 0.5,
                     formula: shuffledFormulas[i % shuffledFormulas.length]
                 });
                 usedRects.push({l, t, w: 22, h: 14});
@@ -221,22 +203,18 @@ function App() {
     }
     return pos;
   }, []);
-
   useEffect(() => {
     const timer1 = setTimeout(() => setIntroStep(1), 1000);
     const timer2 = setTimeout(() => setIntroStep(2), 2500);
     return () => { clearTimeout(timer1); clearTimeout(timer2); };
   }, []);
-
   const isIntroComplete = introStep >= 2;
-
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -246,12 +224,10 @@ function App() {
     (Object.values(sectionRefs.current) as (Element | null)[]).forEach((el) => { if (el) observer.observe(el); });
     return () => observer.disconnect();
   }, []);
-
   const setRef = (id: string) => (el: HTMLDivElement | null) => { sectionRefs.current[id] = el; };
   const handleSelect = (categoryId: string, option: Option) => setConfig(prev => ({ ...prev, [categoryId]: option }));
   const toggleCategory = (id: string) => setOpenCategory(openCategory === id ? null : id);
   const calculateTotal = () => (Object.values(config) as Option[]).reduce((acc, item) => acc + item.price, 0);
-
   const getOrderLink = () => {
     let text = `Здравствуйте! Хочу заказать bbqp:%0A` +
       Object.entries(config).map(([key, val]) => `- ${CONFIG_OPTIONS.find(c => c.id === key)?.name}: ${(val as Option).label}`).join('%0A') +
@@ -259,7 +235,6 @@ function App() {
     if (config.engraving.value === 'custom' && customFile) text += `%0A%0AФайл: ${customFile.name}`;
     return `${TELEGRAM_LINK}?text=${text}`;
   };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
         const file = e.target.files[0];
@@ -267,7 +242,6 @@ function App() {
         setCustomTextureUrl(URL.createObjectURL(file));
     }
   };
-
   const scrollToConfigurator = (e: React.MouseEvent) => {
     e.preventDefault();
     const element = document.getElementById('models');
@@ -278,24 +252,20 @@ function App() {
         if (isMobile) setMobileConfigOpen(true);
     }
   };
-
   const handleStartOver = () => {
     const hero = document.getElementById('hero');
     if (hero) hero.scrollIntoView({ behavior: 'smooth' });
   };
-
   const SectionLoader = () => (
     <div className="w-full h-full flex items-center justify-center bg-transparent">
       <Loader2 className="w-8 h-8 animate-spin text-gray-600" />
     </div>
   );
-
   const shouldRenderSection = (sectionId: string) => {
     const currentIndex = SECTION_ORDER.indexOf(activeSection);
     const targetIndex = SECTION_ORDER.indexOf(sectionId);
     return Math.abs(currentIndex - targetIndex) <= 1;
   };
-
   const ConfiguratorPanel = () => (
     <div className="flex flex-col h-full text-white">
          <div className="p-6 border-b border-white/10 flex-shrink-0 flex items-center justify-between">
@@ -370,42 +340,35 @@ function App() {
          </div>
     </div>
   );
-
   return (
     <div className="h-screen w-full overflow-hidden bg-black text-white selection:bg-orange-500 selection:text-white relative">
       {/* Global styles for animation */}
       <style>{`
          @keyframes comet-move {
-            0% { 
-                opacity: 0; 
-                transform: translate(-100px, -100px) scale(var(--scale)); 
+            0% {
+                opacity: 0;
+                transform: translate(-100px, -100px) scale(var(--scale));
             }
             15% { opacity: var(--max-opacity); }
             85% { opacity: var(--max-opacity); }
-            100% { 
-                opacity: 0; 
-                transform: translate(350px, 350px) scale(var(--scale)); 
+            100% {
+                opacity: 0;
+                transform: translate(350px, 350px) scale(var(--scale));
             }
          }
       `}</style>
-
       <div className={`fixed inset-0 z-[100] flex items-center justify-center pointer-events-none transition-colors duration-[1500ms] ease-in-out ${introStep >= 1 ? 'bg-transparent' : 'bg-black'} ${introStep >= 2 ? 'hidden' : ''}`}>
         <h1 className={`font-bold tracking-tighter text-white transition-all duration-[1500ms] cubic-bezier(0.16, 1, 0.3, 1) absolute z-[101] whitespace-nowrap ${introStep >= 1 ? 'top-[22px] left-[24px] lg:left-[32px] text-2xl md:text-3xl translate-x-0 translate-y-0 opacity-0' : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl md:text-8xl' } ${introStep >= 2 ? 'hidden' : 'block'}`}>bbqp</h1>
       </div>
-
       <Navigation activeSection={activeSection} isIntroComplete={isIntroComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
-
       {/* FORCE VISIBILITY TO FIX BLACK SCREEN ISSUE - Removed dynamic opacity toggle */}
-      <main className={`snap-container h-full w-full transition-opacity duration-1000 opacity-100`}>
-
+      <main className={`snap-container h-full w-full transition-opacity duration-1000 opacity-100 grid grid-cols-1 auto-rows-fr`}>
         <div id="hero" ref={setRef('hero')} className="snap-section min-h-[100svh] transition-opacity duration-[2500ms] ease-in-out">
             {shouldRenderSection('hero') && <Hero startAnimation={isIntroComplete} isActive={activeSection === 'hero'} />}
         </div>
-
         <div id="features" ref={setRef('features')} className="snap-section min-h-[100svh] bg-black transition-opacity duration-[2500ms] ease-in-out">
              {shouldRenderSection('features') && <FeaturesSection isActive={activeSection === 'features'} />}
         </div>
-
         <section id="autodraft" ref={setRef('autodraft')} className="snap-section min-h-[100svh] bg-white text-black relative transition-all duration-[2500ms] ease-in-out overflow-hidden flex items-center justify-center">
            {shouldRenderSection('autodraft') && (
             <>
@@ -432,7 +395,6 @@ function App() {
             </>
            )}
         </section>
-
         <section id="details" ref={setRef('details')} className="snap-section min-h-[100svh] bg-[#050505] text-white transition-all duration-[2500ms] ease-in-out flex flex-col justify-center overflow-hidden relative group">
           {shouldRenderSection('details') && (
             <>
@@ -456,7 +418,6 @@ function App() {
             </>
           )}
         </section>
-
         <section id="personalize" ref={setRef('personalize')} className="snap-section min-h-[100svh] bg-[#050505] text-white relative transition-all duration-[2500ms] ease-in-out overflow-hidden flex items-center">
            {shouldRenderSection('personalize') && (
             <>
@@ -489,7 +450,6 @@ function App() {
             </>
            )}
         </section>
-
         <section id="military" ref={setRef('military')} className="snap-section min-h-[100svh] bg-[#1c1c1c] text-white relative transition-all duration-[2500ms] ease-in-out pt-28 pb-32 md:pb-0">
            {shouldRenderSection('military') && (
             <>
@@ -525,7 +485,6 @@ function App() {
             </>
            )}
         </section>
-
         <section id="models" ref={setRef('models')} className="snap-section min-h-[100svh] bg-gray-200 transition-all duration-[2500ms] ease-in-out relative pt-0 pb-0 overflow-hidden">
            {shouldRenderSection('models') && (
             <>
@@ -541,7 +500,6 @@ function App() {
                             <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Запустить 3D</span></div>
                         </button>
                     </div>
-
                     {is3DActive && (
                         <div className="absolute inset-0 w-full h-full z-0">
                             <Suspense fallback={<SectionLoader />}>
@@ -550,7 +508,6 @@ function App() {
                         </div>
                     )}
                </div>
-
                {/* UI OVERLAY */}
                <div className="relative z-10 w-full h-full pointer-events-none">
                   {mobileConfigOpen && (
@@ -573,11 +530,12 @@ function App() {
             </>
            )}
         </section>
-
         <div id="ai-chef" ref={setRef('ai-chef')} className="snap-section min-h-[100svh] bg-[#050505] transition-all duration-[2500ms] ease-in-out pt-24 md:pt-0">
              {shouldRenderSection('ai-chef') && <Suspense fallback={<SectionLoader />}><RecipeGenerator /></Suspense>}
         </div>
-
+        <div id="manual" ref={setRef('manual')} className="snap-section min-h-[100svh] bg-[#050505] transition-all duration-[2500ms] ease-in-out pt-24 md:pt-0">
+             {shouldRenderSection('manual') && <Suspense fallback={<SectionLoader />}><Manual /></Suspense>}
+        </div>
         <footer className="snap-section min-h-[100svh] bg-black text-white flex flex-col justify-center items-center transition-opacity duration-[2500ms] ease-in-out pb-24 md:pb-0">
           <Reveal className="w-full max-w-4xl mx-auto px-6 text-center">
              <div className="mb-6"><div className="text-4xl md:text-5xl font-bold tracking-tighter mb-2">bbqp</div><p className="text-sm text-gray-500 font-medium">Инновации в искусстве приготовления.</p></div>
@@ -585,11 +543,5 @@ function App() {
              <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-600"><p>© 2025 bbqp. Все права защищены.</p><div className="flex gap-6"><a href="#" className="hover:text-white transition-colors">Конфиденциальность</a><a href="#" className="hover:text-white transition-colors">Условия</a></div></div>
           </Reveal>
         </footer>
-
       </main>
-      <Suspense fallback={null}><ChefBot visible={isIntroComplete} externalIsOpen={isChatOpen} onToggle={setIsChatOpen} /></Suspense>
-    </div>
-  );
-}
-
-export default App;
+      <Suspense fallback={null}><ChefBot visible={isIntroComplete
