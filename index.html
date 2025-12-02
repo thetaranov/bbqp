@@ -4,10 +4,50 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>bbqp | Печь и Мангал</title>
-    <!-- Preload Hero Image for instant LCP -->
-    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=1920">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Встроенный Tailwind */
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+      
+      /* Локальные шрифты или системные */
+      body { 
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      
+      html, body, #root {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #000000;
+        color: #ffffff;
+      }
+      
+      .snap-container { 
+        height: 100vh; 
+        overflow-y: scroll; 
+        scroll-snap-type: y mandatory; 
+        scroll-behavior: smooth; 
+      }
+      
+      .snap-section { 
+        scroll-snap-align: start; 
+        height: 100vh; 
+        width: 100%; 
+        position: relative; 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        overflow: hidden; 
+      }
+      
+      ::-webkit-scrollbar { display: none; }
+      * { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+    <!-- Локальная версия Tailwind -->
     <script>
+      // Минимальная конфигурация Tailwind
       tailwind.config = {
         theme: {
           extend: {
@@ -18,7 +58,7 @@
               }
             },
             fontFamily: {
-              sans: ['Inter', 'sans-serif'],
+              sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
               scientific: ['"Times New Roman"', 'Georgia', 'serif'],
               mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
             },
@@ -50,41 +90,27 @@
         },
       }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-      html, body, #root {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        background-color: #000000;
-        color: #ffffff;
+    <!-- Локальная загрузка скриптов через npm пакеты -->
+    <script type="module">
+      // Загружаем React и другие библиотеки через импорт
+      import React from 'react';
+      import ReactDOM from 'react-dom/client';
+      import App from './App.js';
+      
+      const rootElement = document.getElementById('root');
+      if (!rootElement) {
+        throw new Error("Could not find root element to mount to");
       }
-      body { font-family: 'Inter', sans-serif; }
-      .snap-container { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
-      .snap-section { scroll-snap-align: start; height: 100vh; width: 100%; position: relative; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
-      ::-webkit-scrollbar { display: none; }
-      * { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
-    "@react-three/fiber": "https://aistudiocdn.com/@react-three/fiber@^9.4.0",
-    "@react-three/drei": "https://aistudiocdn.com/@react-three/drei@^10.7.7",
-    "three": "https://aistudiocdn.com/three@^0.181.2",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
-    "three/": "https://aistudiocdn.com/three@^0.181.2/"
-  }
-}
-</script>
-</head>
+      
+      const root = ReactDOM.createRoot(rootElement);
+      root.render(
+        React.createElement(React.StrictMode, null,
+          React.createElement(App, null)
+        )
+      );
+    </script>
+  </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
