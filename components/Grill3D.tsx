@@ -197,7 +197,7 @@ const OBJGrill: React.FC<{ url: string; engravingType: 'none' | 'standard' | 'cu
         >
             <primitive object={scene} scale={0.4} />
         </Center>
-            
+
         {modelDims && decalConfig && showDecal && (
             <mesh position={[0, 0, 0]}>
                 <boxGeometry args={[modelDims.width, modelDims.height, modelDims.depth]} />
@@ -207,19 +207,19 @@ const OBJGrill: React.FC<{ url: string; engravingType: 'none' | 'standard' | 'cu
                     {decalConfig.isFrontBackWide ? (
                         <>
                             <Decal position={[0, 0, decalConfig.zOffset]} rotation={[0, 0, 0]} scale={[decalConfig.size, decalConfig.size, 1]}>
-                                <meshStandardMaterial map={texture} transparent polygonOffset polygonOffsetFactor={-1} depthTest={true} depthWrite={false} roughness={0.4} blending={THREE.ScreenBlending} />
+                                <meshStandardMaterial map={texture} transparent polygonOffset polygonOffsetFactor={-1} depthTest={true} depthWrite={false} roughness={0.4} />
                             </Decal>
                             <Decal position={[0, 0, -decalConfig.zOffset]} rotation={[0, Math.PI, 0]} scale={[decalConfig.size, decalConfig.size, 1]}>
-                                <meshStandardMaterial map={texture} transparent polygonOffset polygonOffsetFactor={-1} depthTest={true} depthWrite={false} roughness={0.4} blending={THREE.ScreenBlending} />
+                                <meshStandardMaterial map={texture} transparent polygonOffset polygonOffsetFactor={-1} depthTest={true} depthWrite={false} roughness={0.4} />
                             </Decal>
                         </>
                     ) : (
                         <>
                             <Decal position={[decalConfig.xOffset, 0, 0]} rotation={[0, Math.PI / 2, 0]} scale={[decalConfig.size, decalConfig.size, 1]}>
-                                <meshStandardMaterial map={texture} transparent polygonOffset polygonOffsetFactor={-1} depthTest={true} depthWrite={false} roughness={0.4} blending={THREE.ScreenBlending} />
+                                <meshStandardMaterial map={texture} transparent polygonOffset polygonOffsetFactor={-1} depthTest={true} depthWrite={false} roughness={0.4} />
                             </Decal>
                             <Decal position={[-decalConfig.xOffset, 0, 0]} rotation={[0, -Math.PI / 2, 0]} scale={[decalConfig.size, decalConfig.size, 1]}>
-                                <meshStandardMaterial map={texture} transparent polygonOffset polygonOffsetFactor={-1} depthTest={true} depthWrite={false} roughness={0.4} blending={THREE.ScreenBlending} />
+                                <meshStandardMaterial map={texture} transparent polygonOffset polygonOffsetFactor={-1} depthTest={true} depthWrite={false} roughness={0.4} />
                             </Decal>
                         </>
                     )}

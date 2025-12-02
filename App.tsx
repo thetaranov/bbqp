@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, Suspense, lazy, useMemo, useCallback } from 'react';
 import Navigation from './components/Navigation';
 import Hero from './components/Hero';
@@ -177,7 +176,7 @@ function App() {
   const [is3DActive, setIs3DActive] = useState(false);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [introStep, setIntroStep] = useState(0); 
-  
+
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const personalizationVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -196,13 +195,13 @@ function App() {
             const l = Math.random() * 95, t = Math.random() * 95;
             const overlap = usedRects.some(r => l < r.l + 22 && l + 22 > r.l && t < r.t + 14 && t + 14 > r.t);
             const imageOverlap = (l > 70 && t > 20 && t < 80);
-            
+
             if (!overlap && !imageOverlap) {
                 const scale = 0.5 + Math.random() * 1.0;
                 let blur = 0; 
                 if (scale > 1.2) blur = (scale - 1.2) * 1.5;
                 if (l < 45 && t > 20 && t < 75) blur += 1.5;
-                
+
                 pos.push({
                     left: l, 
                     top: t, 
@@ -395,9 +394,10 @@ function App() {
       </div>
 
       <Navigation activeSection={activeSection} isIntroComplete={isIntroComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
-      
-      <main className={`snap-container h-full w-full transition-opacity duration-1000 ${introStep >= 1 ? 'opacity-100' : 'opacity-0'}`}>
-        
+
+      {/* Changed initial opacity to 100 to prevent black screen if intro logic fails */}
+      <main className={`snap-container h-full w-full transition-opacity duration-1000 ${introStep >= 1 ? 'opacity-100' : 'opacity-100'}`}>
+
         <div id="hero" ref={setRef('hero')} className="snap-section min-h-[100svh] transition-opacity duration-[2500ms] ease-in-out">
             {shouldRenderSection('hero') && <Hero startAnimation={isIntroComplete} isActive={activeSection === 'hero'} />}
         </div>
@@ -405,7 +405,7 @@ function App() {
         <div id="features" ref={setRef('features')} className="snap-section min-h-[100svh] bg-black transition-opacity duration-[2500ms] ease-in-out">
              {shouldRenderSection('features') && <FeaturesSection isActive={activeSection === 'features'} />}
         </div>
-        
+
         <section id="autodraft" ref={setRef('autodraft')} className="snap-section min-h-[100svh] bg-white text-black relative transition-all duration-[2500ms] ease-in-out overflow-hidden flex items-center justify-center">
            {shouldRenderSection('autodraft') && (
             <>
