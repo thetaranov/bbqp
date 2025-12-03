@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Send, Loader2, X, HelpCircle } from 'lucide-react';
-import { askPitmaster } from '../services/geminiService';
+import { askPitmaster } from '../services/deepseekService';
 import { ChatMessage } from '../types';
 
 interface ChefBotProps {
@@ -19,7 +19,6 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Determine if we use internal state or external props
   const isControlled = externalIsOpen !== undefined && onToggle !== undefined;
   const isOpen = isControlled ? externalIsOpen : internalIsOpen;
   const setIsOpen = (val: boolean) => {
@@ -66,10 +65,8 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
     <div 
       className={`fixed bottom-6 right-6 z-[90] flex flex-col items-end transition-all duration-1000 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
     >
-      {/* Chat Window */}
       {isOpen && (
         <div className="mb-4 w-[90vw] md:w-96 bg-[#0a0a0a]/90 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col animate-fade-in origin-bottom-right ring-1 ring-white/5 max-h-[60vh] md:max-h-96">
-          {/* Header */}
           <div className="bg-black/40 backdrop-blur-md p-4 flex items-center justify-between border-b border-white/10">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white border border-white/10 shadow-md">
@@ -85,7 +82,6 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
             </button>
           </div>
 
-          {/* Messages */}
           <div className="flex-1 p-4 overflow-y-auto custom-scrollbar bg-black/20">
             {messages.map((msg, idx) => (
               <div
@@ -114,7 +110,6 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
           <div className="p-3 bg-black/60 backdrop-blur-md border-t border-white/10 flex gap-2">
             <input
               type="text"
@@ -135,7 +130,6 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
         </div>
       )}
 
-      {/* Toggle Button - Hidden on mobile as it is moved to Navigation header */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`group hidden md:flex items-center gap-3 bg-black/60 backdrop-blur-md border border-white/10 text-white px-6 py-4 rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] transition-all hover:bg-black/80 hover:scale-105 ${isOpen ? 'hidden' : 'flex'}`}

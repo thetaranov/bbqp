@@ -1,21 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, ChefHat, Flame } from 'lucide-react';
-import { generateBBQRecipe } from '../services/geminiService';
+import { generateBBQRecipe } from '../services/deepseekService';
 import Reveal from './Reveal';
 
 const FLOATING_IMAGES = [
-  "https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&q=80&w=400", // Steak
-  "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&q=80&w=400", // Ribs
-  "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?auto=format&fit=crop&q=80&w=400", // Wagyu
-  "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=400", // BBQ Plate
-  "https://images.unsplash.com/photo-1527477396000-643d68ad82fa?auto=format&fit=crop&q=80&w=400", // Sausages
-  "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=400", // Ribs 2
-  "https://images.unsplash.com/photo-1598103442097-8b74072e56ab?auto=format&fit=crop&q=80&w=400", // Grill fire
-  "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&q=80&w=400", // Steak 2
-  "https://images.unsplash.com/photo-1623689046286-01d812cc7ac7?auto=format&fit=crop&q=80&w=400", // Skewers
-  "https://images.unsplash.com/photo-1432139555190-58524dae6a55?auto=format&fit=crop&q=80&w=400", // Meat
-  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=400", // Food generic
-  "https://images.unsplash.com/photo-1546964124-0cce460f38ef?auto=format&fit=crop&q=80&w=400", // Veggies
+  "https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&q=80&w=400",
+  "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&q=80&w=400",
+  "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?auto=format&fit=crop&q=80&w=400",
+  "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=400",
+  "https://images.unsplash.com/photo-1527477396000-643d68ad82fa?auto=format&fit=crop&q=80&w=400",
+  "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=400",
+  "https://images.unsplash.com/photo-1598103442097-8b74072e56ab?auto=format&fit=crop&q=80&w=400",
+  "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&q=80&w=400",
+  "https://images.unsplash.com/photo-1623689046286-01d812cc7ac7?auto=format&fit=crop&q=80&w=400",
+  "https://images.unsplash.com/photo-1432139555190-58524dae6a55?auto=format&fit=crop&q=80&w=400",
+  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=400",
+  "https://images.unsplash.com/photo-1546964124-0cce460f38ef?auto=format&fit=crop&q=80&w=400",
 ];
 
 const FloatingImage: React.FC<{ src: string, style: React.CSSProperties }> = ({ src, style }) => {
@@ -64,9 +64,8 @@ const RecipeGenerator: React.FC = () => {
     }
   };
 
-  // Chaotic Flying styles
   const getFloatStyle = (index: number) => {
-    const randomDuration = 15 + Math.random() * 20; // 15-35s
+    const randomDuration = 15 + Math.random() * 20;
     const randomDelay = Math.random() * 10;
     const randomX = Math.random() * 90;
     const randomY = Math.random() * 80;
@@ -93,17 +92,14 @@ const RecipeGenerator: React.FC = () => {
             `).join('')}
         `}</style>
 
-      {/* Background Flying Images */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         {FLOATING_IMAGES.map((src, idx) => (
            <FloatingImage key={idx} src={src} style={getFloatStyle(idx)} />
         ))}
       </div>
 
-      {/* Main Content - Dynamically adjust padding based on state */}
       <div className={`relative z-10 max-w-4xl w-full px-6 flex flex-col h-[80vh] transition-all duration-500 ${isResultMode ? 'pt-24' : 'pt-32'}`}>
 
-        {/* Header - Hidden when result is shown */}
         {!isResultMode && (
             <Reveal className="text-center mb-8">
                <h2 className="text-4xl md:text-5xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
@@ -116,11 +112,9 @@ const RecipeGenerator: React.FC = () => {
             </Reveal>
         )}
 
-        {/* Chat/Result Container - Dark Glass + Glare */}
         <Reveal delay={200} className={`flex-1 flex flex-col overflow-hidden ${isResultMode ? 'h-full' : ''}`}>
             <div className={`flex-1 bg-black/60 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl relative transition-all duration-500 ${isResultMode ? 'h-full' : ''}`}>
 
-                {/* Output Area */}
                 <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
                     {!recipe && !loading && (
                         <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 gap-4">
@@ -144,12 +138,6 @@ const RecipeGenerator: React.FC = () => {
 
                     {recipe && (
                         <div className="prose prose-invert max-w-none animate-fade-in">
-                            {recipe.image && (
-                                <div className="mb-6 rounded-2xl overflow-hidden shadow-lg border border-white/10 relative group">
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
-                                    <img src={recipe.image} alt="Generated Dish" className="w-full h-64 md:h-80 object-cover transform group-hover:scale-105 transition-transform duration-700" />
-                                </div>
-                            )}
                             <div className="whitespace-pre-wrap leading-relaxed text-gray-200 text-sm md:text-base">
                                 {recipe.text}
                             </div>
@@ -157,7 +145,6 @@ const RecipeGenerator: React.FC = () => {
                     )}
                 </div>
 
-                {/* Input Area */}
                 <div className="p-4 bg-black/40 border-t border-white/10 flex-shrink-0">
                     <div className="relative flex items-center gap-2">
                         <input 

@@ -11,12 +11,30 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './'),
       },
     },
-    define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+    css: {
+      modules: {
+        localsConvention: 'camelCase'
+      },
+      preprocessorOptions: {
+        scss: {
+          additionalData: `@import "@/styles/grid.css";`
+        }
+      }
     },
     build: {
       outDir: 'dist',
       sourcemap: false,
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name?.endsWith('.css')) {
+              return 'assets/css/[name]-[hash][extname]';
+            }
+            return 'assets/[name]-[hash][extname]';
+          }
+        }
+      }
     }
   };
 });

@@ -179,6 +179,159 @@ const Modal: React.FC<{ isOpen: boolean; onClose: () => void; title: string; chi
   );
 };
 
+// Добавить этот CSS перед функцией App()
+const globalGridStyles = `
+  /* CSS Grid System */
+  .grid-system {
+    display: grid;
+    gap: var(--grid-gap, 1rem);
+    width: 100%;
+    height: 100%;
+  }
+
+  .grid-2-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-3-col {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .grid-4-col {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .grid-item {
+    width: 100%;
+    height: 100%;
+    min-height: 0; /* Важно для предотвращения переполнения */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .grid-item-media {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: var(--radius, 0.5rem);
+  }
+
+  .grid-item-content {
+    flex: 1;
+    padding: var(--spacing, 1rem);
+    overflow: hidden;
+  }
+
+  /* Responsive Grid */
+  @media (max-width: 768px) {
+    .grid-2-col,
+    .grid-3-col,
+    .grid-4-col {
+      grid-template-columns: 1fr;
+    }
+
+    .grid-system {
+      --grid-gap: 0.75rem;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .grid-3-col,
+    .grid-4-col {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Equal Height Grid Items */
+  .grid-equal-height {
+    align-items: stretch;
+  }
+
+  .grid-item-equal {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Masonry Grid */
+  .grid-masonry {
+    grid-auto-flow: dense;
+    grid-auto-rows: minmax(100px, auto);
+  }
+
+  /* Fixed Aspect Ratio */
+  .aspect-ratio-16-9 {
+    aspect-ratio: 16/9;
+  }
+
+  .aspect-ratio-1-1 {
+    aspect-ratio: 1/1;
+  }
+
+  .aspect-ratio-4-3 {
+    aspect-ratio: 4/3;
+  }
+
+  /* Prevent Overlap */
+  .no-overlap {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Scroll Containment */
+  .scroll-contained {
+    overflow: hidden;
+    contain: layout paint;
+  }
+
+  /* Image Responsive */
+  .responsive-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Text Scaling */
+  .text-responsive {
+    font-size: clamp(0.875rem, 2vw, 1rem);
+    line-height: 1.5;
+  }
+
+  .heading-responsive {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  /* Section Spacing */
+  .section-grid {
+    padding: clamp(1rem, 3vw, 2rem);
+  }
+
+  /* Card Grid */
+  .card-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  }
+
+  /* Uniform Card Sizes */
+  .uniform-card {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .uniform-card-image {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .uniform-card-content {
+    flex: 1;
+    padding: 1rem;
+  }
+`;
+
 function App() {
   const TELEGRAM_LINK = "https://t.me/thetaranov";
   const MODEL_URL = "/assets/models/mangal.obj";
