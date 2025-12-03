@@ -577,15 +577,16 @@ function App() {
       {/* FORCE VISIBILITY TO FIX BLACK SCREEN ISSUE - Removed dynamic opacity toggle */}
       <main className={`snap-container h-full w-full transition-opacity duration-1000 opacity-100`}>
 
-        <div id="hero" ref={setRef('hero')} className="snap-section min-h-[100svh] transition-opacity duration-[2500ms] ease-in-out">
+        <div id="hero" ref={setRef('hero')} className="snap-section h-[100svh] transition-opacity duration-[2500ms] ease-in-out">
             {shouldRenderSection('hero') && <Hero startAnimation={isIntroComplete} isActive={activeSection === 'hero'} />}
         </div>
 
-        <div id="features" ref={setRef('features')} className="snap-section min-h-[100svh] bg-black transition-opacity duration-[2500ms] ease-in-out">
+        {/* --- НАЧАЛО ИЗМЕНЕНИЙ БЛОКА 'features' --- */}
+        <div id="features" ref={setRef('features')} className="snap-section h-[100svh] bg-black transition-opacity duration-[2500ms] ease-in-out">
              {shouldRenderSection('features') && <FeaturesSection isActive={activeSection === 'features'} />}
         </div>
+        {/* --- КОНЕЦ ИЗМЕНЕНИЙ БЛОКА 'features' --- */}
 
-        {/* --- НАЧАЛО ИЗМЕНЕНИЙ --- */}
         <section id="autodraft" ref={setRef('autodraft')} className="snap-section h-[100svh] bg-white text-black relative transition-all duration-[2500ms] ease-in-out overflow-hidden flex items-center justify-center">
            {shouldRenderSection('autodraft') && (
             <>
@@ -612,9 +613,8 @@ function App() {
             </>
            )}
         </section>
-        {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
 
-        <section id="details" ref={setRef('details')} className="snap-section min-h-[100svh] bg-[#050505] text-white transition-all duration-[2500ms] ease-in-out flex flex-col justify-center overflow-hidden relative group">
+        <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white transition-all duration-[2500ms] ease-in-out flex flex-col justify-center overflow-hidden relative group">
           {shouldRenderSection('details') && (
             <>
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] bg-orange-900/10 blur-[120px] rounded-full pointer-events-none"></div>
@@ -638,7 +638,7 @@ function App() {
           )}
         </section>
 
-        <section id="personalize" ref={setRef('personalize')} className="snap-section min-h-[100svh] bg-[#050505] text-white relative transition-all duration-[2500ms] ease-in-out overflow-hidden flex items-center">
+        <section id="personalize" ref={setRef('personalize')} className="snap-section h-[100svh] bg-[#050505] text-white relative transition-all duration-[2500ms] ease-in-out overflow-hidden flex items-center">
            {shouldRenderSection('personalize') && (
             <>
                <div className="absolute inset-0 z-0">
@@ -671,7 +671,7 @@ function App() {
            )}
         </section>
 
-        <section id="military" ref={setRef('military')} className="snap-section min-h-[100svh] bg-[#1c1c1c] text-white relative transition-all duration-[2500ms] ease-in-out pt-28 pb-32 md:pb-0">
+        <section id="military" ref={setRef('military')} className="snap-section h-[100svh] bg-[#1c1c1c] text-white relative transition-all duration-[2500ms] ease-in-out pt-28 pb-32 md:pb-0">
            {shouldRenderSection('military') && (
             <>
                <div className="hidden md:block absolute inset-0 z-0 opacity-100">
@@ -707,7 +707,7 @@ function App() {
            )}
         </section>
 
-        <section id="models" ref={setRef('models')} className="snap-section min-h-[100svh] bg-gray-200 transition-all duration-[2500ms] ease-in-out relative pt-0 pb-0 overflow-hidden">
+        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 transition-all duration-[2500ms] ease-in-out relative pt-0 pb-0 overflow-hidden">
            {shouldRenderSection('models') && (
             <>
                {/* 3D SCENE BACKGROUND */}
@@ -755,19 +755,22 @@ function App() {
            )}
         </section>
 
-        <div id="ai-chef" ref={setRef('ai-chef')} className="snap-section min-h-[100svh] bg-[#050505] transition-all duration-[2500ms] ease-in-out pt-24 md:pt-0">
+        {/* --- НАЧАЛО ИЗМЕНЕНИЙ БЛОКА 'ai-chef' --- */}
+        <div id="ai-chef" ref={setRef('ai-chef')} className="snap-section h-[100svh] bg-[#050505] transition-all duration-[2500ms] ease-in-out pt-16 md:pt-0">
              {shouldRenderSection('ai-chef') && <Suspense fallback={<SectionLoader />}><RecipeGenerator /></Suspense>}
         </div>
+        {/* --- КОНЕЦ ИЗМЕНЕНИЙ БЛОКА 'ai-chef' --- */}
 
-        <footer className="snap-section min-h-[100svh] bg-black text-white flex flex-col justify-center items-center transition-opacity duration-[2500ms] ease-in-out pb-24 md:pb-0">
+        {/* --- НАЧАЛО ИЗМЕНЕНИЙ БЛОКА 'footer' --- */}
+        <footer className="snap-section h-[100svh] bg-black text-white flex flex-col justify-center items-center transition-opacity duration-[2500ms] ease-in-out pb-12 md:pb-0">
           <Reveal className="w-full max-w-4xl mx-auto px-6 text-center">
              <div className="mb-6">
-                <div className="text-4xl md:text-5xl font-bold tracking-tighter mb-2">bbqp</div>
-                <p className="text-sm text-gray-500 font-medium mb-8">Инновации в искусстве приготовления.</p>
+                <div className="text-3xl md:text-5xl font-bold tracking-tighter mb-2">bbqp</div>
+                <p className="text-sm text-gray-500 font-medium mb-6">Инновации в искусстве приготовления.</p>
 
                 {/* Контактная информация */}
-                <div className="mb-8 text-left text-sm text-gray-400">
-                  <div className="mb-6">
+                <div className="mb-6 text-left text-sm text-gray-400">
+                  <div className="mb-4">
                     <h3 className="font-bold text-white mb-2">Официальный дистрибьютор в РФ (продажи и гарантия)</h3>
                     <p className="mb-1">ООО «АТТА»</p>
                     <p className="mb-1">445043, г. Тольятти, ул. Коммунальная, д. 37А</p>
@@ -784,12 +787,12 @@ function App() {
                 </div>
              </div>
 
-             <button onClick={handleStartOver} className="group inline-flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-8 py-4 rounded-full transition-all hover:scale-105 mb-12 backdrop-blur-sm">
+             <button onClick={handleStartOver} className="group inline-flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-8 py-4 rounded-full transition-all hover:scale-105 mb-8 backdrop-blur-sm">
                <RotateCcw size={18} className="group-hover:-rotate-180 transition-transform duration-500" />
                <span className="font-bold text-sm">Начать сначала</span>
              </button>
 
-             <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-600">
+             <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-600">
                <p>© 2025 bbqp. Все права защищены.</p>
                <div className="flex gap-6">
                  <button onClick={() => setIsPrivacyOpen(true)} className="hover:text-white transition-colors">Конфиденциальность</button>
@@ -801,7 +804,7 @@ function App() {
              </div>
           </Reveal>
         </footer>
-
+        {/* --- КОНЕЦ ИЗМЕНЕНИЙ БЛОКА 'footer' --- */}
       </main>
 
       {/* Модальные окна */}

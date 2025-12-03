@@ -11,20 +11,22 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ isActive = false }) =
   return (
     <section className="relative w-full h-full min-h-[100dvh] bg-black text-white overflow-hidden flex items-center">
       <div className="relative z-10 container mx-auto px-6 h-full flex flex-col md:flex-row items-center justify-center py-8 md:py-0">
-        <div className="md:hidden w-full text-center mb-6 order-1 mt-12">
-            <Reveal><h2 className="text-4xl font-bold tracking-tight text-white drop-shadow-lg leading-tight">Перегородка,<br />которая меняет всё</h2></Reveal>
+        {/* --- НАЧАЛО ИЗМЕНЕНИЙ --- */}
+        <div className="md:hidden w-full text-center mb-4 order-1 mt-8">
+            <Reveal><h2 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg leading-tight">Перегородка,<br />которая меняет всё</h2></Reveal>
         </div>
-        <div className="w-full md:w-1/2 flex items-center justify-center relative order-2 md:order-1 mb-6 md:mb-0 h-[35vh] md:h-full">
+        <div className="w-full md:w-1/2 flex items-center justify-center relative order-2 md:order-1 mb-4 md:mb-0 h-[30vh] md:h-full">
              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-orange-500/10 blur-[100px] rounded-full pointer-events-none"></div>
              <img src="/assets/images/partition-mechanism.png" alt="Grill Partition Mechanism" className="w-full h-full md:h-[75vh] object-contain drop-shadow-2xl relative z-10" loading="lazy" />
         </div>
         <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start text-center md:text-left pl-0 md:pl-16 order-3 md:order-2 pt-0 md:pt-24 md:scale-90 md:origin-left">
             <Reveal>
                 <h2 className="hidden md:block text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight text-white drop-shadow-lg leading-tight">Перегородка,<br />которая меняет всё</h2>
-                <div className="text-gray-300 text-lg leading-relaxed max-w-lg mb-10 font-medium drop-shadow-md">
+                <div className="text-gray-300 text-base leading-relaxed max-w-lg mb-10 font-medium drop-shadow-md">
                   <p>Больше не нужно раздувать угли и тушить вспышки огня водой. Загрузите дрова в режиме «Печь», следите за термометром и одним движением переключите перегородку в режим «Мангал».</p>
                 </div>
             </Reveal>
+            {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
             <Reveal delay={200} className="hidden md:grid gap-4 w-full max-w-sm md:max-w-full">
                 <div className="group flex items-center gap-5 p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all backdrop-blur-sm text-left">
                     <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(234,88,12,0.3)] flex-shrink-0"><Flame size={24} /></div>

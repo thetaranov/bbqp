@@ -99,20 +99,21 @@ const RecipeGenerator: React.FC = () => {
         ))}
       </div>
 
-      <div className={`relative z-10 max-w-4xl w-full px-6 flex flex-col h-[80vh] transition-all duration-500 ${isResultMode ? 'pt-24' : 'pt-32'}`}>
+      {/* --- НАЧАЛО ИЗМЕНЕНИЙ --- */}
+      <div className={`relative z-10 max-w-4xl w-full px-6 flex flex-col h-[85vh] transition-all duration-500 ${isResultMode ? 'pt-24' : 'pt-32'}`}>
 
         {!isResultMode && (
             <Reveal className="text-center mb-8">
-               <h2 className="text-4xl md:text-5xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
+               <h2 className="text-3xl md:text-5xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
                  bbqp<sup className="text-2xl md:text-3xl text-orange-500 font-bold align-top top-[-1em] ml-1 drop-shadow-[0_0_10px_rgba(234,88,12,0.8)]">AI Chef</sup>
                </h2>
-               <p className="text-gray-400 text-lg max-w-xl mx-auto">
+               <p className="text-gray-400 text-base max-w-xl mx-auto">
                  Генерируйте уникальные рецепты стейков и гриля. <br/>
                  Ваш персональный су-шеф.
                </p>
             </Reveal>
         )}
-
+      {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
         <Reveal delay={200} className={`flex-1 flex flex-col overflow-hidden ${isResultMode ? 'h-full' : ''}`}>
             <div className={`flex-1 bg-black/60 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl relative transition-all duration-500 ${isResultMode ? 'h-full' : ''}`}>
 
