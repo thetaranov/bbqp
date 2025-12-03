@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NAV_LINKS } from '../constants';
-import { Menu, X, MessageSquare } from 'lucide-react';
+import { Menu, X, MessageSquare, Settings } from 'lucide-react';
 
 interface NavigationProps {
   activeSection: string;
@@ -16,29 +16,30 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
   const navRef = useRef<HTMLElement>(null);
 
   // Always Dark Theme / Hero Style
-  const bgClass = 'bg-black/60 border-white/10';
-  const blurClass = 'backdrop-blur-md';
+  const bgClass = 'bg-black/90 backdrop-blur-md border-b border-white/10';
   const logoColorClass = 'text-white';
-  const inactiveColorClass = 'text-gray-300 hover:text-white';
-  const mobileMenuBg = 'bg-black/80';
-  const mobileMenuText = 'text-white';
+  const inactiveColorClass = 'text-gray-400 hover:text-white';
+  const mobileMenuBg = 'bg-black/95 backdrop-blur-xl';
 
-  // Update the sliding indicator based on activeSection
   useEffect(() => {
     const activeIndex = NAV_LINKS.findIndex(link => link.href.substring(1) === activeSection);
 
     if (activeIndex !== -1 && itemsRef.current[activeIndex]) {
       const element = itemsRef.current[activeIndex];
       if (element) {
-        setIndicatorStyle({
-          left: element.offsetLeft,
-          width: element.offsetWidth,
-          opacity: 1
-        });
+        const parent = element.parentElement;
+        if (parent) {
+          const parentRect = parent.getBoundingClientRect();
+          const elementRect = element.getBoundingClientRect();
+          setIndicatorStyle({
+            left: elementRect.left - parentRect.left,
+            width: elementRect.width,
+            opacity: 1
+          });
+        }
       }
     } else {
-        // Hide indicator if we are in Hero or non-menu section
-        setIndicatorStyle(prev => ({ ...prev, opacity: 0 }));
+      setIndicatorStyle(prev => ({ ...prev, opacity: 0 }));
     }
   }, [activeSection]);
 
@@ -48,7 +49,14 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
     const element = document.getElementById(targetId);
 
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      const offset = 80; // Отступ для навигации
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
     }
 
     setIsMobileMenuOpen(false);
@@ -57,113 +65,115 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
   return (
     <nav
       ref={navRef}
-      className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-1000 py-4 shadow-sm ${bgClass} ${blurClass} ${isIntroComplete ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
+      className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-500 py-3 ${bgClass} ${isIntroComplete ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
     >
-      <div className="max-w-[95rem] mx-auto px-6 lg:px-8 flex justify-between items-center min-h-[40px]">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-14">
 
-        {/* DESKTOP LOGO */}
-        <a 
-          href="#" 
-          onClick={(e) => handleScrollTo(e, "#hero")} 
-          className={`hidden lg:block text-2xl md:text-3xl font-bold tracking-tighter z-10 relative hover:opacity-80 transition-opacity duration-1000 ${logoColorClass} ${isIntroComplete ? 'opacity-100 delay-300' : 'opacity-0'}`}
-        >
-          bbqp
-        </a>
-
-        {/* MOBILE LOGO (Left Aligned) */}
-        <a 
+          {/* Logo */}
+          <a 
             href="#" 
-            onClick={(e) => handleScrollTo(e, "#hero")}
-            className={`lg:hidden text-2xl font-bold tracking-tighter ${logoColorClass}`}
-        >
-            bbqp
-        </a>
-
-        {/* Desktop Menu - Liquid Drop Style */}
-        <div className="hidden lg:flex items-center relative rounded-full p-1 border transition-colors duration-500 bg-white/5 border-white/5 bg-gradient-to-b from-white/5 to-transparent">
-
-          {/* The "Liquid Drop" Indicator */}
-          <div 
-            className="absolute h-[calc(100%-8px)] top-1 bg-orange-600 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.5)]"
-            style={{ 
-              left: indicatorStyle.left, 
-              width: indicatorStyle.width,
-              opacity: indicatorStyle.opacity,
-              transitionProperty: 'left, width, opacity',
-              transitionDuration: '350ms',
-              transitionTimingFunction: 'cubic-bezier(0.2, 0, 0.2, 1.4)' 
-            }}
-          />
-
-          {NAV_LINKS.map((link, index) => (
-            <a
-              key={link.name}
-              href={link.href}
-              ref={(el) => { itemsRef.current[index] = el; }}
-              onClick={(e) => handleScrollTo(e, link.href)}
-              className={`relative z-10 px-5 py-2 text-sm font-medium transition-all duration-500 ${
-                activeSection === link.href.substring(1) 
-                  ? 'text-white drop-shadow-md' 
-                  : inactiveColorClass
-              }`}
-            >
-              {link.name}
-            </a>
-          ))}
-        </div>
-
-        {/* CTA Button (Desktop Only) */}
-        <div className="hidden lg:block">
-           <a 
-            href="https://t.me/thetaranov"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative overflow-hidden px-6 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95 bg-white text-black hover:bg-gray-200 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+            onClick={(e) => handleScrollTo(e, "#hero")} 
+            className={`text-2xl font-bold tracking-tighter ${logoColorClass} hover:opacity-80 transition-opacity`}
           >
-            <span className="relative z-10">Собрать свой</span>
+            bbqp
           </a>
-        </div>
 
-        {/* Mobile Buttons (Support + Menu) */}
-        <div className="lg:hidden absolute right-6 flex items-center gap-4">
-           {/* Support Button (Mobile Only) */}
-           <button
-              className={`p-1 transition-colors ${logoColorClass} hover:text-orange-500`}
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-1 relative">
+            <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-white/5 border border-white/10">
+              {/* Sliding Indicator */}
+              <div 
+                className="absolute h-10 bg-white/10 rounded-full transition-all duration-300"
+                style={{ 
+                  left: indicatorStyle.left, 
+                  width: indicatorStyle.width,
+                  opacity: indicatorStyle.opacity,
+                }}
+              />
+
+              {NAV_LINKS.map((link, index) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  ref={(el) => { itemsRef.current[index] = el; }}
+                  onClick={(e) => handleScrollTo(e, link.href)}
+                  className={`relative z-10 px-5 py-2 text-sm font-medium rounded-full transition-colors ${
+                    activeSection === link.href.substring(1) 
+                      ? 'text-white' 
+                      : inactiveColorClass
+                  }`}
+                >
+                  {link.name}
+                </a>
+              ))}
+            </div>
+
+            <div className="ml-4 flex items-center space-x-2">
+              <a 
+                href="https://t.me/thetaranov"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-orange-600 text-white text-sm font-semibold rounded-full hover:bg-orange-700 transition-colors"
+              >
+                Собрать свой
+              </a>
+            </div>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden flex items-center space-x-3">
+            <button
+              className={`p-2 ${logoColorClass} hover:text-orange-500 transition-colors`}
               onClick={onChatToggle}
               aria-label="Support"
-           >
-             <MessageSquare size={26} strokeWidth={2} />
-           </button>
+            >
+              <MessageSquare size={22} />
+            </button>
 
-           {/* Menu Toggle */}
-          <button
-            className={`p-1 transition-colors ${logoColorClass}`}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Menu"
-          >
-            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
+            <button
+              className={`p-2 ${logoColorClass}`}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Menu"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className={`lg:hidden absolute top-full left-0 w-full border-t p-6 flex flex-col gap-4 shadow-2xl animate-fade-in h-screen z-40 ${mobileMenuBg} bg-gradient-to-b from-white/5 to-transparent backdrop-blur-2xl border-white/10`}>
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              onClick={(e) => handleScrollTo(e, link.href)}
-              className={`text-2xl font-bold py-5 border-b last:border-0 flex items-center justify-between ${
-                 activeSection === link.href.substring(1) 
-                 ? 'text-orange-500' 
-                 : `${mobileMenuText} border-gray-500/20`
-              }`}
-            >
-              {link.name}
-              {activeSection === link.href.substring(1) && <div className="w-3 h-3 bg-orange-500 rounded-full shadow-[0_0_10px_orange]"></div>}
-            </a>
-          ))}
+        <div className={`lg:hidden fixed inset-0 top-14 ${mobileMenuBg} animate-fadeIn`}>
+          <div className="container mx-auto px-4 py-6">
+            <div className="space-y-1">
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={(e) => handleScrollTo(e, link.href)}
+                  className={`block py-3 px-4 rounded-lg text-lg font-medium transition-colors ${
+                    activeSection === link.href.substring(1) 
+                    ? 'bg-white/10 text-white' 
+                    : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  {link.name}
+                </a>
+              ))}
+
+              <div className="pt-4 mt-4 border-t border-white/10">
+                <a 
+                  href="https://t.me/thetaranov"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full py-3 bg-orange-600 text-white text-center font-semibold rounded-lg hover:bg-orange-700 transition-colors"
+                >
+                  Собрать свой bbqp
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </nav>
