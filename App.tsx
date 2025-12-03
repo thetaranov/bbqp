@@ -6,7 +6,7 @@ import ParallaxImage from './components/ParallaxImage';
 import Reveal from './components/Reveal';
 import ParticlesOverlay from './components/ParticlesOverlay';
 import { DETAILS_ITEMS } from './constants';
-import { Check, ArrowRight, Upload, ChevronLeft, Loader2, Settings2, X, MoveRight, Box, ScanLine, RotateCcw } from 'lucide-react';
+import { Check, ArrowRight, Upload, ChevronLeft, Loader2, Settings2, X, MoveRight, Box, ScanLine, RotateCcw, FileText } from 'lucide-react';
 
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
@@ -72,7 +72,6 @@ const FloatingFormula: React.FC<{ item: any, pool: string[] }> = ({ item, pool }
           top: `${item.top}%`, 
           fontSize: `${1.0 + (item.scale * 0.4)}rem`, 
           filter: `blur(${item.blur}px)`,
-          // Pass CSS variables for the animation to use
           '--scale': item.scale,
           '--max-opacity': item.opacity,
           animation: `comet-move ${item.duration}s linear infinite`, 
@@ -155,6 +154,31 @@ const OptimizedMarqueeRow = ({ reverse = false, items, speed = 1, itemClassName 
     );
 };
 
+const Modal: React.FC<{ isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode }> = ({ isOpen, onClose, title, children }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+      <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
+        <div className="p-6 border-b border-white/10 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-white">{title}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+            <X size={24} className="text-gray-400" />
+          </button>
+        </div>
+        <div className="p-6 overflow-y-auto flex-1">
+          {children}
+        </div>
+        <div className="p-6 border-t border-white/10">
+          <button onClick={onClose} className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition-colors">
+            Закрыть
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function App() {
   const TELEGRAM_LINK = "https://t.me/thetaranov";
   const MODEL_URL = "/assets/models/mangal.obj";
@@ -176,6 +200,8 @@ function App() {
   const [is3DActive, setIs3DActive] = useState(false);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [introStep, setIntroStep] = useState(0); 
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const personalizationVideoRef = useRef<HTMLVideoElement>(null);
@@ -580,13 +606,114 @@ function App() {
 
         <footer className="snap-section min-h-[100svh] bg-black text-white flex flex-col justify-center items-center transition-opacity duration-[2500ms] ease-in-out pb-24 md:pb-0">
           <Reveal className="w-full max-w-4xl mx-auto px-6 text-center">
-             <div className="mb-6"><div className="text-4xl md:text-5xl font-bold tracking-tighter mb-2">bbqp</div><p className="text-sm text-gray-500 font-medium">Инновации в искусстве приготовления.</p></div>
-             <button onClick={handleStartOver} className="group inline-flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-8 py-4 rounded-full transition-all hover:scale-105 mb-12 backdrop-blur-sm"><RotateCcw size={18} className="group-hover:-rotate-180 transition-transform duration-500" /><span className="font-bold text-sm">Начать сначала</span></button>
-             <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-600"><p>© 2025 bbqp. Все права защищены.</p><div className="flex gap-6"><a href="#" className="hover:text-white transition-colors">Конфиденциальность</a><a href="#" className="hover:text-white transition-colors">Условия</a></div></div>
+             <div className="mb-6">
+                <div className="text-4xl md:text-5xl font-bold tracking-tighter mb-2">bbqp</div>
+                <p className="text-sm text-gray-500 font-medium mb-8">Инновации в искусстве приготовления.</p>
+
+                {/* Контактная информация */}
+                <div className="mb-8 text-left text-sm text-gray-400">
+                  <div className="mb-6">
+                    <h3 className="font-bold text-white mb-2">Официальный дистрибьютор в РФ (продажи и гарантия)</h3>
+                    <p className="mb-1">ООО «АТТА»</p>
+                    <p className="mb-1">445043, г. Тольятти, ул. Коммунальная, д. 37А</p>
+                    <p>Электронная почта: <a href="mailto:st@atta-k.ru" className="text-orange-500 hover:text-orange-400">st@atta-k.ru</a></p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold text-white mb-2">Уполномоченный представитель в РФ (жалобы и предложения)</h3>
+                    <p className="mb-1">Юридический отдел ТСЦ АО «САМТЕК»</p>
+                    <p className="mb-1">445027, г. Тольятти, а/я 3147</p>
+                    <p className="mb-1">Электронная почта: <a href="mailto:info@sam-tech.ru" className="text-orange-500 hover:text-orange-400">info@sam-tech.ru</a></p>
+                    <p>Бесплатная линия для регионов РФ: <span className="font-bold">8 800 7000 994</span></p>
+                  </div>
+                </div>
+             </div>
+
+             <button onClick={handleStartOver} className="group inline-flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-8 py-4 rounded-full transition-all hover:scale-105 mb-12 backdrop-blur-sm">
+               <RotateCcw size={18} className="group-hover:-rotate-180 transition-transform duration-500" />
+               <span className="font-bold text-sm">Начать сначала</span>
+             </button>
+
+             <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-600">
+               <p>© 2025 bbqp. Все права защищены.</p>
+               <div className="flex gap-6">
+                 <button onClick={() => setIsPrivacyOpen(true)} className="hover:text-white transition-colors">Конфиденциальность</button>
+                 <button onClick={() => setIsTermsOpen(true)} className="hover:text-white transition-colors">Условия</button>
+                 <a href="/assets/docs/MANUAL.pdf" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1">
+                   <FileText size={12} /> Руководство
+                 </a>
+               </div>
+             </div>
           </Reveal>
         </footer>
 
       </main>
+
+      {/* Модальные окна */}
+      <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Политика конфиденциальности">
+        <div className="prose prose-invert max-w-none">
+          <h3>1. Общие положения</h3>
+          <p>Настоящая политика обработки персональных данных составлена в соответствии с требованиями Федерального закона от 27.07.2006. №152-ФЗ «О персональных данных» и определяет порядок обработки персональных данных и меры по обеспечению безопасности персональных данных, предпринимаемые ООО «АТТА» (далее – Оператор).</p>
+
+          <h3>2. Основные понятия</h3>
+          <p><strong>Персональные данные</strong> – любая информация, относящаяся к прямо или косвенно определенному или определяемому физическому лицу (субъекту персональных данных).</p>
+          <p><strong>Обработка персональных данных</strong> – любое действие (операция) или совокупность действий (операций), совершаемых с использованием средств автоматизации или без использования таких средств с персональными данными, включая сбор, запись, систематизацию, накопление, хранение, уточнение (обновление, изменение), извлечение, использование, передачу (распространение, предоставление, доступ), обезличивание, блокирование, удаление, уничтожение персональных данных.</p>
+
+          <h3>3. Цели обработки персональных данных</h3>
+          <ul>
+            <li>Заключение, исполнение и прекращение гражданско-правовых договоров</li>
+            <li>Предоставление доступа к сервисам и функциям сайта</li>
+            <li>Обратная связь с пользователем</li>
+            <li>Информирование о новых продуктах и акциях</li>
+            <li>Обработка запросов и заявок от пользователя</li>
+          </ul>
+
+          <h3>4. Правовые основания обработки персональных данных</h3>
+          <p>Оператор обрабатывает персональные данные Пользователя только в случае их заполнения и/или отправки Пользователем самостоятельно через специальные формы, расположенные на сайте. Заполняя соответствующие формы и/или отправляя свои персональные данные Оператору, Пользователь выражает свое согласие с данной Политикой.</p>
+
+          <h3>5. Порядок сбора, хранения, передачи и других видов обработки персональных данных</h3>
+          <p>Безопасность персональных данных, которые обрабатываются Оператором, обеспечивается путем реализации правовых, организационных и технических мер, необходимых для выполнения в полном объеме требований действующего законодательства в области защиты персональных данных.</p>
+
+          <h3>6. Заключительные положения</h3>
+          <p>Пользователь может получить любые разъяснения по интересующим вопросам, касающимся обработки его персональных данных, обратившись к Оператору с помощью электронной почты <a href="mailto:info@sam-tech.ru" className="text-orange-500">info@sam-tech.ru</a>.</p>
+          <p>В данном документе будут отражены любые изменения политики обработки персональных данных Оператором.</p>
+        </div>
+      </Modal>
+
+      <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Условия использования">
+        <div className="prose prose-invert max-w-none">
+          <h3>1. Общие положения</h3>
+          <p>Настоящие Условия использования (далее — «Условия») регулируют использование веб-сайта bbqp (далее — «Сайт»). Используя Сайт, вы соглашаетесь с настоящими Условиями.</p>
+
+          <h3>2. Интеллектуальная собственность</h3>
+          <p>Все материалы, размещенные на Сайте, включая, но не ограничиваясь: тексты, графические изображения, логотипы, аудио- и видеоматериалы, программы для ЭВМ, базы данных, являются объектами интеллектуальной собственности ООО «АТТА» и защищены законодательством Российской Федерации об интеллектуальной собственности.</p>
+
+          <h3>3. Использование Сайта</h3>
+          <p>Вы обязуетесь использовать Сайт только в законных целях и способами, которые не нарушают права третьих лиц и не ограничивают или не препятствуют использованию Сайта другими пользователями.</p>
+
+          <h3>4. Информация о продуктах</h3>
+          <p>Информация о продуктах, представленная на Сайте, включая описания, характеристики и цены, носит справочный характер и может быть изменена без предварительного уведомления. Изображения продуктов могут отличаться от реального вида.</p>
+
+          <h3>5. Конфигуратор и заказ</h3>
+          <p>Используя конфигуратор на Сайте, вы можете собрать желаемую конфигурацию продукта. После завершения конфигурации вы будете перенаправлены в Telegram для оформления заказа. Окончательная цена и условия поставки согласовываются индивидуально с менеджером.</p>
+
+          <h3>6. Ограничение ответственности</h3>
+          <p>Сайт предоставляется «как есть». Мы не гарантируем, что Сайт будет работать непрерывно, без ошибок или дефектов. Мы не несем ответственности за любые прямые или косвенные убытки, возникшие в результате использования или невозможности использования Сайта.</p>
+
+          <h3>7. Внешние ссылки</h3>
+          <p>Сайт может содержать ссылки на сторонние веб-сайты. Мы не контролируем и не несем ответственности за содержание, политику конфиденциальности или практику любых сторонних сайтов.</p>
+
+          <h3>8. Изменения условий</h3>
+          <p>Мы оставляем за собой право вносить изменения в настоящие Условия в любое время. Продолжение использования Сайта после внесения изменений означает ваше согласие с новыми Условиями.</p>
+
+          <h3>9. Контактная информация</h3>
+          <p>По всем вопросам, связанным с настоящими Условиями, обращайтесь по адресу: <a href="mailto:info@sam-tech.ru" className="text-orange-500">info@sam-tech.ru</a> или по телефону: 8 800 7000 994 (бесплатно по РФ).</p>
+
+          <h3>10. Применимое право</h3>
+          <p>Настоящие Условия регулируются законодательством Российской Федерации. Все споры подлежат разрешению в судебных органах по месту нахождения ООО «АТТА».</p>
+        </div>
+      </Modal>
+
       <Suspense fallback={null}><ChefBot visible={isIntroComplete} externalIsOpen={isChatOpen} onToggle={setIsChatOpen} /></Suspense>
     </div>
   );
