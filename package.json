@@ -7,9 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "update-api": "curl -X GET https://api.deepseek.com/v1/models -H 'Authorization: Bearer '"
+    "update-api": "curl -X GET https://api.deepseek.com/v1/models -H \"Authorization: Bearer \""
   },
- sk-98ee17483a684f34b34edf235bca478b "dependencies": {
+sk-98ee17483a684f34b34edf235bca478b  "dependencies": {
     "@react-three/drei": "^9.99.0",
     "@react-three/fiber": "^8.15.16",
     "@types/three": "^0.160.0",
