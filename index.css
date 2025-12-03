@@ -3,26 +3,6 @@
 @tailwind utilities;
 
 /* Ваши кастомные стили */
-:root {
-  --container-padding: 1rem;
-  --section-padding-y: 4rem;
-  --section-padding-y-mobile: 3rem;
-}
-
-@media (min-width: 768px) {
-  :root {
-    --container-padding: 2rem;
-    --section-padding-y: 6rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  :root {
-    --container-padding: 3rem;
-    --section-padding-y: 8rem;
-  }
-}
-
 html, body, #root {
   height: 100%;
   margin: 0;
@@ -30,30 +10,15 @@ html, body, #root {
   overflow: hidden;
   background-color: #000000;
   color: #ffffff;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-body { 
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  line-height: 1.6;
-}
-
-/* Единые контейнеры */
-.container {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 var(--container-padding);
-}
+body { font-family: 'Inter', sans-serif; }
 
 .snap-container { 
   height: 100vh; 
   overflow-y: scroll; 
   scroll-snap-type: y mandatory; 
   scroll-behavior: smooth; 
-  -webkit-overflow-scrolling: touch;
 }
 
 .snap-section { 
@@ -64,106 +29,184 @@ body {
   display: flex; 
   flex-direction: column; 
   justify-content: center; 
-  padding: var(--section-padding-y-mobile) 0;
   overflow: hidden; 
 }
 
-@media (min-width: 768px) {
-  .snap-section {
-    padding: var(--section-padding-y) 0;
+::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ===== Единая система отступов и центрирования ===== */
+.section-content {
+  width: 100%;
+  max-width: min(1400px, 90vw);
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 5vw, 3rem);
+}
+
+.section-padding-y {
+  padding-top: clamp(2rem, 8vw, 6rem);
+  padding-bottom: clamp(2rem, 8vw, 6rem);
+}
+
+.section-padding-x {
+  padding-left: clamp(1rem, 5vw, 3rem);
+  padding-right: clamp(1rem, 5vw, 3rem);
+}
+
+/* ===== Единая система сеток ===== */
+.unified-grid {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  width: 100%;
+}
+
+.grid-cols-auto {
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+}
+
+.grid-cols-2-auto {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 768px) {
+  .grid-cols-2-auto {
+    grid-template-columns: 1fr;
   }
 }
 
-/* Убираем скроллбар */
-::-webkit-scrollbar { 
-  display: none; 
-  width: 0;
-}
-
-* { 
-  -ms-overflow-style: none; 
-  scrollbar-width: none; 
-}
-
-/* Типографика */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
-
-.text-balance {
-  text-wrap: balance;
-}
-
-/* Тени для текста */
-.text-shadow-sm {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.text-shadow-md {
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.text-shadow-lg {
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.7), 0 8px 16px rgba(0, 0, 0, 0.5);
-}
-
-/* Плавные переходы */
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
-}
-
-/* Улучшенные карточки */
-.card {
+/* ===== Единые карточки ===== */
+.unified-card {
+  display: flex;
+  flex-direction: column;
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  height: 100%;
 }
 
-.card:hover {
+.unified-card:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px);
 }
 
-/* Кнопки */
-.btn {
+/* ===== Единые заголовки ===== */
+.unified-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.unified-subtitle {
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 1rem;
+}
+
+.unified-text {
+  font-size: clamp(1rem, 2vw, 1.125rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== Единые кнопки ===== */
+.unified-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.875rem 1.75rem;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  font-size: 1rem;
   font-weight: 600;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
   border-radius: 0.75rem;
-  transition: all 0.2s;
-  border: 1px solid transparent;
+  border: none;
   cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
 }
 
-.btn-primary {
+.unified-button-primary {
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   color: white;
   box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
 }
 
-.btn-primary:hover {
-  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+.unified-button-primary:hover {
+  transform: translateY(-2px);
   box-shadow: 0 6px 25px rgba(249, 115, 22, 0.4);
-  transform: translateY(-1px);
 }
 
-/* Анимации */
-@keyframes fadeIn {
+.unified-button-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.unified-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== Центрирование контента ===== */
+.content-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.content-start {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* ===== Единые отступы между элементами ===== */
+.space-y-unified > * + * {
+  margin-top: clamp(1.5rem, 3vw, 3rem);
+}
+
+.space-y-medium > * + * {
+  margin-top: clamp(1rem, 2vw, 2rem);
+}
+
+.space-y-small > * + * {
+  margin-top: clamp(0.75rem, 1.5vw, 1.5rem);
+}
+
+/* ===== Единые отступы внутри секций ===== */
+.section-inner {
+  width: 100%;
+  max-width: min(1200px, 90vw);
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem);
+}
+
+/* ===== Единая высота для медиа элементов ===== */
+.unified-media {
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: contain;
+  border-radius: 1rem;
+}
+
+/* ===== Анимации ===== */
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -171,127 +214,42 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.6s ease-out forwards;
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out forwards;
 }
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+/* ===== Отзывчивые изображения ===== */
+.responsive-img {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: cover;
 }
 
-.animate-slideInLeft {
-  animation: slideInLeft 0.6s ease-out forwards;
+/* ===== Единые контейнеры для секций ===== */
+.section-container {
+  width: 100%;
+  max-width: min(1400px, 95vw);
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 3rem);
 }
 
-/* Улучшенный скроллбар для элементов с прокруткой */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* Оптимизация изображений */
-.img-optimized {
-  content-visibility: auto;
-  will-change: transform;
-}
-
-/* Градиенты */
-.gradient-bg {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 100%);
-}
-
-/* Отступы для сеток */
-.grid-gap-responsive {
-  gap: clamp(1rem, 2vw, 2rem);
-}
-
-/* Адаптивная типографика */
-.text-responsive {
-  font-size: clamp(1rem, 2vw, 1.125rem);
-}
-
-.heading-responsive {
-  font-size: clamp(2rem, 5vw, 3.5rem);
-}
-
-/* Медиа запросы для улучшения на мобильных */
-@media (max-width: 640px) {
-  .container {
-    padding: 0 1rem;
+/* ===== Медиа запросы для мобильных устройств ===== */
+@media (max-width: 768px) {
+  .section-content {
+    padding: 0 1.25rem;
   }
 
-  .snap-section {
-    padding: 2rem 0;
+  .unified-card {
+    padding: 1.5rem;
   }
 
-  .mobile-stack {
-    flex-direction: column;
+  .section-inner {
+    padding: 1.5rem 1rem;
   }
 
-  .mobile-text-center {
-    text-align: center;
+  .grid-cols-2-auto {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
-
-  .mobile-full-width {
-    width: 100%;
-  }
-}
-
-/* Улучшенный выбор текста */
-::selection {
-  background-color: rgba(249, 115, 22, 0.3);
-  color: white;
-}
-
-/* Фокус состояния для доступности */
-:focus-visible {
-  outline: 2px solid #f97316;
-  outline-offset: 2px;
-}
-
-/* Убираем свечение инпутов в iOS */
-input,
-textarea,
-button {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-/* Сброс стилей для кнопок */
-button {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-/* Улучшенное позиционирование */
-.absolute-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }

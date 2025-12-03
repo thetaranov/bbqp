@@ -437,131 +437,55 @@ function App() {
              )}
         </div>
 
-         <section id="autodraft" ref={setRef('autodraft')} className="snap-section min-h-[100svh] bg-white text-black relative transition-all duration-[2500ms] ease-in-out overflow-hidden">
+        {/* Autodraft Section */}
+        <section id="autodraft" ref={setRef('autodraft')} className="snap-section min-h-[100svh] bg-white text-black relative transition-all duration-[2500ms] ease-in-out overflow-hidden">
            {shouldRenderSection('autodraft') && (
-             <div className="container mx-auto px-4 md:px-8 h-full flex flex-col md:flex-row items-center justify-center">
-               {/* Левая колонка - изображение */}
-               <div className="w-full md:w-1/2 flex items-center justify-center relative order-2 md:order-1 mb-12 md:mb-0">
-                 <div className="relative w-full max-w-[500px] h-[400px] md:h-[500px] flex items-center justify-center">
-                   <div className="absolute inset-0 bg-gradient-to-r from-orange-100 to-orange-50 rounded-3xl"></div>
-                   <img 
-                     src="/assets/images/model-preview.png" 
-                     alt="Grill AutoDraft System" 
-                     className="relative z-10 w-full h-full object-contain p-8"
-                     loading="lazy"
-                   />
-                 </div>
+            <>
+               <div className="hidden md:flex absolute inset-0 w-full h-full z-0 justify-center items-center">
+                  <img src="/assets/images/model-preview.png" alt="Grill AutoDraft System" className="unified-media" />
                </div>
+               <div className="md:hidden absolute top-1/2 left-0 w-full h-[40vh] z-[1] flex items-center justify-center pointer-events-none -translate-y-1/2">
+                   <img src="/assets/images/model-preview.png" alt="Grill AutoDraft System Mobile" className="h-full object-contain mix-blend-multiply" />
+               </div>
+               <div className="absolute inset-0 z-[5] overflow-hidden pointer-events-none">
+                 {formulaData.map((item, i) => <FloatingFormula key={i} item={item} pool={PHYSICS_FORMULAS} />)}
+               </div>
+               <div className="section-inner content-center space-y-unified">
+                  <Reveal>
+                      <h2 className="unified-title text-center">Просто закиньте угли, физика сделает все за вас</h2>
+                      <div className="unified-text text-center max-w-2xl mx-auto">
+                         <p>Система автоподдува создаёт идеальную тягу. Угли разгораются быстрее. Никаких усилий — только результат.</p>
+                      </div>
+                  </Reveal>
+               </div>
+            </>
+           )}
+        </section>
 
-               {/* Правая колонка - текст */}
-               <div className="w-full md:w-1/2 flex flex-col justify-center items-start text-left order-1 md:order-2 pl-0 md:pl-12">
+        {/* Details Section */}
+        <section id="details" ref={setRef('details')} className="snap-section min-h-[100svh] bg-[#050505] text-white transition-all duration-[2500ms] ease-in-out flex flex-col justify-center overflow-hidden relative group">
+          {shouldRenderSection('details') && (
+            <>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] bg-orange-900/10 blur-[120px] rounded-full pointer-events-none"></div>
+              <div className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+              <div className="absolute inset-0 flex items-center justify-center z-[2] overflow-hidden" style={{ perspective: '500px' }}>
+                 <div className="flex flex-col gap-6 md:gap-8 justify-center origin-center animate-wobble" style={{ width: '220%', height: '160%', transform: 'rotateY(-25deg) rotateX(2deg) translateX(-10%) scale(1.6)', maskImage: 'linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)' }}>
+                     <OptimizedMarqueeRow items={row1Items} speed={0.4} itemClassName="w-40 h-40 md:w-64 md:h-64 aspect-square" />
+                     <OptimizedMarqueeRow items={row2Items} reverse={true} speed={0.5} itemClassName="w-40 h-40 md:w-64 md:h-64 aspect-square" />
+                     <OptimizedMarqueeRow items={row3Items} speed={0.6} itemClassName="w-40 h-40 md:w-64 md:h-64 aspect-square" />
+                 </div>
+              </div>
+              <div className="section-inner content-center space-y-unified relative z-20">
                  <Reveal>
-                   <div className="mb-6">
-                     <span className="inline-block px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-bold mb-4">
-                       ТЕХНОЛОГИЯ
-                     </span>
-                     <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight text-gray-900 leading-tight">
-                       Автоподдув:<br />Физика вместо усилий
-                     </h2>
-                     <div className="text-gray-600 text-lg leading-relaxed mb-8">
-                       <p className="mb-4">
-                         Забудьте о раздувании углей. Система автоподдува создаёт идеальную тягу 
-                         на основе законов физики — без вентиляторов и электричества.
-                       </p>
-                       <p>
-                         Угли разгораются равномерно, температура стабильна. 
-                         Никаких усилий — только результат.
-                       </p>
-                     </div>
-                   </div>
+                     <h2 className="unified-title">Для тех, кто ценит детали</h2>
                  </Reveal>
-
-                 <Reveal delay={200}>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-md">
-                     <div className="flex items-start gap-3 p-4 bg-white border border-gray-200 rounded-2xl shadow-sm">
-                       <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                         <span className="text-orange-600 font-bold text-lg">→</span>
-                       </div>
-                       <div>
-                         <h4 className="font-bold text-gray-900 mb-1">Естественная тяга</h4>
-                         <p className="text-sm text-gray-600">За счёт перепада давления</p>
-                       </div>
-                     </div>
-
-                     <div className="flex items-start gap-3 p-4 bg-white border border-gray-200 rounded-2xl shadow-sm">
-                       <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                         <span className="text-orange-600 font-bold text-lg">↑</span>
-                       </div>
-                       <div>
-                         <h4 className="font-bold text-gray-900 mb-1">Равномерный жар</h4>
-                         <p className="text-sm text-gray-600">Без холодных зон</p>
-                       </div>
-                     </div>
-                   </div>
-                 </Reveal>
-               </div>
-             </div>
-           )}
-         </section>
-
-         <section id="details" ref={setRef('details')} className="snap-section min-h-[100svh] bg-[#0a0a0a] text-white transition-all duration-[2500ms] ease-in-out flex flex-col justify-center overflow-hidden relative">
-           {shouldRenderSection('details') && (
-             <>
-               <div className="absolute inset-0 z-[1] opacity-[0.02]" style={{ 
-                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E")` 
-               }}></div>
-
-               <div className="container mx-auto px-4 md:px-8 relative z-10">
-                 <div className="max-w-4xl mx-auto text-center">
-                   <Reveal>
-                     <div className="mb-8">
-                       <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-full text-sm font-bold mb-6 border border-white/20">
-                         ПРЕМИУМ КАЧЕСТВО
-                       </span>
-                       <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 tracking-tight text-white leading-tight">
-                         Для тех,<br />кто ценит детали
-                       </h2>
-                     </div>
-                   </Reveal>
-
-                   <Reveal delay={200}>
-                     <div className="mb-12">
-                       <p className="text-xl md:text-2xl text-gray-300 leading-relaxed font-medium max-w-3xl mx-auto">
-                         Каждая деталь создана с одержимостью качеством на основе опыта ведущих дизайнеров, 
-                         материаловедов и испытательных тестов топ-пользователей
-                       </p>
-                     </div>
-                   </Reveal>
-
-                   <Reveal delay={400}>
-                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                       {DETAILS_ITEMS.slice(0, 4).map((item) => (
-                         <div 
-                           key={item.id}
-                           className="group p-4 md:p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all backdrop-blur-sm hover:border-white/30"
-                         >
-                           <div className="w-12 h-12 md:w-16 md:h-16 mb-4 md:mb-6 mx-auto bg-gradient-to-br from-orange-500/20 to-transparent rounded-xl flex items-center justify-center">
-                             <img 
-                               src={item.image} 
-                               alt={item.title}
-                               className="w-8 h-8 md:w-10 md:h-10 object-contain filter brightness-0 invert"
-                             />
-                           </div>
-                           <h4 className="text-sm md:text-base font-bold text-white mb-2 text-center">
-                             {item.title}
-                           </h4>
-                           <p className="text-xs md:text-sm text-gray-400 text-center leading-tight">
-                             {item.description.split('.')[0]}.
-                           </p>
-                         </div>
-                       ))}
-                     </div>
-                   </Reveal>
+                 <div className="max-w-3xl mx-auto">
+                     <p className="unified-text text-center">Каждая деталь создана с одержимостью качеством на основе опыта ведущих дизайнеров, материаловедов и испытательных тестов топ-пользователей</p>
                  </div>
-               </div>
-             </>
-           )}
-         </section>
+              </div>
+            </>
+          )}
+        </section>
 
         {/* Personalize Section */}
         <section id="personalize" ref={setRef('personalize')} className="snap-section min-h-[100svh] bg-[#050505] text-white relative transition-all duration-[2500ms] ease-in-out overflow-hidden">
