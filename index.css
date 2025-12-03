@@ -35,80 +35,221 @@ body { font-family: 'Inter', sans-serif; }
 ::-webkit-scrollbar { display: none; }
 * { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* CSS Grid System */
-.grid-system {
+/* ===== Единая система отступов и центрирования ===== */
+.section-content {
+  width: 100%;
+  max-width: min(1400px, 90vw);
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 5vw, 3rem);
+}
+
+.section-padding-y {
+  padding-top: clamp(2rem, 8vw, 6rem);
+  padding-bottom: clamp(2rem, 8vw, 6rem);
+}
+
+.section-padding-x {
+  padding-left: clamp(1rem, 5vw, 3rem);
+  padding-right: clamp(1rem, 5vw, 3rem);
+}
+
+/* ===== Единая система сеток ===== */
+.unified-grid {
   display: grid;
-  gap: var(--grid-gap, 1rem);
+  gap: clamp(1.5rem, 3vw, 3rem);
   width: 100%;
-  height: 100%;
 }
 
-.grid-2-col { grid-template-columns: repeat(2, 1fr); }
-.grid-3-col { grid-template-columns: repeat(3, 1fr); }
-.grid-4-col { grid-template-columns: repeat(4, 1fr); }
-
-.grid-item {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.grid-item-media {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: var(--radius, 0.5rem);
-}
-
-.grid-item-content {
-  flex: 1;
-  padding: var(--spacing, 1rem);
-  overflow: hidden;
-}
-
-@media (max-width: 768px) {
-  .grid-2-col,
-  .grid-3-col,
-  .grid-4-col {
-    grid-template-columns: 1fr;
-  }
-
-  .grid-system {
-    --grid-gap: 0.75rem;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .grid-3-col,
-  .grid-4-col {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.grid-equal-height { align-items: stretch; }
-.grid-item-equal { height: 100%; display: flex; flex-direction: column; }
-
-.aspect-ratio-16-9 { aspect-ratio: 16/9; }
-.aspect-ratio-1-1 { aspect-ratio: 1/1; }
-.aspect-ratio-4-3 { aspect-ratio: 4/3; }
-
-.no-overlap { position: relative; z-index: 1; }
-.scroll-contained { overflow: hidden; contain: layout paint; }
-.responsive-image { max-width: 100%; height: auto; display: block; }
-
-.text-responsive { font-size: clamp(0.875rem, 2vw, 1rem); line-height: 1.5; }
-.heading-responsive { font-size: clamp(1.5rem, 4vw, 2.5rem); }
-
-.section-grid { padding: clamp(1rem, 3vw, 2rem); }
-
-.card-grid {
-  display: grid;
-  gap: 1rem;
+.grid-cols-auto {
   grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
 }
 
-.uniform-card { min-height: 300px; display: flex; flex-direction: column; }
-.uniform-card-image { height: 200px; width: 100%; object-fit: cover; }
-.uniform-card-content { flex: 1; padding: 1rem; }
+.grid-cols-2-auto {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 768px) {
+  .grid-cols-2-auto {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Единые карточки ===== */
+.unified-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.unified-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px);
+}
+
+/* ===== Единые заголовки ===== */
+.unified-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.unified-subtitle {
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 1rem;
+}
+
+.unified-text {
+  font-size: clamp(1rem, 2vw, 1.125rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== Единые кнопки ===== */
+.unified-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.unified-button-primary {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: white;
+  box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
+}
+
+.unified-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(249, 115, 22, 0.4);
+}
+
+.unified-button-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.unified-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== Центрирование контента ===== */
+.content-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.content-start {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* ===== Единые отступы между элементами ===== */
+.space-y-unified > * + * {
+  margin-top: clamp(1.5rem, 3vw, 3rem);
+}
+
+.space-y-medium > * + * {
+  margin-top: clamp(1rem, 2vw, 2rem);
+}
+
+.space-y-small > * + * {
+  margin-top: clamp(0.75rem, 1.5vw, 1.5rem);
+}
+
+/* ===== Единые отступы внутри секций ===== */
+.section-inner {
+  width: 100%;
+  max-width: min(1200px, 90vw);
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem);
+}
+
+/* ===== Единая высота для медиа элементов ===== */
+.unified-media {
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: contain;
+  border-radius: 1rem;
+}
+
+/* ===== Анимации ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* ===== Отзывчивые изображения ===== */
+.responsive-img {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: cover;
+}
+
+/* ===== Единые контейнеры для секций ===== */
+.section-container {
+  width: 100%;
+  max-width: min(1400px, 95vw);
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 3rem);
+}
+
+/* ===== Медиа запросы для мобильных устройств ===== */
+@media (max-width: 768px) {
+  .section-content {
+    padding: 0 1.25rem;
+  }
+
+  .unified-card {
+    padding: 1.5rem;
+  }
+
+  .section-inner {
+    padding: 1.5rem 1rem;
+  }
+
+  .grid-cols-2-auto {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
