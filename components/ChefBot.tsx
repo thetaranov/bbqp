@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Send, Loader2, X, HelpCircle } from 'lucide-react';
-import { askPitmaster } from '../services/deepseekService';
+//import { askPitmaster } from '../services/deepseekService';
+import { askPitmaster } from '../services/localAIService';
 import { ChatMessage } from '../types';
 
 interface ChefBotProps {

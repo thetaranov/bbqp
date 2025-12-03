@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, ChefHat, Flame } from 'lucide-react';
-import { generateBBQRecipe } from '../services/deepseekService';
+//import { generateBBQRecipe } from '../services/deepseekService';
+import { generateBBQRecipe } from '../services/localAIService';
 import Reveal from './Reveal';
 
 const FLOATING_IMAGES = [

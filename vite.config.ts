@@ -9,9 +9,6 @@ export default defineConfig({
       '@': path.resolve(__dirname, './'),
     },
   },
-  define: {
-    'process.env.VITE_DEEPSEEK_API_KEY': JSON.stringify(process.env.VITE_DEEPSEEK_API_KEY),
-  },
   build: {
     outDir: 'dist',
     sourcemap: false,
