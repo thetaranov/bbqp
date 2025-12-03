@@ -81,7 +81,9 @@ const RecipeGenerator: React.FC = () => {
   const isResultMode = !!recipe;
 
   return (
-    <section id="ai-chef" className="relative w-full h-full min-h-screen bg-[#111] text-white overflow-hidden flex items-center justify-center">
+    // --- НАЧАЛО ИЗМЕНЕНИЙ: Центрирование всего блока ---
+    <section id="ai-chef" className="relative w-full h-full min-h-screen bg-[#111] text-white overflow-hidden flex items-center justify-center p-4">
+    {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
         <style>{`
             ${FLOATING_IMAGES.map((_, i) => `
               @keyframes float-${i} {
@@ -99,9 +101,8 @@ const RecipeGenerator: React.FC = () => {
         ))}
       </div>
 
-      {/* --- НАЧАЛО ИЗМЕНЕНИЙ --- */}
-      <div className={`relative z-10 max-w-4xl w-full px-6 flex flex-col h-[85vh] transition-all duration-500 ${isResultMode ? 'pt-24' : 'pt-32'}`}>
-
+      {/* --- НАЧАЛО ИЗМЕНЕНИЙ: Изменение структуры для центрирования --- */}
+      <div className={`relative z-10 max-w-4xl w-full flex flex-col transition-all duration-500`}>
         {!isResultMode && (
             <Reveal className="text-center mb-8">
                <h2 className="text-3xl md:text-5xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
@@ -113,13 +114,13 @@ const RecipeGenerator: React.FC = () => {
                </p>
             </Reveal>
         )}
-      {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
-        <Reveal delay={200} className={`flex-1 flex flex-col overflow-hidden ${isResultMode ? 'h-full' : ''}`}>
-            <div className={`flex-1 bg-black/60 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl relative transition-all duration-500 ${isResultMode ? 'h-full' : ''}`}>
 
+        <Reveal delay={200} className={`flex-1 flex flex-col overflow-hidden`}>
+            <div className={`flex-1 bg-black/60 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl relative transition-all duration-500 max-h-[70vh]`}>
+        {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
                 <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
                     {!recipe && !loading && (
-                        <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 gap-4">
+                        <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 gap-4 min-h-[150px]">
                             <ChefHat size={48} className="opacity-20" />
                             <p className="text-sm">
                                 Введите название блюда, например:<br/>
@@ -129,7 +130,7 @@ const RecipeGenerator: React.FC = () => {
                     )}
 
                     {loading && (
-                        <div className="h-full flex flex-col items-center justify-center gap-4">
+                        <div className="h-full flex flex-col items-center justify-center gap-4 min-h-[150px]">
                             <div className="relative">
                                 <div className="w-16 h-16 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
                                 <Flame className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-orange-500" size={24} />
