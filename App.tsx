@@ -585,13 +585,14 @@ function App() {
              {shouldRenderSection('features') && <FeaturesSection isActive={activeSection === 'features'} />}
         </div>
 
-        <section id="autodraft" ref={setRef('autodraft')} className="snap-section min-h-[100svh] bg-white text-black relative transition-all duration-[2500ms] ease-in-out overflow-hidden flex items-center justify-center">
+        {/* --- НАЧАЛО ИЗМЕНЕНИЙ --- */}
+        <section id="autodraft" ref={setRef('autodraft')} className="snap-section h-[100svh] bg-white text-black relative transition-all duration-[2500ms] ease-in-out overflow-hidden flex items-center justify-center">
            {shouldRenderSection('autodraft') && (
             <>
                <div className="hidden md:flex absolute inset-0 w-full h-full z-0 justify-center items-center pt-0 md:pt-0">
                   <img src="/assets/images/model-preview.png" alt="Grill AutoDraft System" className="w-full h-full md:h-[75%] object-contain object-center md:object-[center_right] md:mr-12 opacity-100 translate-y-0 md:translate-y-8" />
                </div>
-               <div className="md:hidden absolute top-1/2 left-0 w-full h-[40vh] z-[1] flex items-center justify-center pointer-events-none -translate-y-1/2">
+               <div className="md:hidden absolute top-1/2 left-0 w-full h-[35vh] z-[1] flex items-center justify-center pointer-events-none -translate-y-1/2">
                    <img src="/assets/images/model-preview.png" alt="Grill AutoDraft System Mobile" className="h-full object-contain mix-blend-multiply" />
                </div>
                <div className="absolute inset-0 z-[5] overflow-hidden pointer-events-none">
@@ -600,9 +601,9 @@ function App() {
                <div className="relative z-10 max-w-6xl mx-auto px-6 w-full h-full flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start pb-0 md:py-0 pt-0 md:pt-0">
                   <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start text-center md:text-left h-full pr-0 md:pr-12 pb-0 md:pb-0">
                      <Reveal>
-                        <h2 className="text-[8vw] md:text-5xl font-bold mb-6 tracking-tight text-black relative z-20">Просто закиньте угли, физика сделает все за вас</h2>
-                        <div className="md:hidden w-full h-[40vh] mb-6"></div>
-                        <div className="text-gray-600 text-base md:text-xl leading-relaxed font-medium relative z-20">
+                        <h2 className="text-[7vw] md:text-5xl font-bold mb-6 tracking-tight text-black relative z-20">Просто закиньте угли, физика сделает все за вас</h2>
+                        <div className="md:hidden w-full h-[35vh] mb-6"></div>
+                        <div className="text-gray-600 text-sm md:text-xl leading-relaxed font-medium relative z-20">
                            <p>Система автоподдува создаёт идеальную тягу. Угли разгораются быстрее. Никаких усилий — только результат.</p>
                         </div>
                      </Reveal>
@@ -611,6 +612,7 @@ function App() {
             </>
            )}
         </section>
+        {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
 
         <section id="details" ref={setRef('details')} className="snap-section min-h-[100svh] bg-[#050505] text-white transition-all duration-[2500ms] ease-in-out flex flex-col justify-center overflow-hidden relative group">
           {shouldRenderSection('details') && (
