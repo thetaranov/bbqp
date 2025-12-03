@@ -16,6 +16,7 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
   useEffect(() => {
     if (!isActive) {
@@ -45,8 +46,9 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
   // Функция для установки скорости видео при загрузке
   const handleVideoLoaded = () => {
     if (videoRef.current) {
-      // Уменьшаем скорость в 5 раз (0.2 = 20% от оригинальной скорости)
-      videoRef.current.playbackRate = 0.2;
+      // Устанавливаем скорость 50% от оригинальной
+      videoRef.current.playbackRate = 0.5;
+      setIsVideoLoaded(true);
 
       // Попробуем начать воспроизведение
       const playPromise = videoRef.current.play();
@@ -72,15 +74,22 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
         <div className="absolute inset-0 z-0">
             <video 
                 ref={videoRef}
-                src="/assets/videos/hero.mp4" 
+                src="/assets/videos/hero.mp4"
                 autoPlay 
                 loop 
                 muted 
                 playsInline 
                 onLoadedMetadata={handleVideoLoaded} // Устанавливаем скорость при загрузке метаданных
                 onCanPlay={handleVideoLoaded} // Также устанавливаем скорость, когда видео готово к воспроизведению
-                className="w-full h-full object-cover scale-135 opacity-100"
+                preload="auto" // Предзагрузка видео
+                className={`w-full h-full object-cover scale-135 transition-opacity duration-700 ${isVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
             />
+            {/* Показ плейсхолдера пока видео загружается */}
+            {!isVideoLoaded && (
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+                <div className="w-16 h-16 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
+              </div>
+            )}
         </div>
       )}
       <div className="absolute inset-0 bg-black/30 z-[1]"></div>
