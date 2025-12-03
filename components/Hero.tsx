@@ -22,13 +22,41 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
         videoRef.current?.pause();
         return;
     }
+
     const observer = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting) videoRef.current?.play().catch(() => {});
-        else videoRef.current?.pause();
+      if (entry.isIntersecting) {
+        const playPromise = videoRef.current?.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Автоплей заблокирован браузером
+          });
+        }
+      } else {
+        videoRef.current?.pause();
+      }
     }, { threshold: 0.5 });
+
     if (containerRef.current) observer.observe(containerRef.current);
-    return () => { if (containerRef.current) observer.unobserve(containerRef.current); };
+    return () => { 
+      if (containerRef.current) observer.unobserve(containerRef.current); 
+    };
   }, [isActive]);
+
+  // Функция для установки скорости видео при загрузке
+  const handleVideoLoaded = () => {
+    if (videoRef.current) {
+      // Уменьшаем скорость в 5 раз (0.2 = 20% от оригинальной скорости)
+      videoRef.current.playbackRate = 0.2;
+
+      // Попробуем начать воспроизведение
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Автоплей заблокирован браузером, но скорость уже установлена
+        });
+      }
+    }
+  };
 
   useEffect(() => {
     if (!startAnimation) return;
@@ -45,9 +73,14 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
             <video 
                 ref={videoRef}
                 src="/assets/videos/hero.mp4" 
-                autoPlay loop muted playsInline 
+                autoPlay 
+                loop 
+                muted 
+                playsInline 
+                onLoadedMetadata={handleVideoLoaded} // Устанавливаем скорость при загрузке метаданных
+                onCanPlay={handleVideoLoaded} // Также устанавливаем скорость, когда видео готово к воспроизведению
                 className="w-full h-full object-cover scale-135 opacity-100"
-            ></video>
+            />
         </div>
       )}
       <div className="absolute inset-0 bg-black/30 z-[1]"></div>
