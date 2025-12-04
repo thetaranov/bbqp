@@ -50,14 +50,10 @@
         
         const isMobile = window.innerWidth < 1024;
         
-        // --- ИСПРАВЛЕННЫЕ КООРДИНАТЫ ---
-        // 0.0 - это геометрический центр модели. Камера будет смотреть туда.
-        const targetY = 0.0; 
-
         if (isMobile) {
-            // Мобильные: камера по центру, смотрит немного сверху
-            camera.position.set(0, 5, 18);
-            controls.target.set(0, targetY, 0); 
+            // Мобильные: модель по центру
+            camera.position.set(0, 0, 22);
+            controls.target.set(0, 0, 0);
             
             controls.enableRotate = false;
             controls.enableZoom = false;
@@ -65,16 +61,19 @@
             controls.autoRotateSpeed = 0.5;
         } else {
             // Десктоп:
-            // X=11 -> Сдвигаем камеру вправо, модель уезжает ВЛЕВО.
-            // Y=4 -> Смотрим чуть сверху.
-            // Z=18 -> Дистанция.
-            camera.position.set(11, 4, 18); 
+            // Target X = 5: Камера смотрит правее центра (в точку X=5).
+            // Так как модель стоит в X=0, она визуально смещается ВЛЕВО.
+            // Target Y = 0: Камера смотрит ровно в центр по высоте.
+            controls.target.set(5, 0, 0);
             
-            // Смотрим ровно в центр модели (Y=0), это поднимет её в центр экрана
-            controls.target.set(0, targetY, 0); 
+            // Camera Position:
+            // X = 15: Сдвигаем камеру вправо вслед за таргетом, чтобы сохранить угол обзора.
+            // Y = 1: Высота почти 0, чтобы модель была ровно посередине кадра (чуть приподнята для объема).
+            // Z = 18: Дистанция до модели.
+            camera.position.set(15, 1, 18); 
             
             controls.enableRotate = true;
-            controls.enableZoom = false; // Зум колесиком отключен
+            controls.enableZoom = false;
             controls.enablePan = false;
             controls.autoRotate = false;
             controls.enableDamping = true;
@@ -100,7 +99,7 @@
                 if (child.isMesh) child.material = material;
             });
 
-            // Центрируем саму модель в точку 0,0,0
+            // Вычисляем центр модели и сдвигаем её, чтобы геометрический центр стал (0,0,0)
             const box = new THREE.Box3().setFromObject(obj);
             const center = box.getCenter(new THREE.Vector3());
             obj.position.sub(center);
