@@ -6,7 +6,6 @@
     <title>BBQP 3D Model</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: transparent; }
-        /* Убираем любые взаимодействия с canvas */
         #canvas-container { width: 100%; height: 100%; touch-action: none; pointer-events: none; }
     </style>
     <script type="importmap">
@@ -38,20 +37,16 @@
         scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Отодвигаем камеру еще дальше ---
-        camera.position.set(0, 4, 18);
+        camera.position.set(0, 0, 18); // Камера смотрит прямо, без наклона
 
         const controls = new OrbitControls(camera, renderer.domElement);
-        // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Цель камеры чуть ниже центра для лучшей композиции ---
-        controls.target.set(0, 1.5, 0);
+        controls.target.set(0, 0, 0); // Цель камеры - центр сцены
         
-        // --- ПОЛНОСТЬЮ ОТКЛЮЧАЕМ ВЗАИМОДЕЙСТВИЕ ---
         controls.enableDamping = false;
         controls.enablePan = false;
         controls.enableZoom = false;
-        controls.enableRotate = false; // Отключаем вращение
+        controls.enableRotate = false;
 
-        // Оставляем только автоматическое вращение
         controls.autoRotate = true;
         controls.autoRotateSpeed = 0.5;
 
@@ -71,9 +66,19 @@
 
             const box = new THREE.Box3().setFromObject(obj);
             const center = box.getCenter(new THREE.Vector3());
-            obj.position.sub(center);
+            const size = box.getSize(new THREE.Vector3());
+            
+            // Сначала центрируем модель по X и Z
+            obj.position.x -= center.x;
+            obj.position.z -= center.z;
 
-            const scale = window.innerWidth < 1024 ? 0.3 : 0.4; // Немного уменьшил масштаб
+            // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ ---
+            // Вместо полного центрирования по Y, мы ставим "основание" модели на нулевую координату (пол)
+            // и затем поднимаем ее на 1/4 своей высоты, чтобы она была чуть выше центра.
+            obj.position.y = -box.min.y + (size.y * 0.25);
+
+            const isMobile = window.innerWidth < 1024;
+            const scale = isMobile ? 0.35 : 0.45;
             obj.scale.set(scale, scale, scale);
 
             scene.add(obj);
