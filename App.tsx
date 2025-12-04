@@ -414,7 +414,7 @@ function App() {
                         </div>
                      )}
                      <iframe
-                        src={`/model.html?color=${config.color.value}`}
+                        src={`/model.html?color=${config.color.value}&v=${new Date().getTime()}`}
                         title="BBQP 3D Model"
                         className="w-full h-full border-0 transition-opacity duration-500"
                         style={{ opacity: isModelLoaded ? 1 : 0 }}

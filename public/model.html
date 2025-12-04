@@ -54,6 +54,7 @@
         const verticalOffset = 3.0;
         
         if (isMobile) {
+            // На мобильных камера смотрит прямо
             camera.position.set(0, verticalOffset, 17);
             controls.target.set(0, verticalOffset, 0); 
             controls.enableRotate = false;
@@ -61,7 +62,7 @@
             controls.autoRotate = true;
             controls.autoRotateSpeed = 0.5;
         } else {
-            // Сдвигаем камеру ВПРАВО на 8 единиц, чтобы модель оказалась СЛЕВА
+            // На десктопе сдвигаем камеру ВПРАВО на 8 единиц, чтобы модель оказалась СЛЕВА
             camera.position.set(8, verticalOffset, 17);
             controls.target.set(0, verticalOffset, 0); 
             controls.enableRotate = true;
@@ -81,10 +82,11 @@
             envMapIntensity: 1.2,
         });
 
+        // Загрузка фона (скайбокса)
         new RGBELoader().load('/assets/textures/park.hdr', (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.background = texture;
-            scene.environment = texture;
+            scene.environment = texture; // Эта строка включает отражения!
         });
 
         const loader = new OBJLoader();
@@ -96,8 +98,11 @@
             const box = new THREE.Box3().setFromObject(obj);
             const center = box.getCenter(new THREE.Vector3());
             obj.position.sub(center);
+
+            // Принудительно поднимаем модель вверх
             obj.position.y += 7.0; 
 
+            // Уменьшаем модель
             const scale = isMobile ? 0.4 : 0.42;
             obj.scale.set(scale, scale, scale);
 
@@ -115,6 +120,7 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            // Перезагрузка при смене ориентации для пересчета позиции камеры
             if ((window.innerWidth < 1024) !== isMobile) {
                 window.location.reload();
             }
