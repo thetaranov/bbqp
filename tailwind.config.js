@@ -22,8 +22,9 @@ export default {
         'shimmer': 'shimmer 5s infinite',
         'pulse-orange': 'pulseOrange 3s infinite',
         'scan': 'scan 3s linear infinite',
-        'marquee': 'marquee 25s linear infinite',
-        'marquee-reverse': 'marqueeReverse 25s linear infinite',
+        // Новые анимации для карусели
+        'marquee': 'marquee 30s linear infinite', 
+        'marquee-reverse': 'marqueeReverse 30s linear infinite',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
@@ -33,8 +34,15 @@ export default {
         pulseOrange: { '0%, 100%': { borderColor: 'rgba(255, 255, 255, 0.1)' }, '50%': { borderColor: 'rgba(234, 88, 12, 0.6)' } },
         shimmer: { '0%': { transform: 'translateX(-150%) skewX(-12deg)' }, '100%': { transform: 'translateX(150%) skewX(-12deg)' } },
         scan: { '0%': { top: '-10%', opacity: '0' }, '100%': { top: '110%', opacity: '0' } },
-        marquee: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
-        marqueeReverse: { '0%': { transform: 'translateX(-50%)' }, '100%': { transform: 'translateX(0)' } }
+        // Логика бесконечной прокрутки: сдвигаем на -100% ширины контента
+        marquee: { 
+          '0%': { transform: 'translateX(0)' }, 
+          '100%': { transform: 'translateX(-100%)' } 
+        },
+        marqueeReverse: { 
+          '0%': { transform: 'translateX(-100%)' }, 
+          '100%': { transform: 'translateX(0)' } 
+        }
       }
     },
   },

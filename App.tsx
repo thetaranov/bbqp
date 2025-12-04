@@ -34,51 +34,57 @@ function shuffleArray<T>(array: T[]): T[] {
     return newArray;
 }
 
+// Компонент изображения оптимизирован для производительности
 const MarqueeImage = React.memo(({ src, className }: { src: string, className?: string }) => {
-  const [loaded, setLoaded] = useState(false);
   return (
-    <div className={`relative overflow-hidden bg-black/40 border border-white/5 rounded-2xl ${className}`}>
-        <img src={src} alt="" loading="lazy" decoding="async" onLoad={() => setLoaded(true)} className={`w-full h-full object-cover transition-opacity duration-700 ease-out ${loaded ? 'opacity-80' : 'opacity-0'}`} />
+    <div className={`relative overflow-hidden bg-black/40 border border-white/5 rounded-2xl ${className} transform-gpu`}>
+        <img 
+            src={src} 
+            alt="" 
+            loading="lazy" 
+            decoding="async" 
+            className="w-full h-full object-cover opacity-80" 
+        />
     </div>
   );
 });
 
-// Добавлен проп `active` для остановки анимации
-const OptimizedMarqueeRow = ({ reverse = false, items, speed = 1, itemClassName = "", active = true }: { reverse?: boolean, items: typeof DETAILS_ITEMS, speed?: number, itemClassName?: string, active?: boolean }) => {
-    const rowRef = useRef<HTMLDivElement>(null);
-    const positionRef = useRef(0);
-    const animationFrameRef = useRef<number>(0);
-    const marqueeItems = useMemo(() => [...items, ...items, ...items, ...items], [items]); 
+// Полностью переписанный компонент на CSS анимациях
+const OptimizedMarqueeRow = ({ reverse = false, items, itemClassName = "", active = true }: { reverse?: boolean, items: typeof DETAILS_ITEMS, speed?: number, itemClassName?: string, active?: boolean }) => {
+    // Дублируем элементы 3 раза, чтобы гарантированно заполнить экран любой ширины перед зацикливанием
+    const marqueeItems = useMemo(() => [...items, ...items, ...items], [items]); 
 
-    useEffect(() => {
-        const el = rowRef.current;
-        if (!el || !active) {
-            if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-            return;
-        }
-
-        const animate = () => {
-            const oneSetWidth = el.scrollWidth / 4;
-            if (oneSetWidth <= 0) { animationFrameRef.current = requestAnimationFrame(animate); return; }
-            if (reverse) {
-                positionRef.current += speed;
-                if (positionRef.current >= 0) positionRef.current = -oneSetWidth * 2;
-            } else {
-                positionRef.current -= speed;
-                if (positionRef.current <= -oneSetWidth * 2) positionRef.current = -oneSetWidth;
-            }
-            el.style.transform = `translate3d(${positionRef.current}px, 0, 0)`;
-            animationFrameRef.current = requestAnimationFrame(animate);
-        };
-        animationFrameRef.current = requestAnimationFrame(animate);
-        return () => { if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current); };
-    }, [reverse, speed, active]);
+    // Если секция не активна, мы просто рендерим статику или пустой блок, чтобы не грузить GPU
+    // Но для плавности оставим рендер, просто можно поставить animation-play-state: paused
 
     return (
-        <div className="relative w-full overflow-hidden select-none pointer-events-none">
-            {/* Увеличен gap-8 для большего расстояния */}
-            <div ref={rowRef} className="flex gap-8 w-max will-change-transform">
-                {marqueeItems.map((item, idx) => ( <MarqueeImage key={`${item.id}-${idx}`} src={item.image} className={`flex-shrink-0 ${itemClassName}`} /> ))}
+        <div 
+            className="relative flex w-full overflow-hidden select-none pointer-events-none"
+            style={{ 
+                // Маска для градиентного исчезновения по бокам (зона черного градиента)
+                maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+                WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+            }}
+        >
+            {/* Первый набор элементов */}
+            <div 
+                className={`flex gap-8 flex-shrink-0 ${reverse ? 'animate-marquee-reverse' : 'animate-marquee'} will-change-transform`}
+                style={{ animationPlayState: active ? 'running' : 'paused' }}
+            >
+                {marqueeItems.map((item, idx) => ( 
+                    <MarqueeImage key={`a-${item.id}-${idx}`} src={item.image} className={`flex-shrink-0 ${itemClassName}`} /> 
+                ))}
+            </div>
+
+            {/* Второй набор элементов (дубликат для бесшовного цикла) */}
+            <div 
+                className={`flex gap-8 flex-shrink-0 ${reverse ? 'animate-marquee-reverse' : 'animate-marquee'} will-change-transform`}
+                style={{ animationPlayState: active ? 'running' : 'paused' }}
+                aria-hidden="true"
+            >
+                {marqueeItems.map((item, idx) => ( 
+                    <MarqueeImage key={`b-${item.id}-${idx}`} src={item.image} className={`flex-shrink-0 ${itemClassName}`} /> 
+                ))}
             </div>
         </div>
     );
@@ -242,22 +248,19 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS (ИЗМЕНЕНО) --- */}
+        {/* --- СЕКЦИЯ DETAILS --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex flex-col justify-center overflow-hidden relative group">
             <>
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] bg-orange-900/10 blur-[120px] rounded-full pointer-events-none"></div>
-              <div className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+
               <div className="absolute inset-0 flex items-center justify-center z-[2] overflow-hidden" style={{ perspective: '500px' }}>
-                 <div className="flex flex-col gap-8 justify-center origin-center" style={{ width: '220%', height: '160%', transform: 'rotateY(-25deg) rotateX(2deg) translateX(-10%) scale(1.6)', maskImage: 'linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)' }}>
-                     {/* Добавлен active проп для производительности */}
-                     {/* Уменьшены размеры: w-32 h-32 */}
+                 <div className="flex flex-col gap-8 justify-center origin-center" style={{ width: '250%', height: '160%', transform: 'rotateY(-25deg) rotateX(2deg) translateX(-10%) scale(1.6)', opacity: 0.6 }}>
                      <OptimizedMarqueeRow active={activeSection === 'details'} items={row1Items} speed={0.4} itemClassName="w-32 h-32 aspect-square" />
                      <OptimizedMarqueeRow active={activeSection === 'details'} items={row2Items} reverse={true} speed={0.5} itemClassName="w-32 h-32 aspect-square" />
                      <OptimizedMarqueeRow active={activeSection === 'details'} items={row3Items} speed={0.6} itemClassName="w-32 h-32 aspect-square" />
                  </div>
               </div>
 
-              {/* Левое выравнивание и градиент */}
               <div className="relative z-20 pointer-events-none w-full h-full flex flex-col items-start justify-center p-8 md:p-12 md:pl-24 bg-gradient-to-r from-black via-black/50 to-transparent">
                  <Reveal className="max-w-3xl">
                      <h2 className="text-[9vw] md:text-6xl lg:text-7xl font-bold tracking-tighter text-white drop-shadow-2xl mb-8 text-left">Для тех,<br />кто ценит детали</h2>
