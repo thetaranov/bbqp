@@ -7,7 +7,6 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: transparent; }
         #canvas-container { width: 100%; height: 100%; touch-action: none; pointer-events: none; }
-        /* На десктопе возвращаем управление курсором */
         @media (min-width: 1024px) {
             #canvas-container {
                 pointer-events: auto;
@@ -46,16 +45,14 @@
         container.appendChild(renderer.domElement);
         
         const scene = new THREE.Scene();
-
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
-        
         const controls = new OrbitControls(camera, renderer.domElement);
         
         const isMobile = window.innerWidth < 1024;
-        const verticalOffset = 3.0;
+        const verticalOffset = 7.0; // Утвержденная высота модели
         
         if (isMobile) {
-            // Настройки для мобильных устройств
+            // Настройки для мобильных (модель по центру)
             camera.position.set(0, verticalOffset, 17);
             controls.target.set(0, verticalOffset, 0); 
             controls.enableRotate = false;
@@ -63,13 +60,14 @@
             controls.autoRotate = true;
             controls.autoRotateSpeed = 0.5;
         } else {
-            // Настройки для десктопа
-            // --- ИЗМЕНЕНИЕ 1: Сдвигаем камеру еще правее (модель уходит влево) ---
-            camera.position.set(12, verticalOffset, 17);
+            // --- ФИНАЛЬНОЕ ИЗМЕНЕНИЕ ДЛЯ ДЕСКТОПА ---
+            // 1. Камера смещается ВПРАВО
+            camera.position.set(12, 5, 18); 
+            // 2. "Взгляд" камеры остается нацелен на ВЫСОТУ модели, но в ЦЕНТРЕ по горизонтали
             controls.target.set(0, verticalOffset, 0); 
+            
             controls.enableRotate = true;
-            // --- ИЗМЕНЕНИЕ 2: Отключаем зум колесиком ---
-            controls.enableZoom = false;
+            controls.enableZoom = false; // Зум колесиком отключен
             controls.enablePan = false;
             controls.autoRotate = false;
             controls.enableDamping = true;
@@ -98,9 +96,11 @@
             const box = new THREE.Box3().setFromObject(obj);
             const center = box.getCenter(new THREE.Vector3());
             obj.position.sub(center);
-            obj.position.y += 7.0; 
 
-            // --- ИЗМЕНЕНИЕ 3: Уменьшаем модель ---
+            // Принудительно поднимаем модель вверх на утвержденное значение
+            obj.position.y += verticalOffset; 
+
+            // Уменьшаем модель
             const scale = isMobile ? 0.4 : 0.38;
             obj.scale.set(scale, scale, scale);
 
