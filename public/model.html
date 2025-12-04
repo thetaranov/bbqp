@@ -41,20 +41,20 @@
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 0.8;
-        
+
         container.appendChild(renderer.domElement);
-        
+
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
         const controls = new OrbitControls(camera, renderer.domElement);
-        
+
         const isMobile = window.innerWidth < 1024;
         const verticalOffset = 7.0; // Утвержденная высота модели
-        
+
         if (isMobile) {
             // Настройки для мобильных (модель по центру)
-            camera.position.set(0, verticalOffset, 17);
-            controls.target.set(0, verticalOffset, 0); 
+            camera.position.set(0, 4, 17);
+            controls.target.set(0, 4, 0); 
             controls.enableRotate = false;
             controls.enableZoom = false;
             controls.autoRotate = true;
@@ -63,9 +63,9 @@
             // --- ФИНАЛЬНОЕ ИЗМЕНЕНИЕ ДЛЯ ДЕСКТОПА ---
             // 1. Камера смещается ВПРАВО
             camera.position.set(12, 5, 18); 
-            // 2. "Взгляд" камеры остается нацелен на ВЫСОТУ модели, но в ЦЕНТРЕ по горизонтали
-            controls.target.set(0, verticalOffset, 0); 
-            
+            // 2. "Взгляд" камеры нацелен на ВИЗУАЛЬНЫЙ ЦЕНТР модели (Y=4), а не на ее новую позицию (Y=7)
+            controls.target.set(0, 4, 0); 
+
             controls.enableRotate = true;
             controls.enableZoom = false; // Зум колесиком отключен
             controls.enablePan = false;
