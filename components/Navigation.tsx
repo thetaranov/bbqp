@@ -19,7 +19,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
   const blurClass = 'backdrop-blur-md';
   const logoColorClass = 'text-white';
   const inactiveColorClass = 'text-gray-300 hover:text-white';
-  const mobileMenuBg = 'bg-black/90'; // Сделал фон темнее для контраста
+  const mobileMenuBg = 'bg-black/90'; 
   const mobileMenuText = 'text-white';
 
   useEffect(() => {
@@ -49,6 +49,14 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
     }
 
     setIsMobileMenuOpen(false);
+  };
+
+  const handleConfiguratorScroll = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const element = document.getElementById('models');
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -97,9 +105,8 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
 
         <div className="hidden lg:block">
            <a 
-            href="https://t.me/thetaranov"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#models"
+            onClick={handleConfiguratorScroll}
             className="relative overflow-hidden px-6 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95 bg-white text-black hover:bg-gray-200 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
           >
             <span className="relative z-10">Собрать свой</span>

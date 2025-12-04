@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 
 const PHRASES = [
   "Приготовьтесь", "Включите шеф-повара", "Зажигайте", "Наслаждайтесь процессом",
@@ -15,6 +16,7 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  constQP_REF = useRef<HTMLDivElement>(null);
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
@@ -28,9 +30,7 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
       if (entry.isIntersecting) {
         const playPromise = videoRef.current?.play();
         if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            // Автоплей заблокирован браузером
-          });
+          playPromise.catch(() => {});
         }
       } else {
         videoRef.current?.pause();
@@ -43,19 +43,13 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
     };
   }, [isActive]);
 
-  // Функция для установки скорости видео при загрузке
   const handleVideoLoaded = () => {
     if (videoRef.current) {
-      // Устанавливаем скорость 50% от оригинальной
       videoRef.current.playbackRate = 0.5;
       setIsVideoLoaded(true);
-
-      // Попробуем начать воспроизведение
       const playPromise = videoRef.current.play();
       if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // Автоплей заблокирован браузером, но скорость уже установлена
-        });
+        playPromise.catch(() => {});
       }
     }
   };
@@ -68,6 +62,13 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
 
   const currentPhrase = PHRASES[currentPhraseIndex];
 
+  const handleExplore = () => {
+    const nextSection = document.getElementById('features');
+    if (nextSection) {
+      nextSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section id="hero" ref={containerRef} className="relative w-full h-full flex items-center justify-center bg-black text-white overflow-hidden">
       {isActive && (
@@ -79,12 +80,11 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
                 loop 
                 muted 
                 playsInline 
-                onLoadedMetadata={handleVideoLoaded} // Устанавливаем скорость при загрузке метаданных
-                onCanPlay={handleVideoLoaded} // Также устанавливаем скорость, когда видео готово к воспроизведению
-                preload="auto" // Предзагрузка видео
+                onLoadedMetadata={handleVideoLoaded} 
+                onCanPlay={handleVideoLoaded} 
+                preload="auto" 
                 className={`w-full h-full object-cover scale-135 transition-opacity duration-700 ${isVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
             />
-            {/* Показ плейсхолдера пока видео загружается */}
             {!isVideoLoaded && (
               <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
                 <div className="w-16 h-16 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
@@ -94,6 +94,7 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
       )}
       <div className="absolute inset-0 bg-black/30 z-[1]"></div>
       <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black to-transparent z-[2] md:hidden pointer-events-none"></div>
+
       <div className="relative z-10 w-full max-w-5xl mx-auto px-6 text-center flex flex-col justify-center h-full">
         <h1 
           key={currentPhraseIndex}
@@ -102,6 +103,17 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
         >
            {currentPhrase}
         </h1>
+      </div>
+
+      {/* Кнопка Исследовать */}
+      <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 z-20 transition-opacity duration-1000 ${startAnimation ? 'opacity-100' : 'opacity-0'}`}>
+        <button 
+            onClick={handleExplore}
+            className="flex flex-col items-center gap-2 text-white/80 hover:text-white transition-colors group"
+        >
+            <span className="text-sm font-medium tracking-widest uppercase">Исследовать</span>
+            <ChevronDown className="animate-bounce-slow group-hover:translate-y-1 transition-transform" size={24} />
+        </button>
       </div>
     </section>
   );

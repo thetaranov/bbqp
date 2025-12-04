@@ -1,4 +1,9 @@
-import React, { useState, useEffect, useRef, Suspense, lazy, useMemo } from 'react';
+// ... (все импорты и код до компонента App)
+
+function App() {
+  // ... (весь state и функции до return)
+
+  return (import React, { useState, useEffect, useRef, Suspense, lazy, useMemo } from 'react';
 import Navigation from './components/Navigation';
 import Hero from './components/Hero';
 import FeaturesSection from './components/MenuSection';
@@ -12,6 +17,7 @@ import Modal from './components/Modal';
 import ConfiguratorPanel from './components/ConfiguratorPanel';
 import SiteFooter from './components/Footer';
 import { Option, ConfigCategory } from './types';
+import Loader from './components/Loader'; // <--- ДОБАВЛЕНО
 
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
@@ -80,6 +86,7 @@ const OptimizedMarqueeRow = ({ reverse = false, items, speed = 1, itemClassName 
 function App() {
   const TELEGRAM_LINK = "https://t.me/thetaranov";
 
+  const [isLoading, setIsLoading] = useState(true); // Состояние загрузки сайта
   const [config, setConfig] = useState<Record<string, Option>>({ model: CONFIG_OPTIONS[0].options[0], color: CONFIG_OPTIONS[1].options[1], engraving: CONFIG_OPTIONS[2].options[1] });
   const [customFile, setCustomFile] = useState<File | null>(null);
   const [openCategory, setOpenCategory] = useState<string | null>('model'); 
@@ -98,10 +105,36 @@ function App() {
   const row2Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
   const row3Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
 
+  // --- ЛОГИКА ЗАГРУЗКИ САЙТА ---
   useEffect(() => {
-    const timer1 = setTimeout(() => setIntroStep(1), 1000);
-    const timer2 = setTimeout(() => setIntroStep(2), 2500);
-    return () => { clearTimeout(timer1); clearTimeout(timer2); };
+    // Функция очистки таймера редиректа из index.html
+    const clearFallbackTimer = () => {
+      const win = window as any;
+      if (win.fallbackTimer) {
+        clearTimeout(win.fallbackTimer);
+        win.fallbackTimer = null;
+      }
+    };
+
+    // Функция завершения загрузки
+    const handleLoadComplete = () => {
+      clearFallbackTimer();
+      // Небольшая задержка, чтобы убедиться, что всё отрендерилось
+      setTimeout(() => {
+        setIsLoading(false);
+        // Запускаем интро-анимации после того, как лоадер исчез
+        setTimeout(() => setIntroStep(1), 500);
+        setTimeout(() => setIntroStep(2), 2000);
+      }, 500);
+    };
+
+    // Проверяем, загрузилась ли страница полностью
+    if (document.readyState === 'complete') {
+      handleLoadComplete();
+    } else {
+      window.addEventListener('load', handleLoadComplete);
+      return () => window.removeEventListener('load', handleLoadComplete);
+    }
   }, []);
 
   const isIntroComplete = introStep >= 2;
@@ -121,7 +154,7 @@ function App() {
     return () => observer.disconnect();
   }, []);
 
-  // --- НОВАЯ ЛОГИКА: АВТОМАТИЧЕСКАЯ АКТИВАЦИЯ 3D-СЦЕНЫ ---
+  // --- АВТОМАТИЧЕСКАЯ АКТИВАЦИЯ 3D-СЦЕНЫ ---
   useEffect(() => {
     if (activeSection === 'models' && !is3DActive) {
       setIs3DActive(true);
@@ -170,6 +203,8 @@ function App() {
 
   return (
     <div className="h-screen w-full overflow-hidden bg-black text-white selection:bg-orange-500 selection:text-white relative">
+      <Loader isLoading={isLoading} /> {/* <--- ДОБАВЛЕНО ОТОБРАЖЕНИЕ ЛОАДЕРА */}
+
       <Navigation activeSection={activeSection} isIntroComplete={isIntroComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
       <main className={`snap-container h-full w-full`}>
         <div id="hero" ref={setRef('hero')} className="snap-section h-[100svh]">
