@@ -6,19 +6,16 @@ import ParallaxImage from './components/ParallaxImage';
 import Reveal from './components/Reveal';
 import ParticlesOverlay from './components/ParticlesOverlay';
 import { DETAILS_ITEMS } from './constants';
-import { Check, ArrowRight, Upload, ChevronLeft, Loader2, Settings2, X, Box, ScanLine, FileText } from 'lucide-react';
+import { Check, ArrowRight, Upload, ChevronLeft, Settings2, X, Box, ScanLine, FileText } from 'lucide-react';
 import FloatingFormulasOverlay from './components/FloatingFormulasOverlay';
 import Modal from './components/Modal';
 import ConfiguratorPanel from './components/ConfiguratorPanel';
 import SiteFooter from './components/Footer';
 import { Option, ConfigCategory } from './types';
-import Loader from './components/Loader';
-
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
 const RecipeGenerator = lazy(() => import('./components/RecipeGenerator'));
 
-// Configuration Data
 const CONFIG_OPTIONS: ConfigCategory[] = [
   { id: 'model', name: 'Модель', options: [ { label: 'Model V', price: 25000, value: 'v' }, { label: 'Model W', price: 35000, value: 'w' } ] },
   { id: 'color', name: 'Материал', options: [ { label: 'Black Matt (Сталь)', price: 0, value: 'black' }, { label: 'Stainless (Нержавейка)', price: 15000, value: 'stainless' } ] },
@@ -48,46 +45,62 @@ const MarqueeImage = React.memo(({ src, className }: { src: string, className?: 
   );
 });
 
-// --- НОВЫЙ КОМПОНЕНТ: 3D КОЛЬЦО ---
-const RingCarousel = ({ reverse = false, items, radius = 600, active = true }: { reverse?: boolean, items: typeof DETAILS_ITEMS, radius?: number, active?: boolean }) => {
-    // Дублируем список, чтобы кольцо было плотным
-    const ringItems = useMemo(() => [...items, ...items, ...items], [items]); 
+// --- ОБНОВЛЕННЫЙ КОМПОНЕНТ: 3D КОЛЬЦО С ИНТЕРПОЛЯЦИЕЙ И ПРИОСТАНОВКОЙ ---
+const RingCarousel = ({ reverse = false, items, radius = 600 }: { reverse?: boolean, items: typeof DETAILS_ITEMS, radius?: number }) => {
+    const ringRef = useRef<HTMLDivElement>(null);
+    const rafRef = useRef<number>(0);
+    const lastTimeRef = useRef<number>(0);
+    const angleRef = useRef<number>(0);
+    const speed = reverse ? -0.0001 : 0.0001;
+    const [isHovered, setIsHovered] = useState(false);
+
+    useEffect(() => {
+        const animate = (time: number) => {
+            if (!ringRef.current) return;
+            const delta = time - (lastTimeRef.current || time);
+            lastTimeRef.current = time;
+            if (!isHovered) {
+                angleRef.current += speed * delta;
+            }
+            ringRef.current.style.transform = `rotateY(${angleRef.current}rad)`;
+            rafRef.current = requestAnimationFrame(animate);
+        };
+        rafRef.current = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(rafRef.current);
+    }, [isHovered, speed]);
+
+    const ringItems = useMemo(() => [...items, ...items, ...items], [items]);
     const count = ringItems.length;
-    const angleStep = 360 / count;
 
     return (
-        <div 
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
-            style={{ 
-                perspective: '1200px', // Глубина сцены
-                transformStyle: 'preserve-3d'
-            }}
+        <div
+            className="absolute inset-0 flex items-center justify-center pointer-events-auto"
+            style={{ perspective: '1200px' }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
-            {/* Вращающийся контейнер */}
-            <div 
-                className={`relative w-0 h-0 ${reverse ? 'animate-spin-slow-reverse' : 'animate-spin-slow'}`}
-                style={{ 
-                    transformStyle: 'preserve-3d',
-                    animationPlayState: active ? 'running' : 'paused',
-                }}
+            <div
+                ref={ringRef}
+                className="relative w-0 h-0"
+                style={{ transformStyle: 'preserve-3d' }}
             >
                 {ringItems.map((item, index) => {
-                    // Вычисляем угол для каждого элемента
-                    const angle = index * angleStep;
-
+                    const yAngle = (index / count) * Math.PI * 2;
                     return (
                         <div
                             key={`ring-${index}`}
                             className="absolute top-1/2 left-1/2"
                             style={{
-                                transform: `translate(-50%, -50%) rotateY(${angle}deg) translateZ(${radius}px)`,
-                                backfaceVisibility: 'hidden', // Оптимизация производительности
-                                WebkitBackfaceVisibility: 'hidden'
+                                transform: `translate(-50%, -50%) rotateY(${yAngle}rad) translateZ(${radius}px) rotateX(${Math.sin(yAngle) * 0.2}rad)`,
+                                backfaceVisibility: 'hidden',
+                                WebkitBackfaceVisibility: 'hidden',
+                                willChange: 'transform',
+                                zIndex: Math.cos(yAngle) > 0 ? 10 : 1
                             }}
                         >
                             <MarqueeImage 
                                 src={item.image} 
-                                className="w-32 h-32 md:w-40 md:h-40 shadow-[0_0_15px_rgba(0,0,0,0.8)]" 
+                                className="w-32 h-32 md:w-40 md:h-40 shadow-[0_0_20px_rgba(0,0,0,0.9)]" 
                             />
                         </div>
                     );
@@ -99,8 +112,6 @@ const RingCarousel = ({ reverse = false, items, radius = 600, active = true }: {
 
 function App() {
   const TELEGRAM_LINK = "https://t.me/thetaranov";
-
-  const [isLoading, setIsLoading] = useState(true);
   const [config, setConfig] = useState<Record<string, Option>>({ model: CONFIG_OPTIONS[0].options[0], color: CONFIG_OPTIONS[1].options[1], engraving: CONFIG_OPTIONS[2].options[1] });
   const [customFile, setCustomFile] = useState<File | null>(null);
   const [openCategory, setOpenCategory] = useState<string | null>('model'); 
@@ -110,52 +121,26 @@ function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [is3DActive, setIs3DActive] = useState(false);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
-  const [introStep, setIntroStep] = useState(0); 
+  const [introComplete, setIntroComplete] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
-  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const row1Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
   const row2Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
   const row3Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
 
   useEffect(() => {
-    const clearFallbackTimer = () => {
-      const win = window as any;
-      if (win.fallbackTimer) {
-        clearTimeout(win.fallbackTimer);
-        win.fallbackTimer = null;
-      }
+    const finishIntro = () => {
+        setIntroComplete(true);
     };
-
-    const finishLoading = () => {
-        clearFallbackTimer();
-        setIsLoading(false);
-        setTimeout(() => setIntroStep(1), 500);
-        setTimeout(() => setIntroStep(2), 2000);
-    };
-
-    const handleLoadComplete = () => {
-      finishLoading();
-    };
-
     if (document.readyState === 'complete') {
-      finishLoading();
+      finishIntro();
     } else {
-      window.addEventListener('load', handleLoadComplete);
+      window.addEventListener('load', finishIntro);
     }
-
-    const safetyTimer = setTimeout(() => {
-        finishLoading();
-    }, 3500);
-
-    return () => {
-        window.removeEventListener('load', handleLoadComplete);
-        clearTimeout(safetyTimer);
-    };
+    return () => window.removeEventListener('load', finishIntro);
   }, []);
-
-  const isIntroComplete = introStep >= 2;
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -166,9 +151,13 @@ function App() {
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => { if (entry.isIntersecting) setActiveSection(entry.target.id); });
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) setActiveSection(entry.target.id);
+      });
     }, { threshold: 0.5 });
-    Object.values(sectionRefs.current).forEach((el) => { if (el) observer.observe(el); });
+    Object.values(sectionRefs.current).forEach((el) => {
+      if (el) observer.observe(el);
+    });
     return () => observer.disconnect();
   }, []);
 
@@ -185,14 +174,18 @@ function App() {
     } else {
       if (mainContainer) mainContainer.classList.remove('overflow-hidden');
     }
-    return () => { if (mainContainer) mainContainer.classList.remove('overflow-hidden'); };
+    return () => {
+      if (mainContainer) mainContainer.classList.remove('overflow-hidden');
+    };
   }, [mobileConfigOpen]);
 
-  const setRef = (id: string) => (el: HTMLDivElement | null) => { sectionRefs.current[id] = el; };
+  const setRef = (id: string) => (el: HTMLDivElement | null) => {
+    sectionRefs.current[id] = el;
+  };
+
   const handleSelect = (categoryId: string, option: Option) => setConfig(prev => ({ ...prev, [categoryId]: option }));
   const toggleCategory = (id: string) => setOpenCategory(openCategory === id ? null : id);
   const calculateTotal = () => (Object.values(config) as Option[]).reduce((acc, item) => acc + item.price, 0);
-
   const getOrderLink = () => {
     let text = `Здравствуйте! Хочу заказать bbqp:%0A` +
       Object.entries(config).map(([key, val]) => `- ${CONFIG_OPTIONS.find(c => c.id === key)?.name}: ${(val as Option).label}`).join('%0A') +
@@ -200,13 +193,11 @@ function App() {
     if (config.engraving.value === 'custom' && customFile) text += `%0A%0AФайл: ${customFile.name}`;
     return `${TELEGRAM_LINK}?text=${text}`;
   };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
         setCustomFile(e.target.files[0]);
     }
   };
-
   const scrollToConfigurator = (e: React.MouseEvent) => {
     e.preventDefault();
     const element = document.getElementById('models');
@@ -220,12 +211,10 @@ function App() {
 
   return (
     <div className="h-screen w-full overflow-hidden bg-black text-white selection:bg-orange-500 selection:text-white relative">
-      {isLoading && <Loader isLoading={isLoading} />}
-
-      <Navigation activeSection={activeSection} isIntroComplete={isIntroComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
+      <Navigation activeSection={activeSection} isIntroComplete={introComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
       <main className={`snap-container h-full w-full`}>
         <div id="hero" ref={setRef('hero')} className="snap-section h-[100svh]">
-            <Hero startAnimation={isIntroComplete} isActive={activeSection === 'hero'} />
+            <Hero startAnimation={introComplete} isActive={activeSection === 'hero'} />
         </div>
         <div id="features" ref={setRef('features')} className="snap-section h-[100svh] bg-black">
             <FeaturesSection isActive={activeSection === 'features'} />
@@ -254,35 +243,21 @@ function App() {
                </div>
             </>
         </section>
-
-        {/* --- СЕКЦИЯ DETAILS (Кольцевая карусель) --- */}
+        {/* --- СЕКЦИЯ DETAILS (Новая 3D карусель) --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex flex-col justify-center overflow-hidden relative group">
             <>
-              {/* Фоновые эффекты */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] bg-orange-900/10 blur-[120px] rounded-full pointer-events-none"></div>
-
-              {/* Контейнер для колец */}
-              {/* Мы сдвигаем весь контейнер с кольцами вправо (translate-x), чтобы центр вращения был правее, 
-                  а зритель как бы смотрел "изнутри" левой части кольца. */}
               <div className="absolute inset-0 z-[2] overflow-hidden pointer-events-none">
-
-                 {/* Верхнее кольцо (наклон -10 градусов) */}
                  <div className="absolute top-[20%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(-5deg) translateY(-20%) scale(1.1)' }}>
-                    <RingCarousel active={activeSection === 'details'} items={row1Items} radius={700} speed={0.4} />
+                    <RingCarousel items={row1Items} radius={700} />
                  </div>
-
-                 {/* Среднее кольцо (обратное вращение) */}
                  <div className="absolute top-[50%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(0deg) translateY(-50%) scale(1.1)' }}>
-                    <RingCarousel active={activeSection === 'details'} items={row2Items} reverse={true} radius={750} speed={0.5} />
+                    <RingCarousel items={row2Items} reverse radius={750} />
                  </div>
-
-                 {/* Нижнее кольцо */}
                  <div className="absolute top-[80%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(5deg) translateY(-80%) scale(1.1)' }}>
-                    <RingCarousel active={activeSection === 'details'} items={row3Items} radius={700} speed={0.6} />
+                    <RingCarousel items={row3Items} radius={700} />
                  </div>
               </div>
-
-              {/* Текстовый контент с левым выравниванием и градиентом */}
               <div className="relative z-20 pointer-events-none w-full h-full flex flex-col items-start justify-center p-8 md:p-12 md:pl-24 bg-gradient-to-r from-black via-black/70 to-transparent">
                  <Reveal className="max-w-3xl">
                      <h2 className="text-[9vw] md:text-6xl lg:text-7xl font-bold tracking-tighter text-white drop-shadow-2xl mb-8 text-left">Для тех,<br />кто ценит детали</h2>
@@ -293,7 +268,6 @@ function App() {
               </div>
             </>
         </section>
-
         <section id="personalize" ref={setRef('personalize')} className="snap-section h-[100svh] bg-[#050505] text-white relative overflow-hidden flex items-center">
             <>
                <div className="absolute inset-0 z-0">
@@ -352,13 +326,11 @@ function App() {
                </div>
             </>
         </section>
-
         <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 relative">
             {is3DActive && (
               <div className="absolute inset-0 z-0">
                  {!isModelLoaded && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center">
-                       <Loader2 className="w-12 h-12 animate-spin text-gray-500" />
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-200">
                     </div>
                  )}
                  <iframe
@@ -370,7 +342,6 @@ function App() {
                  />
               </div>
             )}
-
             <div className={`w-full h-full flex items-center justify-center ${is3DActive ? 'bg-transparent' : 'bg-gray-200'}`}>
                 {!is3DActive && (
                     <button onClick={() => setIs3DActive(true)} className="group flex flex-col items-center gap-4 transition-transform hover:scale-105">
@@ -381,7 +352,6 @@ function App() {
                     </button>
                 )}
             </div>
-
             <div className={`absolute top-0 right-0 w-full lg:w-1/2 h-full flex items-center justify-center pointer-events-none ${!is3DActive && 'bg-gray-200'}`}>
                <div className="hidden lg:flex w-full max-w-[380px] h-full max-h-[600px] items-center pointer-events-auto pt-20">
                   <div className={`w-full h-full bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col transition-opacity duration-700 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
@@ -400,7 +370,6 @@ function App() {
                   </div>
                </div>
             </div>
-
             {mobileConfigOpen && (
              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
                  <div className="bg-[#111] w-full sm:w-[90%] h-[80vh] sm:h-auto sm:max-h-[90vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
@@ -423,35 +392,28 @@ function App() {
               <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
             </div>
         </section>
-
         <div id="ai-chef" ref={setRef('ai-chef')} className="snap-section h-[100svh] bg-[#050505]">
-            <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-gray-600" /></div>}>
+            <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><div className="text-gray-600">Загрузка...</div></div>}>
                 <RecipeGenerator />
             </Suspense>
         </div>
-
         <SiteFooter
           setRef={setRef('contact')}
-          onPrivacyOpen={() => setIsPrivacyOpen(true)}
-          onTermsOpen={() => setIsTermsOpen(true)}
+          onPrivacyOpen={() => setIsPrivacyOpen(false)}
+          onTermsOpen={() => setIsTermsOpen(false)}
         />
       </main>
-
       <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Политика конфиденциальности">
         <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
-          {/* Текст политики */}
           <p>...</p>
         </div>
       </Modal>
-
       <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Условия использования">
         <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
-             {/* Текст условий */}
              <p>...</p>
         </div>
       </Modal>
-
-      <Suspense fallback={null}><ChefBot visible={isIntroComplete} externalIsOpen={isChatOpen} onToggle={setIsChatOpen} /></Suspense>
+      <Suspense fallback={null}><ChefBus visible={introComplete} externalIsOpen={isChatOpen} onToggle={setIsChatOpen} /></Suspense>
     </div>
   );
 }
