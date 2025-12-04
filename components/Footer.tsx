@@ -38,7 +38,12 @@ const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen 
     <footer id="contact" ref={setRef} className="snap-section h-[100svh] relative overflow-hidden flex flex-col justify-center items-center">
 
       {/* --- UNICORN STUDIO BACKGROUND (ISOLATED IN IFRAME) --- */}
-      <div className="absolute inset-0 z-0 w-full h-full">
+      {/* 
+          Мы задаем высоту 118% (это примерно 100% / 0.85).
+          Так как блок прижат к верху (top-0), нижние 15-18% iframe уйдут за пределы 
+          экрана и будут обрезаны overflow-hidden родителя.
+      */}
+      <div className="absolute top-0 left-0 w-full h-[118%] z-0">
          <iframe
             title="footer-background"
             srcDoc={iframeContent}
