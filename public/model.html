@@ -90,19 +90,22 @@
             // Используем environment для освещения модели
             scene.environment = texture;
 
-            // --- СКАЙБОКС ---
-            const sphereGeo = new THREE.SphereGeometry(15, 60, 40);
-            // Инвертируем масштаб по X, чтобы текстура была внутри
-            sphereGeo.scale(-1, 1, 1);
+            // --- СКАЙБОКС (КУБ) ---
+            // Размер 30x30x30 (аналог радиуса 15)
+            const boxGeo = new THREE.BoxGeometry(30, 30, 30);
             
-            const sphereMat = new THREE.MeshBasicMaterial({ 
-                map: texture 
+            // Инвертируем масштаб по X, чтобы текстура была видна изнутри
+            boxGeo.scale(-1, 1, 1);
+            
+            const boxMat = new THREE.MeshBasicMaterial({ 
+                map: texture,
+                side: THREE.BackSide // Дополнительная гарантия рендера изнутри
             });
             
-            const backgroundMesh = new THREE.Mesh(sphereGeo, sphereMat);
+            const backgroundMesh = new THREE.Mesh(boxGeo, boxMat);
             backgroundMesh.rotation.y = Math.PI / 2;
             
-            // ПОДНИМАЕМ ШАР ВЫШЕ
+            // Поднимаем куб выше
             backgroundMesh.position.y = 8; 
             
             scene.add(backgroundMesh);
