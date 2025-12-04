@@ -7,7 +7,6 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: transparent; }
         #canvas-container { width: 100%; height: 100%; touch-action: none; pointer-events: none; }
-        /* На десктопе возвращаем управление курсором */
         @media (min-width: 1024px) {
             #canvas-container {
                 pointer-events: auto;
@@ -42,34 +41,36 @@
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 0.8;
+        
         container.appendChild(renderer.domElement);
         
         const scene = new THREE.Scene();
 
-        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 4, 18);
+        // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: НАСТРОЙКА КАМЕРЫ ДЛЯ МАКСИМАЛЬНОГО ЗАПОЛНЕНИЯ ---
+        // Уменьшаем Field of View (FOV), чтобы приблизить объект без искажений (эффект "зума")
+        const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
+        // Ставим камеру чуть выше и на оптимальном расстоянии
+        camera.position.set(0, 3.5, 17);
         
         const controls = new OrbitControls(camera, renderer.domElement);
-        controls.target.set(0, 0, 0); 
+        // Цель камеры ставим на "тело" модели, а не на ее геометрический центр у "ног"
+        controls.target.set(0, 2.5, 0); 
         
-        // --- НОВЫЕ НАСТРОЙКИ УПРАВЛЕНИЯ ---
         const isMobile = window.innerWidth < 1024;
         
         if (isMobile) {
-            // На мобильных - нет управления, только авто-вращение
             controls.enableRotate = false;
             controls.enableZoom = false;
             controls.autoRotate = true;
             controls.autoRotateSpeed = 0.5;
         } else {
-            // На десктопе - вращение и зум, без перемещения
             controls.enableRotate = true;
             controls.enableZoom = true;
             controls.enablePan = false;
             controls.autoRotate = false;
-            controls.enableDamping = true; // Плавность
-            controls.minDistance = 10;   // Не даем приблизиться слишком близко
-            controls.maxDistance = 25;   // Не даем отдалиться слишком далеко
+            controls.enableDamping = true;
+            controls.minDistance = 12;
+            controls.maxDistance = 25;
         }
 
         const isBlack = new URLSearchParams(window.location.search).get('color') === 'black';
@@ -77,10 +78,9 @@
             color: isBlack ? new THREE.Color('#202020') : new THREE.Color('#e5e7eb'),
             roughness: isBlack ? 0.4 : 0.2,
             metalness: isBlack ? 0.4 : 0.9,
-            envMapIntensity: 1,
+            envMapIntensity: 1.2,
         });
 
-        // --- ЗАГРУЗКА ФОНА (СКАЙБОКСА) ---
         new RGBELoader().load('/assets/textures/park.hdr', (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.background = texture;
@@ -97,10 +97,8 @@
             const center = box.getCenter(new THREE.Vector3());
             obj.position.sub(center);
 
-            // --- ФИНАЛЬНОЕ СМЕЩЕНИЕ МОДЕЛИ ВВЕРХ ---
-            obj.position.y += 7.0; // <--- ОПТИМАЛЬНОЕ ЗНАЧЕНИЕ
-
-            const scale = isMobile ? 0.35 : 0.45;
+            // Крупнее масштабируем модель
+            const scale = isMobile ? 0.4 : 0.5;
             obj.scale.set(scale, scale, scale);
 
             scene.add(obj);
@@ -114,11 +112,6 @@
         animate();
 
         window.addEventListener('resize', () => {
-            const mobileCheck = window.innerWidth < 1024;
-            if (mobileCheck !== isMobile) {
-                // Если изменился режим (десктоп/мобильный), перезагружаем iframe для применения нужных контролов
-                window.location.reload();
-            }
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
