@@ -22,9 +22,8 @@ export default {
         'shimmer': 'shimmer 5s infinite',
         'pulse-orange': 'pulseOrange 3s infinite',
         'scan': 'scan 3s linear infinite',
-        // --- НОВЫЕ АНИМАЦИИ ДЛЯ КОЛЬЦА ---
-        'spin-slow': 'spinY 80s linear infinite', // Очень медленное вращение (80 секунд)
-        'spin-slow-reverse': 'spinYReverse 80s linear infinite',
+        // Новая анимация для диагональной сетки
+        'pan-diagonal': 'panDiagonal 60s linear infinite',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
@@ -34,14 +33,10 @@ export default {
         pulseOrange: { '0%, 100%': { borderColor: 'rgba(255, 255, 255, 0.1)' }, '50%': { borderColor: 'rgba(234, 88, 12, 0.6)' } },
         shimmer: { '0%': { transform: 'translateX(-150%) skewX(-12deg)' }, '100%': { transform: 'translateX(150%) skewX(-12deg)' } },
         scan: { '0%': { top: '-10%', opacity: '0' }, '100%': { top: '110%', opacity: '0' } },
-        // Ключевые кадры вращения по оси Y
-        spinY: {
-          '0%': { transform: 'rotateY(0deg)' },
-          '100%': { transform: 'rotateY(360deg)' }
-        },
-        spinYReverse: {
-          '0%': { transform: 'rotateY(360deg)' },
-          '100%': { transform: 'rotateY(0deg)' }
+        // Движение от 0,0 до -50%, -50% создает бесшовную петлю для 2x2 сетки
+        panDiagonal: {
+          '0%': { transform: 'translate(0, 0)' },
+          '100%': { transform: 'translate(-50%, -50%)' }
         }
       }
     },

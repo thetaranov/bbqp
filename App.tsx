@@ -32,89 +32,42 @@ function shuffleArray<T>(array: T[]): T[] {
     return newArray;
 }
 
-const MarqueeImage = React.memo(({ src, className }: { src: string, className?: string }) => {
-  return (
-    <div className={`relative overflow-hidden bg-black/60 border border-white/10 rounded-xl ${className} backface-hidden`}>
-        <img 
-            src={src} 
-            alt="" 
-            loading="lazy" 
-            decoding="async" 
-            className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-300" 
-        />
-    </div>
-  );
-});
+// --- НОВЫЙ КОМПОНЕНТ СЕТКИ ---
+const GridImage = React.memo(({ src }: { src: string }) => (
+  <div className="relative w-full aspect-square overflow-hidden bg-white/5 border border-white/10">
+    <img 
+        src={src} 
+        alt="" 
+        loading="lazy" 
+        decoding="async" 
+        className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity duration-500" 
+    />
+  </div>
+));
 
-// --- 3D КОЛЬЦО ---
-const RingCarousel = ({ reverse = false, items, radius = 800 }: { reverse?: boolean, items: typeof DETAILS_ITEMS, radius?: number }) => {
-    const ringRef = useRef<HTMLDivElement>(null);
-    const rafRef = useRef<number>(0);
-    const angleRef = useRef<number>(0);
-
-    // Скорость вращения: достаточно медленная, чтобы не укачивало, но заметная
-    const speed = reverse ? -0.0005 : 0.0005;
-    const [isHovered, setIsHovered] = useState(false);
-
-    useEffect(() => {
-        let lastTime = performance.now();
-
-        const animate = (time: number) => {
-            if (!ringRef.current) return;
-
-            const delta = time - lastTime;
-            lastTime = time;
-
-            if (!isHovered) {
-                // Нормализация скорости вне зависимости от FPS
-                angleRef.current += speed * (delta / 16); 
-            }
-
-            ringRef.current.style.transform = `rotateY(${angleRef.current}rad)`;
-            rafRef.current = requestAnimationFrame(animate);
-        };
-
-        rafRef.current = requestAnimationFrame(animate);
-        return () => cancelAnimationFrame(rafRef.current);
-    }, [isHovered, speed]);
-
-    // Увеличиваем количество элементов для плотного кольца
-    const ringItems = useMemo(() => [...items, ...items, ...items], [items]);
-    const count = ringItems.length;
+const InfiniteGrid = ({ items }: { items: typeof DETAILS_ITEMS }) => {
+    // Создаем большой массив изображений (повторяем несколько раз, чтобы заполнить сетку)
+    const gridItems = useMemo(() => {
+        const base = shuffleArray(items);
+        return [...base, ...base, ...base, ...base, ...base, ...base]; // 6x повтор
+    }, [items]);
 
     return (
-        <div
-            className="absolute inset-0 flex items-center justify-center pointer-events-auto"
-            style={{ perspective: '1000px' }} // Perspective задает "глубину" камеры
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            <div
-                ref={ringRef}
-                className="relative w-0 h-0"
-                style={{ transformStyle: 'preserve-3d' }}
-            >
-                {ringItems.map((item, index) => {
-                    const yAngle = (index / count) * Math.PI * 2;
-                    return (
-                        <div
-                            key={`ring-${index}`}
-                            className="absolute top-1/2 left-1/2"
-                            style={{
-                                // Сдвигаем элемент по радиусу и поворачиваем к центру
-                                transform: `translate(-50%, -50%) rotateY(${yAngle}rad) translateZ(${radius}px)`,
-                                backfaceVisibility: 'hidden',
-                                WebkitBackfaceVisibility: 'hidden',
-                                willChange: 'transform',
-                            }}
-                        >
-                            <MarqueeImage 
-                                src={item.image} 
-                                className="w-40 h-40 md:w-48 md:h-48 shadow-[0_0_30px_rgba(0,0,0,0.8)]" 
-                            />
-                        </div>
-                    );
-                })}
+        <div className="absolute inset-0 overflow-hidden bg-[#050505]">
+            {/* Контейнер, который движется по диагонали */}
+            {/* -top-[50%] -left-[50%] w-[200%] h-[200%] нужны чтобы покрыть экран при движении */}
+            <div className="absolute -top-[50%] -left-[50%] w-[250%] h-[250%] animate-pan-diagonal flex flex-wrap content-start opacity-50 rotate-12">
+                {/* Рендерим сетку */}
+                <div className="w-full h-full grid grid-cols-6 md:grid-cols-8 gap-4">
+                    {/* Дублируем контент 4 раза для бесшовной склейки (техника 2x2 quad) */}
+                    {[0, 1, 2, 3].map((quadKey) => (
+                         <React.Fragment key={quadKey}>
+                            {gridItems.map((item, idx) => (
+                                <GridImage key={`${quadKey}-${item.id}-${idx}`} src={item.image} />
+                            ))}
+                         </React.Fragment>
+                    ))}
+                </div>
             </div>
         </div>
     );
@@ -136,9 +89,6 @@ function App() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const row1Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
-  const row2Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
-  const row3Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
 
   useEffect(() => {
     const timer = setTimeout(() => setIntroComplete(true), 500);
@@ -246,36 +196,27 @@ function App() {
                </div>
             </>
         </section>
-        {/* --- СЕКЦИЯ DETAILS (Новая 3D карусель) --- */}
+
+        {/* --- СЕКЦИЯ DETAILS (БЕСКОНЕЧНАЯ СЕТКА) --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex flex-col justify-center overflow-hidden relative group">
             <>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] bg-orange-900/10 blur-[120px] rounded-full pointer-events-none"></div>
+              {/* Фон - бесконечная сетка */}
+              <InfiniteGrid items={DETAILS_ITEMS} />
 
-              {/* Контейнер для колец */}
-              {/* Немного наклоняем кольца для объема */}
-              <div className="absolute inset-0 z-[2] overflow-hidden pointer-events-none">
-                 <div className="absolute top-[20%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(-5deg) translateY(-20%) scale(1.0)' }}>
-                    <RingCarousel items={row1Items} radius={800} />
-                 </div>
-                 <div className="absolute top-[50%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(0deg) translateY(-50%) scale(1.0)' }}>
-                    <RingCarousel items={row2Items} reverse radius={900} />
-                 </div>
-                 <div className="absolute top-[80%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(5deg) translateY(-80%) scale(1.0)' }}>
-                    <RingCarousel items={row3Items} radius={800} />
-                 </div>
-              </div>
-
-              {/* Текст с черным градиентом для читаемости */}
-              <div className="relative z-20 pointer-events-none w-full h-full flex flex-col items-start justify-center p-8 md:p-12 md:pl-24 bg-gradient-to-r from-black via-black/60 to-transparent">
-                 <Reveal className="max-w-3xl">
-                     <h2 className="text-[9vw] md:text-6xl lg:text-7xl font-bold tracking-tighter text-white drop-shadow-2xl mb-8 text-left">Для тех,<br />кто ценит детали</h2>
+              {/* Текст сдвинут ВПРАВО + Черный градиент справа налево */}
+              <div className="relative z-20 w-full h-full flex flex-col items-end justify-center p-8 md:p-12 bg-gradient-to-l from-black via-black/90 to-transparent pointer-events-none">
+                 <Reveal className="max-w-3xl text-right pr-0 md:pr-16">
+                     <h2 className="text-[9vw] md:text-6xl lg:text-7xl font-bold tracking-tighter text-white drop-shadow-2xl mb-8">Для тех,<br />кто ценит детали</h2>
+                     <div className="flex justify-end">
+                        <p className="text-gray-200 text-sm md:text-base font-medium tracking-wide max-w-xl leading-relaxed drop-shadow-lg">
+                            Каждая деталь создана с одержимостью качеством на основе опыта ведущих дизайнеров, материаловедов и испытательных тестов топ-пользователей.
+                        </p>
+                     </div>
                  </Reveal>
-                 <div className="flex justify-start max-w-xl">
-                     <p className="text-gray-200 text-sm md:text-base font-medium tracking-wide m-0 text-left leading-relaxed drop-shadow-lg">Каждая деталь создана с одержимостью качеством на основе опыта ведущих дизайнеров, материаловедов и испытательных тестов топ-пользователей</p>
-                 </div>
               </div>
             </>
         </section>
+
         <section id="personalize" ref={setRef('personalize')} className="snap-section h-[100svh] bg-[#050505] text-white relative overflow-hidden flex items-center">
             <>
                <div className="absolute inset-0 z-0">
