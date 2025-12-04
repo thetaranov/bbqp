@@ -52,11 +52,9 @@
         const controls = new OrbitControls(camera, renderer.domElement);
         
         const isMobile = window.innerWidth < 1024;
-        const verticalOffset = 3.0; // Общий сдвиг вверх для лучшей композиции
+        const verticalOffset = 3.0;
         
-        // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: СДВИГ КАМЕРЫ НА ПК ---
         if (isMobile) {
-            // На мобильных камера смотрит прямо
             camera.position.set(0, verticalOffset, 17);
             controls.target.set(0, verticalOffset, 0); 
             controls.enableRotate = false;
@@ -64,8 +62,8 @@
             controls.autoRotate = true;
             controls.autoRotateSpeed = 0.5;
         } else {
-            // На десктопе сдвигаем камеру ВПРАВО, чтобы модель оказалась СЛЕВА
-            camera.position.set(6, verticalOffset, 17);
+            // --- ИЗМЕНЕНИЕ 1: Сдвигаем камеру еще правее ---
+            camera.position.set(8, verticalOffset, 17);
             controls.target.set(0, verticalOffset, 0); 
             controls.enableRotate = true;
             controls.enableZoom = true;
@@ -99,11 +97,10 @@
             const box = new THREE.Box3().setFromObject(obj);
             const center = box.getCenter(new THREE.Vector3());
             obj.position.sub(center);
+            obj.position.y += 7.0; 
 
-            // Поднимаем модель вверх, чтобы она была в центре кадра
-            obj.position.y += 3.5; 
-
-            const scale = isMobile ? 0.4 : 0.5;
+            // --- ИЗМЕНЕНИЕ 2: Уменьшаем модель ---
+            const scale = isMobile ? 0.4 : 0.42;
             obj.scale.set(scale, scale, scale);
 
             scene.add(obj);
@@ -120,7 +117,6 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            // Перезагрузка при смене ориентации для пересчета позиции камеры
             if ((window.innerWidth < 1024) !== isMobile) {
                 window.location.reload();
             }

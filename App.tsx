@@ -5,15 +5,12 @@ import FeaturesSection from './components/MenuSection';
 import ParallaxImage from './components/ParallaxImage';
 import Reveal from './components/Reveal';
 import ParticlesOverlay from './components/ParticlesOverlay';
-import { DETAILS_ITEMS, NAV_LINKS } from './constants';
+import { DETAILS_ITEMS } from './constants';
 import { Check, ArrowRight, Upload, ChevronLeft, Loader2, Settings2, X, Box, ScanLine, FileText } from 'lucide-react';
 
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
 const RecipeGenerator = lazy(() => import('./components/RecipeGenerator'));
-
-// Optimization Constants
-const SECTION_ORDER = ['hero', 'features', 'autodraft', 'details', 'personalize', 'military', 'models', 'ai-chef', 'contact'];
 
 // Configuration Data
 type Option = { label: string; price: number; value: string };
@@ -103,7 +100,7 @@ const Modal: React.FC<{ isOpen: boolean; onClose: () => void; title: string; chi
           <h2 className="text-xl font-bold text-white">{title}</h2>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X size={24} className="text-gray-400" /></button>
         </div>
-        <div className="overflow-y-auto flex-1">
+        <div className="overflow-y-auto flex-1 custom-scrollbar">
           <div className="p-6">{children}</div>
         </div>
         <div className="p-6 border-t border-white/10 flex-shrink-0">
@@ -437,12 +434,12 @@ function App() {
                   )}
                </div>
 
-               <div className="absolute top-0 right-0 w-full lg:w-1/2 h-full flex items-center justify-center pointer-events-none">
-                  <div className="hidden lg:flex w-full max-w-[380px] h-full max-h-[650px] items-center pointer-events-auto">
-                     <div className={`w-full h-full bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col transition-opacity duration-700 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
-                        <ConfiguratorPanel />
-                     </div>
-                  </div>
+               <div className={`absolute top-0 right-0 w-full lg:w-1/2 h-full flex items-center justify-center pointer-events-none ${!is3DActive && 'bg-gray-200'}`}>
+                   <div className="hidden lg:flex w-full max-w-[380px] h-full max-h-[600px] items-center pointer-events-auto pt-20">
+                      <div className={`w-full h-full bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col transition-opacity duration-700 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
+                         <ConfiguratorPanel />
+                      </div>
+                   </div>
                </div>
 
                {mobileConfigOpen && (
@@ -466,47 +463,67 @@ function App() {
         </div>
 
         <footer id="contact" ref={setRef('contact')} className="snap-section h-[100svh] bg-black text-white flex flex-col justify-center items-center">
-          <Reveal className="w-full max-w-4xl mx-auto px-6 text-center">
-             <div className="mb-6">
-                <div className="text-3xl md:text-5xl font-bold tracking-tighter mb-2">bbqp</div>
-                <p className="text-sm text-gray-500 font-medium mb-6">Инновации в искусстве приготовления.</p>
-                <div className="mb-6 text-left text-sm text-gray-400">
-                  <div className="mb-4">
-                    <h3 className="font-bold text-white mb-2">Официальный дистрибьютор в РФ (продажи и гарантия)</h3>
-                    <p className="mb-1">ООО «АТТА»</p>
-                    <p className="mb-1">445043, г. Тольятти, ул. Коммунальная, д. 37А</p>
-                    <p>Электронная почта: <a href="mailto:st@atta-k.ru" className="text-orange-500 hover:text-orange-400">st@atta-k.ru</a></p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white mb-2">Уполномоченный представитель в РФ (жалобы и предложения)</h3>
-                    <p className="mb-1">Юридический отдел ТСЦ АО «САМТЕК»</p>
-                    <p className="mb-1">445027, г. Тольятти, а/я 3147</p>
-                    <p className="mb-1">Электронная почта: <a href="mailto:info@sam-tech.ru" className="text-orange-500 hover:text-orange-400">info@sam-tech.ru</a></p>
-                    <p>Бесплатная линия для регионов РФ: <span className="font-bold">8 800 7000 994</span></p>
-                  </div>
+            <Reveal className="w-full max-w-4xl mx-auto px-6 text-center">
+                <div className="mb-6">
+                    <div className="text-3xl md:text-5xl font-bold tracking-tighter mb-2">bbqp</div>
+                    <p className="text-sm text-gray-500 font-medium mb-6">Инновации в искусстве приготовления.</p>
+                    <div className="mb-6 text-left text-sm text-gray-400">
+                    <div className="mb-4">
+                        <h3 className="font-bold text-white mb-2">Официальный дистрибьютор в РФ (продажи и гарантия)</h3>
+                        <p className="mb-1">ООО «АТТА»</p>
+                        <p className="mb-1">445043, г. Тольятти, ул. Коммунальная, д. 37А</p>
+                        <p>Электронная почта: <a href="mailto:st@atta-k.ru" className="text-orange-500 hover:text-orange-400">st@atta-k.ru</a></p>
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-white mb-2">Уполномоченный представитель в РФ (жалобы и предложения)</h3>
+                        <p className="mb-1">Юридический отдел ТСЦ АО «САМТЕК»</p>
+                        <p className="mb-1">445027, г. Тольятти, а/я 3147</p>
+                        <p className="mb-1">Электронная почта: <a href="mailto:info@sam-tech.ru" className="text-orange-500 hover:text-orange-400">info@sam-tech.ru</a></p>
+                        <p>Бесплатная линия для регионов РФ: <span className="font-bold">8 800 7000 994</span></p>
+                    </div>
+                    </div>
                 </div>
-             </div>
-             <div className="border-t border-white/10 pt-6 mt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-600">
-               <p>© 2025 bbqp. Все права защищены.</p>
-               <div className="flex gap-6">
-                 <button onClick={() => setIsPrivacyOpen(true)} className="hover:text-white transition-colors">Конфиденциальность</button>
-                 <button onClick={() => setIsTermsOpen(true)} className="hover:text-white transition-colors">Условия</button>
-                 <a href="/assets/docs/MANUAL.pdf" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1"><FileText size={12} /> Руководство</a>
-               </div>
-             </div>
-          </Reveal>
+                <div className="border-t border-white/10 pt-6 mt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-600">
+                <p>© 2025 bbqp. Все права защищены.</p>
+                <div className="flex gap-6">
+                    <button onClick={() => setIsPrivacyOpen(true)} className="hover:text-white transition-colors">Конфиденциальность</button>
+                    <button onClick={() => setIsTermsOpen(true)} className="hover:text-white transition-colors">Условия</button>
+                    <a href="/assets/docs/MANUAL.pdf" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1"><FileText size={12} /> Руководство</a>
+                </div>
+                </div>
+            </Reveal>
         </footer>
       </main>
 
       <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Политика конфиденциальности">
-        <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm">
+        <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
+          <h4>1. Общие положения</h4>
           <p>Настоящая политика обработки персональных данных составлена в соответствии с требованиями Федерального закона от 27.07.2006. №152-ФЗ «О персональных данных» и определяет порядок обработки персональных данных и меры по обеспечению безопасности персональных данных, предпринимаемые ООО «АТТА» (далее – Оператор).</p>
+          <p>Оператор ставит своей важнейшей целью и условием осуществления своей деятельности соблюдение прав и свобод человека и гражданина при обработке его персональных данных, в том числе защиты прав на неприкосновенность частной жизни, личную и семейную тайну.</p>
+          <h4>2. Основные понятия, используемые в Политике</h4>
+          <p><strong>Персональные данные</strong> – любая информация, относящаяся прямо или косвенно к определенному или определяемому Пользователю веб-сайта bbqp.pro.</p>
+          <p><strong>Обработка персональных данных</strong> – любое действие (операция) или совокупность действий (операций), совершаемых с использованием средств автоматизации или без использования таких средств с персональными данными, включая сбор, запись, систематизацию, накопление, хранение, уточнение (обновление, изменение), извлечение, использование, передачу (распространение, предоставление, доступ), обезличивание, блокирование, удаление, уничтожение персональных данных.</p>
+          <h4>3. Цели обработки персональных данных</h4>
+          <p>Цель обработки персональных данных Пользователя — информирование Пользователя посредством отправки электронных писем и сообщений в мессенджерах; заключение, исполнение и прекращение гражданско-правовых договоров; предоставление доступа Пользователю к сервисам, информации и/или материалам, содержащимся на веб-сайте. В частности, мы используем ваши данные для оформления и доставки заказа.</p>
+          <h4>4. Правовые основания обработки персональных данных</h4>
+          <p>Оператор обрабатывает персональные данные Пользователя только в случае их заполнения и/или отправки Пользователем самостоятельно через специальные формы, расположенные на сайте. Заполняя соответствующие формы и/или отправляя свои персональные данные Оператору, Пользователь выражает свое согласие с данной Политикой.</p>
+          <h4>5. Порядок сбора, хранения, передачи и других видов обработки персональных данных</h4>
+          <p>Безопасность персональных данных, которые обрабатываются Оператором, обеспечивается путем реализации правовых, организационных и технических мер, необходимых для выполнения в полном объеме требований действующего законодательства в области защиты персональных данных. Ваши данные передаются третьим лицам (транспортным компаниям) только в целях исполнения договора купли-продажи и доставки товара.</p>
         </div>
       </Modal>
 
       <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Условия использования">
-        <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm">
-            <p>Настоящие Условия использования (далее — «Условия») регулируют использование веб-сайта bbqp (далее — «Сайт»). Используя Сайт, вы соглашаетесь с настоящими Условиями.</p>
+        <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
+            <h4>1. Общие положения</h4>
+            <p>Настоящие Условия использования (далее — «Условия») являются публичной офертой и регулируют взаимоотношения между ООО «АТТА» (далее — «Продавец») и любым физическим или юридическим лицом (далее — «Покупатель») при использовании веб-сайта bbqp.pro (далее — «Сайт»). Использование Сайта, в том числе оформление заказа, означает полное и безоговорочное согласие Покупателя с настоящими Условиями.</p>
+            <h4>2. Предмет соглашения</h4>
+            <p>Продавец обязуется передать в собственность Покупателя, а Покупатель обязуется оплатить и принять товар (печь-мангал bbqp и аксессуары), заказанный на Сайте в соответствии с выбранной конфигурацией.</p>
+            <h4>3. Оформление заказа и оплата</h4>
+            <p>Заказ на продукцию bbqp оформляется через конфигуратор на Сайте с последующим перенаправлением в мессенджер Telegram для подтверждения деталей с менеджером. Менеджер выставляет счет на оплату, который Покупатель может оплатить любым удобным способом (банковский перевод, онлайн-оплата). Цена товара фиксируется в счете и не подлежит изменению. Товар считается оплаченным с момента поступления денежных средств на расчетный счет Продавца.</p>
+            <h4>4. Условия доставки</h4>
+            <p>Доставка осуществляется по всей территории Российской Федерации с помощью транспортных компаний-партнеров («Деловые Линии», «ПЭК», «СДЭК» и другие). Стоимость и ориентировочные сроки доставки рассчитываются менеджером индивидуально при оформлении заказа и зависят от региона Покупателя и габаритов груза. Доставка может быть осуществлена до терминала транспортной компании в городе Покупателя или до конкретного адреса («до двери»). Обязательство Продавца по передаче товара считается исполненным с момента передачи груза первому перевозчику (транспортной компании). Риск случайной гибели или повреждения товара переходит к Покупателю с этого же момента.</p>
+            <h4>5. Гарантия и возврат</h4>
+            <p>На всю продукцию bbqp предоставляется гарантия производителя. Срок и условия гарантийного обслуживания указаны в сопроводительной документации к товару (паспорте изделия). Возврат товара надлежащего качества возможен в течение 7 дней с момента получения при условии сохранения товарного вида, потребительских свойств, а также документа, подтверждающего факт покупки. Возврат товара ненадлежащего качества осуществляется в соответствии с законодательством РФ.</p>
         </div>
       </Modal>
 
