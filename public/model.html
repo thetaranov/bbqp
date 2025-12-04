@@ -62,21 +62,9 @@
             controls.autoRotateSpeed = 0.5;
         } else {
             // Десктоп:
-            
-            // 1. ЦЕНТР ВРАЩЕНИЯ:
-            // Строго (0,0,0). Это точка, вокруг которой летает камера.
-            // Модель мы тоже поставим центром в (0,0,0).
             controls.target.set(0, 0, 0);
-
-            // 2. ПОЗИЦИЯ КАМЕРЫ:
-            // Y=3 дает вид "немного сверху".
-            // Вектор (12, 3, 18) сохраняет нужный вам ракурс.
             camera.position.set(12, 3, 18);
 
-            // 3. СМЕЩЕНИЕ НА ЭКРАНЕ (View Offset):
-            // Это "обманывает" камеру, сдвигая окно рендеринга.
-            // w * 0.20 (X) -> Сдвигает центр вправо, модель уезжает ВЛЕВО.
-            // h * 0.15 (Y) -> Сдвигает центр вниз, модель уезжает ВВЕРХ (на 15%).
             const w = window.innerWidth;
             const h = window.innerHeight;
             camera.setViewOffset(w, h, w * 0.20, h * -0.1, w, h);
@@ -98,8 +86,24 @@
 
         new RGBELoader().load('/assets/textures/park.hdr', (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
-            scene.background = texture;
+            
+            // Используем environment для освещения модели
             scene.environment = texture;
+
+            // --- УМЕНЬШЕННЫЙ СКАЙБОКС ---
+            // Вместо scene.background (который бесконечен), создаем сферу вокруг.
+            // Radius 15 - это достаточно "близко" (2 times smaller than typical far clipping).
+            const sphereGeo = new THREE.SphereGeometry(15, 60, 40);
+            // Инвертируем масштаб по X, чтобы текстура была внутри
+            sphereGeo.scale(-1, 1, 1);
+            
+            const sphereMat = new THREE.MeshBasicMaterial({ 
+                map: texture 
+            });
+            
+            const backgroundMesh = new THREE.Mesh(sphereGeo, sphereMat);
+            backgroundMesh.rotation.y = Math.PI / 2; // Повернуть, если нужно
+            scene.add(backgroundMesh);
         });
 
         const loader = new OBJLoader();
@@ -108,20 +112,12 @@
                 if (child.isMesh) child.material = material;
             });
 
-            // 1. Сначала задаем масштаб
             const scale = isMobile ? 0.4 : 0.38;
             obj.scale.set(scale, scale, scale);
-            
-            // 2. Важно: обновляем матрицу мира перед вычислением Box,
-            // чтобы Box учитывал масштаб.
             obj.updateMatrixWorld(true);
 
-            // 3. Вычисляем центр bounding box-а (объема модели)
             const box = new THREE.Box3().setFromObject(obj);
             const center = box.getCenter(new THREE.Vector3());
-
-            // 4. Сдвигаем модель так, чтобы её геометрический центр стал (0,0,0)
-            // Это гарантирует, что controls.target(0,0,0) будет ровно в центре массы.
             obj.position.sub(center);
 
             scene.add(obj);
@@ -143,8 +139,7 @@
             renderer.setSize(w, h);
 
             if (w >= 1024) {
-                // Применяем те же смещения при ресайзе
-                camera.setViewOffset(w, h, w * 0.20, h * 0.15, w, h);
+                camera.setViewOffset(w, h, w * 0.20, h * -0.1, w, h);
             } else {
                 camera.clearViewOffset();
             }
