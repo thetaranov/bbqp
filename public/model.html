@@ -7,6 +7,16 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: transparent; }
         #canvas-container { width: 100%; height: 100%; touch-action: none; pointer-events: none; }
+        /* На десктопе возвращаем управление курсором */
+        @media (min-width: 1024px) {
+            #canvas-container {
+                pointer-events: auto;
+                cursor: grab;
+            }
+            #canvas-container:active {
+                cursor: grabbing;
+            }
+        }
     </style>
     <script type="importmap">
         {
@@ -24,39 +34,57 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
         const container = document.getElementById('canvas-container');
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 0.8;
         container.appendChild(renderer.domElement);
-
-        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        
         const scene = new THREE.Scene();
-        scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
         const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-        // Камера смотрит немного сверху, с хорошего расстояния
-        camera.position.set(0, 2, 18);
+        camera.position.set(0, 4, 18);
         
         const controls = new OrbitControls(camera, renderer.domElement);
-        // ЦЕЛЬ КАМЕРЫ ЗАФИКСИРОВАНА в центре. Мы ее больше не трогаем.
         controls.target.set(0, 0, 0); 
         
-        controls.enableDamping = false;
-        controls.enablePan = false;
-        controls.enableZoom = false;
-        controls.enableRotate = false;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.5;
+        // --- НОВЫЕ НАСТРОЙКИ УПРАВЛЕНИЯ ---
+        const isMobile = window.innerWidth < 1024;
+        
+        if (isMobile) {
+            // На мобильных - нет управления, только авто-вращение
+            controls.enableRotate = false;
+            controls.enableZoom = false;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.5;
+        } else {
+            // На десктопе - вращение и зум, без перемещения
+            controls.enableRotate = true;
+            controls.enableZoom = true;
+            controls.enablePan = false;
+            controls.autoRotate = false;
+            controls.enableDamping = true; // Плавность
+            controls.minDistance = 10;   // Не даем приблизиться слишком близко
+            controls.maxDistance = 25;   // Не даем отдалиться слишком далеко
+        }
 
         const isBlack = new URLSearchParams(window.location.search).get('color') === 'black';
         const material = new THREE.MeshStandardMaterial({
             color: isBlack ? new THREE.Color('#202020') : new THREE.Color('#e5e7eb'),
             roughness: isBlack ? 0.4 : 0.2,
             metalness: isBlack ? 0.4 : 0.9,
-            envMapIntensity: isBlack ? 1.5 : 1.0,
+            envMapIntensity: 1,
+        });
+
+        // --- ЗАГРУЗКА ФОНА (СКАЙБОКСА) ---
+        new RGBELoader().load('/assets/textures/park.hdr', (texture) => {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            scene.background = texture;
+            scene.environment = texture;
         });
 
         const loader = new OBJLoader();
@@ -67,15 +95,11 @@
 
             const box = new THREE.Box3().setFromObject(obj);
             const center = box.getCenter(new THREE.Vector3());
-            // 1. Стандартно центрируем модель, чтобы ее центр был в (0,0,0)
             obj.position.sub(center);
 
-            // 2. --- ВОТ РЕШЕНИЕ ---
-            //    Просто поднимаем модель по оси Y. Камера остается на месте.
-            //    Теперь изменение этого числа будет РЕАЛЬНО двигать модель вверх/вниз в кадре.
-            obj.position.y += 7.0; // <--- ИЗМЕНЯЙТЕ ЭТО ЧИСЛО (напр. 4.0, 2.5), ЧТОБЫ ПОДОБРАТЬ ВЫСОТУ
+            // --- ФИНАЛЬНОЕ СМЕЩЕНИЕ МОДЕЛИ ВВЕРХ ---
+            obj.position.y += 7.0; // <--- ОПТИМАЛЬНОЕ ЗНАЧЕНИЕ
 
-            const isMobile = window.innerWidth < 1024;
             const scale = isMobile ? 0.35 : 0.45;
             obj.scale.set(scale, scale, scale);
 
@@ -90,6 +114,11 @@
         animate();
 
         window.addEventListener('resize', () => {
+            const mobileCheck = window.innerWidth < 1024;
+            if (mobileCheck !== isMobile) {
+                // Если изменился режим (десктоп/мобильный), перезагружаем iframe для применения нужных контролов
+                window.location.reload();
+            }
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
