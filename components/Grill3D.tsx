@@ -134,12 +134,10 @@ const ErrorPlaceholder: React.FC<{ onRetry: () => void }> = ({ onRetry }) => ( <
 const Grill3D: React.FC<Grill3DProps> = ({ url, isMobile = false, enableControls = true, isVisible = true, textureUrl = null, engravingType = 'none', color = 'stainless', onLoad }) => {
   const [retryKey, setRetryKey] = useState(0);
 
-  // --- НАЧАЛО ИЗМЕНЕНИЙ: Блокировка событий ---
-  const canvasPointerEvents = enableControls ? 'auto' : 'none';
-
+  // --- НАЧАЛО ИЗМЕНЕНИЙ: Возвращаем OrbitControls и добавляем touch-action ---
   return (
-    <div className="w-full h-full bg-transparent relative" style={{ pointerEvents: canvasPointerEvents }}>
-      <Canvas shadows dpr={[1, 1.5]} camera={{ fov: 45, position: [10, 10, 10] }} style={{ pointerEvents: canvasPointerEvents }}>
+    <div className="w-full h-full bg-transparent relative" style={{ touchAction: 'pan-y' }} onContextMenu={(e) => e.preventDefault()}>
+      <Canvas shadows dpr={[1, 1.5]} camera={{ fov: 45, position: [10, 10, 10] }}>
         <Suspense fallback={null}>
             <Environment preset="forest" background={true} blur={0.05} />
         </Suspense>
@@ -166,11 +164,11 @@ const Grill3D: React.FC<Grill3DProps> = ({ url, isMobile = false, enableControls
 
         <OrbitControls 
           makeDefault 
-          autoRotate={!enableControls}
+          autoRotate={!enableControls} // Авто-вращение на мобильных
           autoRotateSpeed={0.5}
           enableZoom={false} 
           enablePan={false}
-          enableRotate={enableControls}
+          enableRotate={enableControls} // Ручное вращение отключено на мобильных
           minPolarAngle={0} 
           maxPolarAngle={Math.PI / 1.8} 
         />
