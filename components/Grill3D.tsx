@@ -1,6 +1,6 @@
 import React, { Suspense, ReactNode, useLayoutEffect, useState, useMemo, useRef, useEffect } from 'react';
 import { Canvas, useLoader, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stage, Float, Environment, Center, Html, Decal, ContactShadows } from '@react-three/drei';
+import { OrbitControls, Stage, Float, Environment, Center, Html, Decal } from '@react-three/drei';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import * as THREE from 'three';
 import { Loader2, RotateCw } from 'lucide-react';
@@ -76,7 +76,7 @@ const CINEMATIC_SHOTS = [
     { name: "Side Profile", pos: new THREE.Vector3(25, 2, 0), look: new THREE.Vector3(0, 1, 0) }
 ];
 
-const CinematicController = ({ controlsRef }: { controlsRef: React.RefObject<any> }) => {
+const CinematicController = ({ controlsRef, enableControls }: { controlsRef: React.RefObject<any>, enableControls: boolean }) => {
     const { camera, gl } = useThree();
     const [shotIndex, setShotIndex] = useState(0);
     const lastInteraction = useRef(Date.now());
@@ -84,6 +84,7 @@ const CinematicController = ({ controlsRef }: { controlsRef: React.RefObject<any
     const currentLookAt = useRef(new THREE.Vector3(0, 0, 0));
 
     useEffect(() => {
+      if (!enableControls) return;
         const resetTimer = () => {
             lastInteraction.current = Date.now();
             if (isIdle.current) {
@@ -95,16 +96,21 @@ const CinematicController = ({ controlsRef }: { controlsRef: React.RefObject<any
         const events = ['pointerdown', 'wheel', 'touchstart'];
         events.forEach(ev => canvasEl.addEventListener(ev, resetTimer));
         return () => events.forEach(ev => canvasEl.removeEventListener(ev, resetTimer));
-    }, [gl.domElement]);
+    }, [gl.domElement, enableControls]);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            if (isIdle.current) setShotIndex(prev => (prev + 1) % CINEMATIC_SHOTS.length);
+            if (isIdle.current && enableControls) setShotIndex(prev => (prev + 1) % CINEMATIC_SHOTS.length);
         }, 10000); 
         return () => clearInterval(interval);
-    }, []);
+    }, [enableControls]);
 
     useFrame((state, delta) => {
+        if (!enableControls) {
+          if (controlsRef.current) controlsRef.current.update();
+          return;
+        }
+
         if (!isIdle.current && Date.now() - lastInteraction.current > 30000) {
             isIdle.current = true;
         }
@@ -144,15 +150,10 @@ const OBJGrill: React.FC<{ url: string; engravingType: 'none' | 'standard' | 'cu
   const texture = useLoader(THREE.TextureLoader, activeTextureUrl);
   const scene = useMemo(() => obj.clone(), [obj]);
   const [modelDims, setModelDims] = useState<{ width: number, height: number, depth: number } | null>(null);
-  const meshRef = useRef<THREE.Group>(null);
 
   useEffect(() => {
       if (onLoad) onLoad();
   }, [onLoad]);
-
-  useFrame((state, delta) => {
-    if (meshRef.current) meshRef.current.rotation.y += delta * 0.15;
-  });
 
   useLayoutEffect(() => {
     const isBlack = color === 'black';
@@ -186,7 +187,7 @@ const OBJGrill: React.FC<{ url: string; engravingType: 'none' | 'standard' | 'cu
   const showDecal = engravingType !== 'none' && engravingType !== 'standard';
 
   return (
-    <group ref={meshRef} onContextMenu={(e) => e.stopPropagation()}>
+    <group onContextMenu={(e) => e.stopPropagation()}>
         <Center 
             onCentered={({ width, height, depth }) => {
                 setModelDims(prev => {
@@ -249,11 +250,10 @@ const ErrorPlaceholder: React.FC<{ onRetry: () => void }> = ({ onRetry }) => (
   </Html>
 );
 
+// --- НАЧАЛО ИЗМЕНЕНИЙ: Обновленный компонент Grill3D ---
 const Grill3D: React.FC<Grill3DProps> = ({ url, enableControls = true, isVisible = true, textureUrl = null, engravingType = 'none', color = 'stainless', onLoad }) => {
   const [retryKey, setRetryKey] = useState(0);
   const controlsRef = useRef<any>(null);
-
-  if (!url || !isVisible) return null;
 
   return (
     <div className="w-full h-full bg-transparent relative touch-none" onContextMenu={(e) => e.preventDefault()}>
@@ -261,29 +261,43 @@ const Grill3D: React.FC<Grill3DProps> = ({ url, enableControls = true, isVisible
         <Suspense fallback={null}>
             <Environment preset="forest" background={true} blur={0.05} />
         </Suspense>
-        <Suspense fallback={<LoadingPlaceholder />}>
-          <ErrorBoundary 
-            key={`${url}-${retryKey}`}
-            fallback={(reset) => <ErrorPlaceholder onRetry={() => {
-                try { THREE.Cache.clear(); } catch(e) { console.warn(e); }
-                setRetryKey(prev => prev + 1);
-                reset();
-            }} />}
-          >
-            <CameraLayoutAdjuster isMobile={!enableControls} />
-            <Stage intensity={0.6} adjustCamera={false} shadows={false}>
-              <Float speed={2} rotationIntensity={0.1} floatIntensity={0.2}>
-                  <OBJGrill url={url!} engravingType={engravingType} textureUrl={textureUrl} color={color} onLoad={onLoad} />
-              </Float>
-            </Stage>
-            <ContactShadows position={[0, -2.5, 0]} opacity={0.6} scale={20} blur={2.0} far={4.5} color="black" />
-            <CinematicController controlsRef={controlsRef} />
-          </ErrorBoundary>
-        </Suspense>
-        <OrbitControls ref={controlsRef} makeDefault autoRotate={false} enableZoom={false} enablePan={false} enableRotate={enableControls} minPolarAngle={0} maxPolarAngle={Math.PI / 1.8} />
+
+        {url && isVisible && (
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <ErrorBoundary 
+              key={`${url}-${retryKey}`}
+              fallback={(reset) => <ErrorPlaceholder onRetry={() => {
+                  try { THREE.Cache.clear(); } catch(e) { console.warn(e); }
+                  setRetryKey(prev => prev + 1);
+                  reset();
+              }} />}
+            >
+              <CameraLayoutAdjuster isMobile={!enableControls} />
+              <Stage intensity={0.6} adjustCamera={false} shadows={false}>
+                <Float speed={2} rotationIntensity={0.1} floatIntensity={0.2}>
+                    <OBJGrill url={url!} engravingType={engravingType} textureUrl={textureUrl} color={color} onLoad={onLoad} />
+                </Float>
+              </Stage>
+              <CinematicController controlsRef={controlsRef} enableControls={enableControls} />
+            </ErrorBoundary>
+          </Suspense>
+        )}
+
+        <OrbitControls 
+          ref={controlsRef} 
+          makeDefault 
+          autoRotate={!enableControls} // Включаем авто-вращение на мобильных
+          autoRotateSpeed={0.5}
+          enableZoom={false} 
+          enablePan={false} 
+          enableRotate={enableControls} // Отключаем ручное вращение на мобильных
+          minPolarAngle={0} 
+          maxPolarAngle={Math.PI / 1.8} 
+        />
       </Canvas>
     </div>
   );
 };
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 export default Grill3D;

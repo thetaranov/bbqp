@@ -154,22 +154,25 @@ const OptimizedMarqueeRow = ({ reverse = false, items, speed = 1, itemClassName 
     );
 };
 
+// --- НАЧАЛО ИЗМЕНЕНИЙ: Исправление прокрутки в модальном окне ---
 const Modal: React.FC<{ isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode }> = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
       <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
-        <div className="p-6 border-b border-white/10 flex items-center justify-between">
+        <div className="p-6 border-b border-white/10 flex items-center justify-between flex-shrink-0">
           <h2 className="text-xl font-bold text-white">{title}</h2>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
             <X size={24} className="text-gray-400" />
           </button>
         </div>
-        <div className="p-6 overflow-y-auto flex-1">
-          {children}
+        <div className="overflow-y-auto flex-1">
+          <div className="p-6">
+            {children}
+          </div>
         </div>
-        <div className="p-6 border-t border-white/10">
+        <div className="p-6 border-t border-white/10 flex-shrink-0">
           <button onClick={onClose} className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition-colors">
             Закрыть
           </button>
@@ -178,6 +181,10 @@ const Modal: React.FC<{ isOpen: boolean; onClose: () => void; title: string; chi
     </div>
   );
 };
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
+// ... (остальные импорты и константы остаются без изменений)
+// ... (компоненты FloatingFormula, MarqueeImage, OptimizedMarqueeRow, Modal остаются без изменений)
 
 // Добавить этот CSS перед функцией App()
 const globalGridStyles = `
@@ -428,31 +435,17 @@ function App() {
 
   // --- НАЧАЛО ИЗМЕНЕНИЙ: Блокировка скролла при открытом меню ---
   useEffect(() => {
+    const mainContainer = document.querySelector('.snap-container');
     if (mobileConfigOpen) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
+      if (mainContainer) mainContainer.classList.add('overflow-hidden');
     } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
+      if (mainContainer) mainContainer.classList.remove('overflow-hidden');
     }
-    // Cleanup
     return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
+      if (mainContainer) mainContainer.classList.remove('overflow-hidden');
     };
   }, [mobileConfigOpen]);
   // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-
-  // --- НАЧАЛО КОДА ДЛЯ ОТМЕНЫ РЕДИРЕКТА ---
-  useEffect(() => {
-    // Проверяем, был ли запущен таймер-редиректа
-    if (window.fallbackTimer) {
-      // Если да, отменяем его, так как компонент App успешно загрузился
-      clearTimeout(window.fallbackTimer);
-      console.log('Приложение загрузилось, резервное перенаправление отменено.');
-    }
-  }, []); // Пустой массив зависимостей означает, что этот код выполнится один раз при монтировании компонента
-  // --- КОНЕЦ КОДА ДЛЯ ОТМЕНЫ РЕДИРЕКТА ---
 
   const setRef = (id: string) => (el: HTMLDivElement | null) => { sectionRefs.current[id] = el; };
   const handleSelect = (categoryId: string, option: Option) => setConfig(prev => ({ ...prev, [categoryId]: option }));
@@ -484,11 +477,6 @@ function App() {
         setIs3DActive(true);
         if (isMobile) setMobileConfigOpen(true);
     }
-  };
-
-  const handleStartOver = () => {
-    const hero = document.getElementById('hero');
-    if (hero) hero.scrollIntoView({ behavior: 'smooth' });
   };
 
   const SectionLoader = () => (
@@ -735,38 +723,38 @@ function App() {
            )}
         </section>
 
+        {/* --- НАЧАЛО ИЗМЕНЕНИЙ: Обновленная логика 3D-сцены --- */}
         <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 transition-all duration-[2500ms] ease-in-out relative pt-0 pb-0 overflow-hidden">
            {shouldRenderSection('models') && (
             <>
-               {/* 3D SCENE BACKGROUND */}
-               <div className="absolute inset-0 w-full h-full">
-                    {/* Placeholder - CENTERED */}
-                    <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center bg-gray-200 transition-opacity duration-500 ${is3DActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                        <img src="/assets/images/model-preview.png" alt="3D Preview" className="hidden md:block absolute inset-0 w-full h-full object-cover opacity-60 blur-sm scale-105" />
-                        <button onClick={() => setIs3DActive(true)} className="relative z-30 group flex flex-col items-center gap-4 transition-transform hover:scale-105">
-                            <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors">
-                                <Box size={40} strokeWidth={1.2} className="ml-1" />
-                            </div>
-                            <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Запустить 3D</span></div>
-                        </button>
-                    </div>
+               <div className="absolute inset-0 w-full h-full z-0">
+                  <Suspense fallback={<SectionLoader />}>
+                     <Grill3D 
+                        url={is3DActive ? MODEL_URL : null} // Загружаем модель только по клику
+                        enableControls={!isMobile} 
+                        isVisible={activeSection === 'models'} 
+                        engravingType={config.engraving.value as 'none'|'standard'|'custom'} 
+                        textureUrl={config.engraving.value === 'custom' ? customTextureUrl : null} 
+                        color={config.color.value as 'black' | 'stainless'} 
+                        onLoad={() => setIsModelLoaded(true)} 
+                     />
+                  </Suspense>
+               </div>
 
-                    {is3DActive && (
-                        <div className="absolute inset-0 w-full h-full z-0">
-                            <Suspense fallback={<SectionLoader />}>
-                                {/* --- НАЧАЛО ИЗМЕНЕНИЙ: Отключение вращения на мобильных --- */}
-                                <Grill3D url={MODEL_URL} enableControls={!isMobile} isVisible={activeSection === 'models'} engravingType={config.engraving.value as 'none'|'standard'|'custom'} textureUrl={config.engraving.value === 'custom' ? customTextureUrl : null} color={config.color.value as 'black' | 'stainless'} onLoad={() => setIsModelLoaded(true)} />
-                                {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
-                            </Suspense>
-                        </div>
-                    )}
+               <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center bg-gray-200/0 transition-opacity duration-500 ${is3DActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                  <button onClick={() => setIs3DActive(true)} className="relative z-30 group flex flex-col items-center gap-4 transition-transform hover:scale-105">
+                     <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors">
+                        <Box size={40} strokeWidth={1.2} className="ml-1" />
+                     </div>
+                     <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Показать модель</span></div>
+                  </button>
                </div>
 
                {/* UI OVERLAY */}
                <div className="relative z-10 w-full h-full pointer-events-none">
                   {mobileConfigOpen && (
                     <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
-                        <div className="bg-[#111] w-full sm:w-[90%] h-[85vh] sm:h-[80vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
+                        <div className="bg-[#111] w-full sm:w-[90%] h-[75vh] sm:h-auto sm:max-h-[80vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
                             <button onClick={() => setMobileConfigOpen(false)} className="absolute top-4 right-4 z-20 p-2 bg-white/10 rounded-full text-white hover:bg-white/20 transition-colors"><X size={24} /></button>
                             <ConfiguratorPanel />
                         </div>
@@ -784,6 +772,7 @@ function App() {
             </>
            )}
         </section>
+        {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
 
         <div id="ai-chef" ref={setRef('ai-chef')} className="snap-section h-[100svh] bg-[#050505] transition-all duration-[2500ms] ease-in-out pt-16 md:pt-0">
              {shouldRenderSection('ai-chef') && <Suspense fallback={<SectionLoader />}><RecipeGenerator /></Suspense>}
@@ -795,7 +784,6 @@ function App() {
                 <div className="text-3xl md:text-5xl font-bold tracking-tighter mb-2">bbqp</div>
                 <p className="text-sm text-gray-500 font-medium mb-6">Инновации в искусстве приготовления.</p>
 
-                {/* Контактная информация */}
                 <div className="mb-6 text-left text-sm text-gray-400">
                   <div className="mb-4">
                     <h3 className="font-bold text-white mb-2">Официальный дистрибьютор в РФ (продажи и гарантия)</h3>
@@ -813,10 +801,6 @@ function App() {
                   </div>
                 </div>
              </div>
-
-             {/* --- НАЧАЛО ИЗМЕНЕНИЙ: Удалена кнопка "Начать сначала" --- */}
-             {/* Кнопка удалена */}
-             {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
 
              <div className="border-t border-white/10 pt-6 mt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-600">
                <p>© 2025 bbqp. Все права защищены.</p>
@@ -837,7 +821,7 @@ function App() {
         <div className="prose prose-invert max-w-none">
           <h3>1. Общие положения</h3>
           <p>Настоящая политика обработки персональных данных составлена в соответствии с требованиями Федерального закона от 27.07.2006. №152-ФЗ «О персональных данных» и определяет порядок обработки персональных данных и меры по обеспечению безопасности персональных данных, предпринимаемые ООО «АТТА» (далее – Оператор).</p>
-          {/* ... остальной текст модального окна */}
+           {/* ... остальной текст ... */}
         </div>
       </Modal>
 
@@ -845,7 +829,7 @@ function App() {
         <div className="prose prose-invert max-w-none">
           <h3>1. Общие положения</h3>
           <p>Настоящие Условия использования (далее — «Условия») регулируют использование веб-сайта bbqp (далее — «Сайт»). Используя Сайт, вы соглашаетесь с настоящими Условиями.</p>
-          {/* ... остальной текст модального окна */}
+          {/* ... остальной текст ... */}
         </div>
       </Modal>
 
