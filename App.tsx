@@ -7,8 +7,6 @@ import Reveal from './components/Reveal';
 import ParticlesOverlay from './components/ParticlesOverlay';
 import { DETAILS_ITEMS } from './constants';
 import { Check, ArrowRight, Upload, ChevronLeft, Loader2, Settings2, X, Box, ScanLine, FileText } from 'lucide-react';
-import { Canvas } from '@react-three/fiber';
-import { Environment } from '@react-three/drei';
 
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
@@ -266,10 +264,12 @@ function App() {
                {is3DActive ? (
                   <iframe src={`/model.html?color=${config.color.value}`} title="BBQP 3D Model" className={`absolute inset-0 z-10 w-full h-full border-0 ${isMobile ? 'pointer-events-none' : ''}`} onLoad={() => setIsModelLoaded(true)} ></iframe>
                ) : (
-                <div className="absolute inset-0 z-0 pointer-events-none">
-                  <Canvas shadows dpr={[1, 1.5]} camera={{ fov: 45, position: [10, 10, 10] }}>
-                    <Suspense fallback={null}><Environment preset="forest" background={true} blur={0.05} /></Suspense>
-                  </Canvas>
+                <div className="absolute inset-0 z-0 pointer-events-none bg-gray-200"> {/* Добавлен фон для плейсхолдера */}
+                  <Suspense fallback={null}>
+                    <Canvas shadows dpr={[1, 1.5]} camera={{ fov: 45, position: [10, 10, 10] }}>
+                       <Environment preset="forest" background={true} blur={0.05} />
+                    </Canvas>
+                  </Suspense>
                 </div>
                )}
 
