@@ -36,11 +36,13 @@
         const scene = new THREE.Scene();
         scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 18); // Камера смотрит прямо, без наклона
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+        // НОВАЯ ПОЗИЦИЯ КАМЕРЫ: Чуть выше и достаточно далеко, чтобы вся модель была в кадре
+        camera.position.set(0, 3, 15);
 
         const controls = new OrbitControls(camera, renderer.domElement);
-        controls.target.set(0, 0, 0); // Цель камеры - центр сцены
+        // ЦЕЛЬ КАМЕРЫ: Строго в центр сцены (0,0,0)
+        controls.target.set(0, 0, 0);
         
         controls.enableDamping = false;
         controls.enablePan = false;
@@ -64,18 +66,13 @@
                 if (child.isMesh) child.material = material;
             });
 
+            // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: НАДЕЖНОЕ ЦЕНТРИРОВАНИЕ ---
+            // 1. Создаем ограничивающий бокс вокруг модели
             const box = new THREE.Box3().setFromObject(obj);
+            // 2. Находим его геометрический центр
             const center = box.getCenter(new THREE.Vector3());
-            const size = box.getSize(new THREE.Vector3());
-            
-            // Сначала центрируем модель по X и Z
-            obj.position.x -= center.x;
-            obj.position.z -= center.z;
-
-            // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ ---
-            // Вместо полного центрирования по Y, мы ставим "основание" модели на нулевую координату (пол)
-            // и затем поднимаем ее на 1/4 своей высоты, чтобы она была чуть выше центра.
-            obj.position.y = -box.min.y + (size.y * 0.25);
+            // 3. Смещаем модель так, чтобы ее центр оказался в точке (0,0,0)
+            obj.position.sub(center);
 
             const isMobile = window.innerWidth < 1024;
             const scale = isMobile ? 0.35 : 0.45;
