@@ -12,6 +12,7 @@ import Modal from './components/Modal';
 import ConfiguratorPanel from './components/ConfiguratorPanel';
 import SiteFooter from './components/Footer';
 import { Option, ConfigCategory } from './types';
+
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
 const RecipeGenerator = lazy(() => import('./components/RecipeGenerator'));
@@ -45,37 +46,46 @@ const MarqueeImage = React.memo(({ src, className }: { src: string, className?: 
   );
 });
 
-// --- ОБНОВЛЕННЫЙ КОМПОНЕНТ: 3D КОЛЬЦО С ИНТЕРПОЛЯЦИЕЙ И ПРИОСТАНОВКОЙ ---
-const RingCarousel = ({ reverse = false, items, radius = 600 }: { reverse?: boolean, items: typeof DETAILS_ITEMS, radius?: number }) => {
+// --- 3D КОЛЬЦО ---
+const RingCarousel = ({ reverse = false, items, radius = 800 }: { reverse?: boolean, items: typeof DETAILS_ITEMS, radius?: number }) => {
     const ringRef = useRef<HTMLDivElement>(null);
     const rafRef = useRef<number>(0);
-    const lastTimeRef = useRef<number>(0);
     const angleRef = useRef<number>(0);
-    const speed = reverse ? -0.0001 : 0.0001;
+
+    // Скорость вращения: достаточно медленная, чтобы не укачивало, но заметная
+    const speed = reverse ? -0.0005 : 0.0005;
     const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
+        let lastTime = performance.now();
+
         const animate = (time: number) => {
             if (!ringRef.current) return;
-            const delta = time - (lastTimeRef.current || time);
-            lastTimeRef.current = time;
+
+            const delta = time - lastTime;
+            lastTime = time;
+
             if (!isHovered) {
-                angleRef.current += speed * delta;
+                // Нормализация скорости вне зависимости от FPS
+                angleRef.current += speed * (delta / 16); 
             }
+
             ringRef.current.style.transform = `rotateY(${angleRef.current}rad)`;
             rafRef.current = requestAnimationFrame(animate);
         };
+
         rafRef.current = requestAnimationFrame(animate);
         return () => cancelAnimationFrame(rafRef.current);
     }, [isHovered, speed]);
 
+    // Увеличиваем количество элементов для плотного кольца
     const ringItems = useMemo(() => [...items, ...items, ...items], [items]);
     const count = ringItems.length;
 
     return (
         <div
             className="absolute inset-0 flex items-center justify-center pointer-events-auto"
-            style={{ perspective: '1200px' }}
+            style={{ perspective: '1000px' }} // Perspective задает "глубину" камеры
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -91,16 +101,16 @@ const RingCarousel = ({ reverse = false, items, radius = 600 }: { reverse?: bool
                             key={`ring-${index}`}
                             className="absolute top-1/2 left-1/2"
                             style={{
-                                transform: `translate(-50%, -50%) rotateY(${yAngle}rad) translateZ(${radius}px) rotateX(${Math.sin(yAngle) * 0.2}rad)`,
+                                // Сдвигаем элемент по радиусу и поворачиваем к центру
+                                transform: `translate(-50%, -50%) rotateY(${yAngle}rad) translateZ(${radius}px)`,
                                 backfaceVisibility: 'hidden',
                                 WebkitBackfaceVisibility: 'hidden',
                                 willChange: 'transform',
-                                zIndex: Math.cos(yAngle) > 0 ? 10 : 1
                             }}
                         >
                             <MarqueeImage 
                                 src={item.image} 
-                                className="w-32 h-32 md:w-40 md:h-40 shadow-[0_0_20px_rgba(0,0,0,0.9)]" 
+                                className="w-40 h-40 md:w-48 md:h-48 shadow-[0_0_30px_rgba(0,0,0,0.8)]" 
                             />
                         </div>
                     );
@@ -131,15 +141,8 @@ function App() {
   const row3Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
 
   useEffect(() => {
-    const finishIntro = () => {
-        setIntroComplete(true);
-    };
-    if (document.readyState === 'complete') {
-      finishIntro();
-    } else {
-      window.addEventListener('load', finishIntro);
-    }
-    return () => window.removeEventListener('load', finishIntro);
+    const timer = setTimeout(() => setIntroComplete(true), 500);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -247,18 +250,23 @@ function App() {
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex flex-col justify-center overflow-hidden relative group">
             <>
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] bg-orange-900/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+              {/* Контейнер для колец */}
+              {/* Немного наклоняем кольца для объема */}
               <div className="absolute inset-0 z-[2] overflow-hidden pointer-events-none">
-                 <div className="absolute top-[20%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(-5deg) translateY(-20%) scale(1.1)' }}>
-                    <RingCarousel items={row1Items} radius={700} />
+                 <div className="absolute top-[20%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(-5deg) translateY(-20%) scale(1.0)' }}>
+                    <RingCarousel items={row1Items} radius={800} />
                  </div>
-                 <div className="absolute top-[50%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(0deg) translateY(-50%) scale(1.1)' }}>
-                    <RingCarousel items={row2Items} reverse radius={750} />
+                 <div className="absolute top-[50%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(0deg) translateY(-50%) scale(1.0)' }}>
+                    <RingCarousel items={row2Items} reverse radius={900} />
                  </div>
-                 <div className="absolute top-[80%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(5deg) translateY(-80%) scale(1.1)' }}>
-                    <RingCarousel items={row3Items} radius={700} />
+                 <div className="absolute top-[80%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(5deg) translateY(-80%) scale(1.0)' }}>
+                    <RingCarousel items={row3Items} radius={800} />
                  </div>
               </div>
-              <div className="relative z-20 pointer-events-none w-full h-full flex flex-col items-start justify-center p-8 md:p-12 md:pl-24 bg-gradient-to-r from-black via-black/70 to-transparent">
+
+              {/* Текст с черным градиентом для читаемости */}
+              <div className="relative z-20 pointer-events-none w-full h-full flex flex-col items-start justify-center p-8 md:p-12 md:pl-24 bg-gradient-to-r from-black via-black/60 to-transparent">
                  <Reveal className="max-w-3xl">
                      <h2 className="text-[9vw] md:text-6xl lg:text-7xl font-bold tracking-tighter text-white drop-shadow-2xl mb-8 text-left">Для тех,<br />кто ценит детали</h2>
                  </Reveal>
@@ -413,7 +421,7 @@ function App() {
              <p>...</p>
         </div>
       </Modal>
-      <Suspense fallback={null}><ChefBus visible={introComplete} externalIsOpen={isChatOpen} onToggle={setIsChatOpen} /></Suspense>
+      <Suspense fallback={null}><ChefBot visible={introComplete} externalIsOpen={isChatOpen} onToggle={setIsChatOpen} /></Suspense>
     </div>
   );
 }
