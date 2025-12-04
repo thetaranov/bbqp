@@ -37,12 +37,13 @@
         scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
         const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-        // НОВАЯ ПОЗИЦИЯ КАМЕРЫ: Чуть выше и достаточно далеко, чтобы вся модель была в кадре
-        camera.position.set(0, 3, 15);
-
+        
+        // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ №1: Камера и цель смотрят на новую, более высокую точку ---
+        const VERTICAL_OFFSET = 2.5; // <--- Вот это число поднимает модель. Можете его менять (например, 3.0, 2.0).
+        camera.position.set(0, VERTICAL_OFFSET + 2, 15); // Камера тоже чуть выше
+        
         const controls = new OrbitControls(camera, renderer.domElement);
-        // ЦЕЛЬ КАМЕРЫ: Строго в центр сцены (0,0,0)
-        controls.target.set(0, 0, 0);
+        controls.target.set(0, VERTICAL_OFFSET, 0); // Цель камеры теперь выше
         
         controls.enableDamping = false;
         controls.enablePan = false;
@@ -66,13 +67,12 @@
                 if (child.isMesh) child.material = material;
             });
 
-            // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: НАДЕЖНОЕ ЦЕНТРИРОВАНИЕ ---
-            // 1. Создаем ограничивающий бокс вокруг модели
             const box = new THREE.Box3().setFromObject(obj);
-            // 2. Находим его геометрический центр
             const center = box.getCenter(new THREE.Vector3());
-            // 3. Смещаем модель так, чтобы ее центр оказался в точке (0,0,0)
             obj.position.sub(center);
+
+            // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ №2: Вручную поднимаем модель ВВЕРХ ---
+            obj.position.y += VERTICAL_OFFSET;
 
             const isMobile = window.innerWidth < 1024;
             const scale = isMobile ? 0.35 : 0.45;
