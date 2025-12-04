@@ -50,9 +50,11 @@
         
         const isMobile = window.innerWidth < 1024;
         
+        // --- НАСТРОЙКА ПОЛОЖЕНИЯ ---
+        
         if (isMobile) {
-            // Мобильные: модель по центру
-            camera.position.set(0, 0, 22);
+            // Мобильные: все по центру
+            camera.position.set(0, 5, 22);
             controls.target.set(0, 0, 0);
             
             controls.enableRotate = false;
@@ -61,16 +63,25 @@
             controls.autoRotateSpeed = 0.5;
         } else {
             // Десктоп:
-            // Target X = 5: Камера смотрит правее центра (в точку X=5).
-            // Так как модель стоит в X=0, она визуально смещается ВЛЕВО.
-            // Target Y = 0: Камера смотрит ровно в центр по высоте.
-            controls.target.set(5, 0, 0);
             
-            // Camera Position:
-            // X = 15: Сдвигаем камеру вправо вслед за таргетом, чтобы сохранить угол обзора.
-            // Y = 1: Высота почти 0, чтобы модель была ровно посередине кадра (чуть приподнята для объема).
-            // Z = 18: Дистанция до модели.
-            camera.position.set(15, 1, 18); 
+            // 1. ВРАЩЕНИЕ ВОКРУГ ЦЕНТРА МАССЫ:
+            // Мы устанавливаем X=0, Z=0. Теперь камера крутится строго вокруг модели.
+            // Мы устанавливаем Y=-2.0. Камера смотрит НИЖЕ центра модели.
+            // Это визуально поднимает модель ВВЕРХ в кадре.
+            controls.target.set(0, -2.0, 0);
+
+            // 2. РАКУРС:
+            // Ставим камеру так, чтобы сохранить угол обзора как был раньше.
+            // (X=12, Y=1, Z=18) относительно таргета дает нужный наклон.
+            camera.position.set(12, 1, 18);
+
+            // 3. СДВИГ МОДЕЛИ ВЛЕВО:
+            // Используем setViewOffset. Это сдвигает "окно" просмотра вправо (+20%),
+            // из-за чего объект (находящийся в центре мира) оказывается слева на экране.
+            // При этом вращение остается идеально вокруг объекта.
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            camera.setViewOffset(w, h, w * 0.20, 0, w, h);
             
             controls.enableRotate = true;
             controls.enableZoom = false;
@@ -99,7 +110,7 @@
                 if (child.isMesh) child.material = material;
             });
 
-            // Вычисляем центр модели и сдвигаем её, чтобы геометрический центр стал (0,0,0)
+            // Центрируем геометрию модели в 0,0,0
             const box = new THREE.Box3().setFromObject(obj);
             const center = box.getCenter(new THREE.Vector3());
             obj.position.sub(center);
@@ -119,10 +130,21 @@
         animate();
 
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            
+            camera.aspect = w / h;
             camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            if ((window.innerWidth < 1024) !== isMobile) {
+            renderer.setSize(w, h);
+
+            // Обновляем оффсет при ресайзе для десктопа
+            if (w >= 1024) {
+                camera.setViewOffset(w, h, w * 0.20, 0, w, h);
+            } else {
+                camera.clearViewOffset();
+            }
+
+            if ((w < 1024) !== isMobile) {
                 window.location.reload();
             }
         });
