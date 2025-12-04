@@ -443,6 +443,17 @@ function App() {
   }, [mobileConfigOpen]);
   // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
+  // --- НАЧАЛО КОДА ДЛЯ ОТМЕНЫ РЕДИРЕКТА ---
+  useEffect(() => {
+    // Проверяем, был ли запущен таймер-редиректа
+    if (window.fallbackTimer) {
+      // Если да, отменяем его, так как компонент App успешно загрузился
+      clearTimeout(window.fallbackTimer);
+      console.log('Приложение загрузилось, резервное перенаправление отменено.');
+    }
+  }, []); // Пустой массив зависимостей означает, что этот код выполнится один раз при монтировании компонента
+  // --- КОНЕЦ КОДА ДЛЯ ОТМЕНЫ РЕДИРЕКТА ---
+
   const setRef = (id: string) => (el: HTMLDivElement | null) => { sectionRefs.current[id] = el; };
   const handleSelect = (categoryId: string, option: Option) => setConfig(prev => ({ ...prev, [categoryId]: option }));
   const toggleCategory = (id: string) => setOpenCategory(openCategory === id ? null : id);
