@@ -14,6 +14,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
 
   const itemsRef = useRef<(HTMLAnchorElement | null)[]>([]);
+  const navRef = useRef<HTMLElement>(null);
 
   const bgClass = 'bg-black/60 border-white/10';
   const blurClass = 'backdrop-blur-md';
@@ -49,7 +50,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-[50] transition-all duration-1000 py-4 shadow-sm ${bgClass} ${blurClass} ${isIntroComplete ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+    <nav ref={navRef} className={`fixed top-0 left-0 right-0 z-[50] transition-all duration-1000 py-4 shadow-sm ${bgClass} ${blurClass} ${isIntroComplete ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
       <div className="max-w-[95rem] mx-auto px-6 lg:px-8 flex justify-between items-center min-h-[40px]">
         <a href="#" onClick={(e) => handleScrollTo(e, "#hero")} className={`hidden lg:block text-2xl md:text-3xl font-bold tracking-tighter z-10 relative hover:opacity-80 transition-opacity duration-1000 ${logoColorClass} ${isIntroComplete ? 'opacity-100 delay-300' : 'opacity-0'}`}>bbqp</a>
         <a href="#" onClick={(e) => handleScrollTo(e, "#hero")} className={`lg:hidden text-2xl font-bold tracking-tighter ${logoColorClass}`}>bbqp</a>
@@ -70,11 +71,11 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
       </div>
 
       {isMobileMenuOpen && (
-        <div className={`lg:hidden absolute top-full left-0 w-full border-t p-6 flex flex-col gap-1 shadow-2xl animate-fade-in h-screen z-40 ${mobileMenuBg} bg-gradient-to-b from-white/5 to-transparent backdrop-blur-xl border-white/10 overflow-y-auto`}>
+        <div className={`lg:hidden absolute top-full left-0 w-full border-t p-6 flex flex-col gap-2 shadow-2xl animate-fade-in h-screen z-40 ${mobileMenuBg} bg-gradient-to-b from-white/5 to-transparent backdrop-blur-xl border-white/10 overflow-y-auto`}>
           {NAV_LINKS.map((link) => (
-            <a key={link.name} href={link.href} onClick={(e) => handleScrollTo(e, link.href)} className={`text-xl font-bold py-3 border-b last:border-0 flex items-center justify-between ${activeSection === link.href.substring(1) ? 'text-orange-500' : `${mobileMenuText} border-gray-500/20`}`}>
+            <a key={link.name} href={link.href} onClick={(e) => handleScrollTo(e, link.href)} className={`text-2xl font-bold py-4 border-b last:border-0 flex items-center justify-between ${activeSection === link.href.substring(1) ? 'text-orange-500' : `${mobileMenuText} border-gray-500/20`}`}>
               {link.name}
-              {activeSection === link.href.substring(1) && <div className="w-2.5 h-2.5 bg-orange-500 rounded-full shadow-[0_0_10px_orange]"></div>}
+              {activeSection === link.href.substring(1) && <div className="w-3 h-3 bg-orange-500 rounded-full shadow-[0_0_10px_orange]"></div>}
             </a>
           ))}
         </div>

@@ -135,24 +135,112 @@ function App() {
 
   useEffect(() => {
     const mainContainer = document.querySelector('.snap-container');
-    if (mobileConfigOpen || isMenuToggled) {
+    if (mobileConfigOpen) {
       if (mainContainer) mainContainer.classList.add('overflow-hidden');
     } else {
       if (mainContainer) mainContainer.classList.remove('overflow-hidden');
     }
     return () => { if (mainContainer) mainContainer.classList.remove('overflow-hidden'); };
-  }, [mobileConfigOpen, isMenuToggled]);
+  }, [mobileConfigOpen]);
+
+  const autodraftContent = useMemo(() => {
+      const formulaData = [];
+      const usedRects: {l: number, t: number, w: number, h: number}[] = [];
+      for (let i = 0; i < 16; i++) {
+          let placed = false, attempts = 0;
+          while (!placed && attempts < 2000) {
+              const l = Math.random() * 95, t = Math.random() * 95;
+              const overlap = usedRects.some(r => l < r.l + 22 && l + 22 > r.l && t < r.t + 14 && t + 14 > r.t);
+              if (!overlap && !(l > 70 && t > 20 && t < 80)) {
+                  const scale = 0.5 + Math.random() * 1.0;
+                  let blur = scale > 1.2 ? (scale - 1.2) * 1.5 : 0;
+                  if (l < 45 && t > 20 && t < 75) blur += 1.5;
+                  formulaData.push({ left: l, top: t, duration: 6 + (Math.random() * 8), delay: -Math.random() * 10, scale, blur, opacity: scale > 1.2 ? 0.35 : 0.5, formula: PHYSICS_FORMULAS[i % PHYSICS_FORMULAS.length] });
+                  usedRects.push({l, t, w: 22, h: 14});
+                  placed = true;
+              }
+              attempts++;
+          }
+      }
+      return (
+        <>
+          <div className="hidden md:flex absolute inset-0 w-full h-full z-0 justify-center items-center"><img src="/assets/images/model-preview.png" alt="Grill AutoDraft System" className="h-[75%] object-contain object-center" /></div>
+          <div className="md:hidden absolute top-1/2 left-0 w-full h-[35vh] z-[1] flex items-center justify-center pointer-events-none -translate-y-1/2"><img src="/assets/images/model-preview.png" alt="Grill AutoDraft System Mobile" className="h-full object-contain mix-blend-multiply" /></div>
+          <div className="absolute inset-0 z-[5] overflow-hidden pointer-events-none">{formulaData.map((item, i) => <FloatingFormula key={i} item={item} pool={PHYSICS_FORMULAS} />)}</div>
+          <div className="relative z-10 max-w-6xl mx-auto px-6 w-full h-full flex flex-col md:flex-row items-center justify-center md:justify-start">
+            <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start text-center md:text-left h-full pr-0 md:pr-12">
+              <Reveal>
+                <h2 className="text-[7vw] md:text-5xl font-bold mb-6 tracking-tight text-black relative z-20">Просто закиньте угли, физика сделает все за вас</h2>
+                <div className="md:hidden w-full h-[35vh] mb-6"></div>
+                <div className="text-gray-600 text-sm md:text-xl leading-relaxed font-medium relative z-20"><p>Система автоподдува создаёт идеальную тягу. Угли разгораются быстрее. Никаких усилий — только результат.</p></div>
+              </Reveal>
+            </div>
+          </div>
+        </>
+      );
+  }, []);
+
+  const detailsContent = useMemo(() => {
+    const row1Items = shuffleArray(DETAILS_ITEMS);
+    const row2Items = shuffleArray(DETAILS_ITEMS);
+    const row3Items = shuffleArray(DETAILS_ITEMS);
+    return (
+      <>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] bg-orange-900/10 blur-[120px] rounded-full pointer-events-none"></div>
+        <div className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+        <div className="absolute inset-0 flex items-center justify-center z-[2] overflow-hidden" style={{ perspective: '500px' }}>
+          <div className="flex flex-col gap-6 md:gap-8 justify-center origin-center animate-wobble" style={{ width: '220%', height: '160%', transform: 'rotateY(-25deg) rotateX(2deg) translateX(-10%) scale(1.6)', maskImage: 'linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)' }}>
+            <OptimizedMarqueeRow items={row1Items} speed={0.4} itemClassName="w-40 h-40 md:w-64 md:h-64 aspect-square" />
+            <OptimizedMarqueeRow items={row2Items} reverse={true} speed={0.5} itemClassName="w-40 h-40 md:w-64 md:h-64 aspect-square" />
+            <OptimizedMarqueeRow items={row3Items} speed={0.6} itemClassName="w-40 h-40 md:w-64 md:h-64 aspect-square" />
+          </div>
+        </div>
+        <div className="relative z-20 pointer-events-none w-full h-full flex flex-col items-center justify-center text-center p-8 md:p-12">
+          <Reveal><h2 className="text-[9vw] md:text-6xl lg:text-7xl font-bold tracking-tighter text-white drop-shadow-2xl mb-8">Для тех, кто ценит детали</h2></Reveal>
+          <div className="inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 max-w-[85%] md:max-w-[90%] mx-auto"><p className="text-gray-200 text-sm md:text-base font-medium tracking-wide m-0 text-center leading-relaxed">Каждая деталь создана с одержимостью качеством на основе опыта ведущих дизайнеров, материаловедов и испытательных тестов топ-пользователей</p></div>
+        </div>
+      </>
+    );
+  }, []);
 
   const setRef = (id: string) => (el: HTMLDivElement | null) => { sectionRefs.current[id] = el; };
   const handleSelect = (categoryId: string, option: Option) => setConfig(prev => ({ ...prev, [categoryId]: option }));
   const toggleCategory = (id: string) => setOpenCategory(openCategory === id ? null : id);
   const calculateTotal = () => (Object.values(config) as Option[]).reduce((acc, item) => acc + item.price, 0);
 
-  const getOrderLink = () => { /* ... */ };
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { /* ... */ };
-  const scrollToConfigurator = (e: React.MouseEvent) => { /* ... */ };
+  const getOrderLink = () => {
+    let text = `Здравствуйте! Хочу заказать bbqp:%0A` +
+      Object.entries(config).map(([key, val]) => `- ${CONFIG_OPTIONS.find(c => c.id === key)?.name}: ${(val as Option).label}`).join('%0A') +
+      `%0A%0AСтоимость: ${calculateTotal()} руб.`;
+    if (config.engraving.value === 'custom' && customFile) text += `%0A%0AФайл: ${customFile.name}`;
+    return `${TELEGRAM_LINK}?text=${text}`;
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+        setCustomFile(file);
+        setCustomTextureUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const scrollToConfigurator = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const element = document.getElementById('models');
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+        setOpenCategory('engraving');
+        setIs3DActive(true);
+        if (isMobile) setMobileConfigOpen(true);
+    }
+  };
 
   const SectionLoader = () => ( <div className="w-full h-full flex items-center justify-center bg-transparent"><Loader2 className="w-8 h-8 animate-spin text-gray-600" /></div>);
+  const shouldRenderSection = (sectionId: string) => {
+    const currentIndex = SECTION_ORDER.indexOf(activeSection);
+    const targetIndex = SECTION_ORDER.indexOf(sectionId);
+    return Math.abs(currentIndex - targetIndex) <= 1;
+  };
 
   const ConfiguratorPanel = () => (
     <div className="flex flex-col h-full text-white">
@@ -221,41 +309,48 @@ function App() {
       </div>
       <Navigation activeSection={activeSection} isIntroComplete={isIntroComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} onMenuToggle={setIsMenuToggled} />
       <main className={`snap-container h-full w-full transition-all duration-300 ${isMenuToggled ? 'blur-sm' : ''}`}>
-        <div id="hero" ref={setRef('hero')} className="snap-section h-[100svh]"><Hero /></div>
-        <div id="features" ref={setRef('features')} className="snap-section h-[100svh] bg-black"><FeaturesSection /></div>
-        <section id="autodraft" ref={setRef('autodraft')} className="snap-section h-[100svh] bg-white text-black relative overflow-hidden">{/* ... код без изменений ... */}</section>
-        <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex flex-col justify-center overflow-hidden relative group">{/* ... код без изменений ... */}</section>
-        <section id="personalize" ref={setRef('personalize')} className="snap-section h-[100svh] bg-[#050505] text-white relative overflow-hidden flex items-center">{/* ... код без изменений ... */}</section>
-        <section id="military" ref={setRef('military')} className="snap-section h-[100svh] bg-[#1c1c1c] text-white relative pt-28 pb-32 md:pb-0">{/* ... код без изменений ... */}</section>
+        <div id="hero" ref={setRef('hero')} className="snap-section h-[100svh]">{shouldRenderSection('hero') && <Hero startAnimation={isIntroComplete} isActive={activeSection === 'hero'} />}</div>
+        <div id="features" ref={setRef('features')} className="snap-section h-[100svh] bg-black">{shouldRenderSection('features') && <FeaturesSection isActive={activeSection === 'features'} />}</div>
+        <section id="autodraft" ref={setRef('autodraft')} className="snap-section h-[100svh] bg-white text-black relative overflow-hidden flex items-center justify-center">{shouldRenderSection('autodraft') && autodraftContent}</section>
+        <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex flex-col justify-center overflow-hidden relative group">{shouldRenderSection('details') && detailsContent}</section>
+        <section id="personalize" ref={setRef('personalize')} className="snap-section h-[100svh] bg-[#050505] text-white relative overflow-hidden flex items-center">{shouldRenderSection('personalize') && (<> <div className="absolute inset-0 z-0"><video src="/assets/videos/personalize.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover object-[100%_50%] scale-[1.35] md:scale-100 md:object-center opacity-70" /><div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent hidden md:block"></div></div> <div className="container mx-auto px-6 relative z-20 w-full h-full flex flex-col justify-center items-center md:items-start text-center md:text-left"><div className="max-w-xl pl-0 md:pl-20 border-l-0 md:border-l-2 border-orange-500/30 w-full"><Reveal><div className="flex items-center justify-center md:justify-start gap-3 mb-4 opacity-0 animate-fade-in" style={{animationDelay: '0.3s', animationFillMode: 'forwards'}}><ScanLine size={16} className="text-orange-500 animate-pulse" /><span className="font-mono text-[10px] tracking-[0.2em] uppercase text-orange-500/80">ПЕРСОНАЛИЗАЦИЯ</span></div><h2 className="text-[9vw] md:text-6xl font-bold text-white mb-6 leading-tight tracking-tight">Персонализируйте</h2><div className="text-gray-300 text-sm md:text-base leading-relaxed mb-8 font-medium text-center md:text-left w-full md:w-auto space-y-2"><p>Поздравление именинника или юбиляра</p><p>Корпоративный девиз</p><p>Индивидуальная гравировка</p></div><div className="flex justify-center md:justify-start"><button onClick={scrollToConfigurator} className="group inline-flex items-center gap-3 bg-black/60 backdrop-blur-md border border-white/10 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] transition-all hover:bg-black/80 hover:scale-105"><span className="font-bold text-sm">Загрузить макет</span><ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" /></button></div></Reveal></div></div> </>)}</section>
+        <section id="military" ref={setRef('military')} className="snap-section h-[100svh] bg-[#1c1c1c] text-white relative pt-28 pb-32 md:pb-0">{shouldRenderSection('military') && (<> <div className="hidden md:block absolute inset-0 z-0 opacity-100"><ParallaxImage src="/assets/images/military-bg.png" alt="Military Background" className="w-full h-full" imageClassName="object-cover" speed={0.1} /></div> <div className="md:hidden absolute inset-0 z-0 opacity-100 overflow-hidden"><img src="/assets/images/military-bg-mobile.png" alt="Military Background Mobile" className="w-full h-[110%] object-cover -translate-y-[10%]" /><div className="absolute inset-0 bg-black/30"></div><div className="absolute bottom-0 left-0 w-full h-[40%] bg-gradient-to-t from-black via-black/80 to-transparent"></div></div> <ParticlesOverlay flipped={true} active={activeSection === 'military'} /> <div className="relative z-10 max-w-5xl mx-auto px-6 w-full h-full flex flex-col justify-center"><Reveal className="max-w-xl bg-black/20 backdrop-blur-[2px] bg-gradient-to-br from-white/5 to-transparent p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/10 shadow-2xl mt-auto md:mt-0"><div className="inline-block px-3 py-1 border border-orange-500/30 bg-orange-500/10 backdrop-blur-sm rounded-full mb-4 md:mb-6"><span className="text-[10px] md:text-xs font-bold tracking-wider text-orange-400 uppercase">Эксклюзив</span></div><h2 className="mb-4 md:mb-6 tracking-tight text-[8vw] lg:text-5xl font-bold leading-tight drop-shadow-lg">Военная серия</h2><div className="space-y-4 text-gray-200 mb-6 md:mb-8 text-base md:text-lg leading-relaxed drop-shadow-md"><p>Тактический сувенир и дань уважения. Брутальный дизайн, спецпокрытие, армейская эстетика.</p></div><div className="space-y-3 md:space-y-4 mb-8 md:mb-10">{[{ title: "Тактическое покрытие", desc: "Покрытие не предполагается при использовании нержавейки. Нано покрытие для долгого хранения" }, { title: "Персональная гравировка", desc: "Позывной или звание — бесплатно" }].map((item, i) => ( <div key={i} className="flex items-start gap-4 p-3 md:p-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all"><div className="mt-1 flex-shrink-0"><div className="w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-orange-600/20"><Check className="w-3 h-3" /></div></div><div><div className="font-bold text-sm md:text-base text-white">{item.title}</div><p className="text-[10px] md:text-xs text-gray-300 mt-1">{item.desc}</p></div></div> ))}</div><div className="flex flex-row gap-3"><a href={TELEGRAM_LINK} target="_blank" rel="noopener noreferrer" className="bg-orange-600 text-white h-12 md:h-14 px-8 rounded-2xl text-sm md:text-base font-bold hover:bg-orange-700 transition-colors flex items-center justify-center flex-1 shadow-[0_0_25px_rgba(234,88,12,0.3)] hover:scale-[1.02]">Получить</a></div></Reveal></div> </>)}</section>
 
-        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 relative flex flex-col md:grid md:grid-cols-2 md:items-center md:justify-items-center md:-mt-16">
-           <div className="relative w-full h-[50vh] md:h-full flex items-center justify-center">
-             {is3DActive ? (
-                <iframe src={`/model.html?color=${config.color.value}`} title="BBQP 3D Model" className={`w-full h-full border-0 ${isMobile ? 'pointer-events-none' : ''}`} onLoad={() => setIsModelLoaded(true)}></iframe>
-             ) : (
-               <div className="flex items-center justify-center">
-                  <button onClick={() => setIs3DActive(true)} className="group flex flex-col items-center gap-4 transition-transform hover:scale-105">
-                     <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors"><Box size={40} strokeWidth={1.2} className="ml-1" /></div>
-                     <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Показать модель</span></div>
-                  </button>
+        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 relative overflow-hidden grid grid-cols-1 md:grid-cols-2">
+           {shouldRenderSection('models') && (
+            <>
+               <div className="relative w-full h-full">
+                 {is3DActive ? (
+                    <iframe src={`/model.html?color=${config.color.value}`} title="BBQP 3D Model" className={`w-full h-full border-0 ${isMobile ? 'pointer-events-none' : ''}`} onLoad={() => setIsModelLoaded(true)}></iframe>
+                 ) : (
+                   <div className="w-full h-full flex items-center justify-center">
+                      <button onClick={() => setIs3DActive(true)} className="group flex flex-col items-center gap-4 transition-transform hover:scale-105">
+                         <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors"><Box size={40} strokeWidth={1.2} className="ml-1" /></div>
+                         <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Показать модель</span></div>
+                      </button>
+                   </div>
+                 )}
                </div>
-             )}
-           </div>
-           <div className="hidden md:flex items-center justify-start p-8">
-              <div className="w-full max-w-sm bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col"><ConfiguratorPanel /></div>
-           </div>
-           {isMobile && (
-              <div className="flex-1 flex flex-col items-center justify-start pointer-events-auto z-40 p-4 pt-8">
-                <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
-              </div>
-           )}
-           {mobileConfigOpen && (
-             <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
-                 <div className="bg-[#111] w-full sm:w-[90%] h-[75vh] sm:h-auto sm:max-h-[80vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
-                     <button onClick={() => setMobileConfigOpen(false)} className="absolute top-4 right-4 z-20 p-2 bg-white/10 rounded-full text-white hover:bg-white/20 transition-colors"><X size={24} /></button>
-                     <ConfiguratorPanel />
+
+               <div className="hidden md:flex items-center justify-center p-8">
+                  <div className="w-full max-w-sm bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col"><ConfiguratorPanel /></div>
+               </div>
+
+               {isMobile && (
+                  <div className="absolute bottom-6 left-0 w-full flex justify-center pointer-events-auto z-40">
+                    <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
+                  </div>
+               )}
+
+               {mobileConfigOpen && (
+                 <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
+                     <div className="bg-[#111] w-full sm:w-[90%] h-[75vh] sm:h-auto sm:max-h-[80vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
+                         <button onClick={() => setMobileConfigOpen(false)} className="absolute top-4 right-4 z-20 p-2 bg-white/10 rounded-full text-white hover:bg-white/20 transition-colors"><X size={24} /></button>
+                         <ConfiguratorPanel />
+                     </div>
                  </div>
-             </div>
+               )}
+            </>
            )}
         </section>
 
@@ -283,8 +378,8 @@ function App() {
         </footer>
       </main>
 
-      <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Политика конфиденциальности"> <div className="prose prose-invert max-w-none text-sm space-y-4"> <h3>1. Общие положения</h3> <p>Настоящая политика обработки персональных данных составлена в соответствии с требованиями Федерального закона от 27.07.2006. №152-ФЗ «О персональных данных» и определяет порядок обработки персональных данных и меры по обеспечению безопасности персональных данных, предпринимаемые ООО «АТТА» (далее – Оператор).</p> <h3>2. Основные понятия</h3> <p><strong>Персональные данные</strong> – любая информация, относящаяся к прямо или косвенно определенному или определяемому физическому лицу. <strong>Обработка персональных данных</strong> – любое действие (операция) или совокупность действий (операций), совершаемых с использованием средств автоматизации или без использования таких средств с персональными данными.</p> <h3>3. Цели сбора персональных данных</h3> <p>Оператор имеет право направлять Пользователю уведомления о новых продуктах и услугах, специальных предложениях и различных событиях. Пользователь всегда может отказаться от получения информационных сообщений, направив Оператору письмо на адрес электронной почты info@sam-tech.ru с пометкой «Отказ от уведомлений».</p> <h3>4. Правовые основания обработки</h3> <p>Оператор обрабатывает персональные данные Пользователя только в случае их заполнения и/или отправки Пользователем самостоятельно через специальные формы, расположенные на сайте. Заполняя соответствующие формы и/или отправляя свои персональные данные Оператору, Пользователь выражает свое согласие с данной Политикой.</p> <h3>5. Порядок сбора и хранения</h3> <p>Безопасность персональных данных, которые обрабатываются Оператором, обеспечивается путем реализации правовых, организационных и технических мер, необходимых для выполнения в полном объеме требований действующего законодательства в области защиты персональных данных.</p> </div> </Modal>
-      <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Условия использования"> <div className="prose prose-invert max-w-none text-sm space-y-4"> <h3>1. Предмет Соглашения</h3> <p>Настоящее Пользовательское соглашение (далее – Соглашение) регулирует отношения между ООО «АТТА» (далее – Администрация) и физическим лицом (далее – Пользователь) по использованию сайта bbqp.pro (далее – Сайт).</p> <h3>2. Общие условия</h3> <p>Использование материалов и сервисов Сайта регулируется нормами действующего законодательства Российской Федерации. Сайт является объектом интеллектуальной собственности, все права на который принадлежат Администрации.</p> <h3>3. Обязательства Пользователя</h3> <p>Пользователь соглашается не предпринимать действий, которые могут рассматриваться как нарушающие российское законодательство или нормы международного права, в том числе в сфере интеллектуальной собственности, а также любых действий, которые приводят или могут привести к нарушению нормальной работы Сайта.</p> <h3>4. Ограничение ответственности</h3> <p>Информация на Сайте предоставляется «как есть». Администрация не несет ответственности за любые прямые или косвенные убытки, произошедшие из-за использования или невозможности использования Сайта. Цены и характеристики товаров носят ознакомительный характер и не являются публичной офертой.</p> </div> </Modal>
+      <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Политика конфиденциальности"> <div className="prose prose-invert max-w-none"> <p>Настоящая политика обработки персональных данных...</p> </div> </Modal>
+      <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Условия использования"> <div className="prose prose-invert max-w-none"> <p>Настоящие Условия использования...</p> </div> </Modal>
 
       <Suspense fallback={null}><ChefBot visible={isIntroComplete} externalIsOpen={isChatOpen} onToggle={setIsChatOpen} /></Suspense>
     </div>
