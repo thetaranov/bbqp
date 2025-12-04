@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Send, Loader2, X, HelpCircle } from 'lucide-react';
-// ИМПОРТИРУЕМ НОВЫЙ СЕРВИС GIGACHAT
-import { askPitmaster } from '../services/gigaChatService';
+// ИМПОРТ ЛОКАЛЬНОГО СЕРВИСА
+import { askPitmaster } from '../services/localAIService';
 import { ChatMessage } from '../types';
 
 interface ChefBotProps {
@@ -15,7 +15,7 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: 'Здравствуйте! Я ИИ-консультант bbqp (на базе GigaChat). Готов рассказать о характеристиках или помочь с выбором.' }
+    { role: 'model', text: 'Здравствуйте! Я эксперт bbqp. Подскажу по ценам, доставке и помогу выбрать идеальную модель!' }
   ]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -49,11 +49,10 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
     setIsLoading(true);
 
     try {
-      // Используем GigaChat сервис
       const responseText = await askPitmaster(input);
       setMessages(prev => [...prev, { role: 'model', text: responseText }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'model', text: "Извините, я сейчас перегружен. Попробуйте позже.", isError: true }]);
+      setMessages(prev => [...prev, { role: 'model', text: "Произошла ошибка.", isError: true }]);
     } finally {
       setIsLoading(false);
     }
@@ -68,15 +67,15 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
       className={`fixed bottom-6 right-6 z-[90] flex flex-col items-end transition-all duration-1000 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
     >
       {isOpen && (
-        <div className="mb-4 w-[90vw] md:w-96 bg-[#0a0a0a]/95 bg-gradient-to-br from-green-900/20 to-transparent backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col animate-fade-in origin-bottom-right ring-1 ring-white/5 max-h-[60vh] md:max-h-96">
+        <div className="mb-4 w-[90vw] md:w-96 bg-[#0a0a0a]/95 bg-gradient-to-br from-orange-900/20 to-transparent backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col animate-fade-in origin-bottom-right ring-1 ring-white/5 max-h-[60vh] md:max-h-96">
           <div className="bg-black/40 backdrop-blur-md p-4 flex items-center justify-between border-b border-white/10">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-600/20 rounded-full flex items-center justify-center text-green-500 border border-green-500/30 shadow-md">
+              <div className="w-8 h-8 bg-orange-600/20 rounded-full flex items-center justify-center text-orange-500 border border-orange-500/30 shadow-md">
                 <HelpCircle size={18} />
               </div>
               <div>
-                <h3 className="font-bold text-white text-sm">bbqp AI</h3>
-                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Powered by GigaChat</p>
+                <h3 className="font-bold text-white text-sm">bbqp Expert</h3>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Online Support</p>
               </div>
             </div>
             <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white transition-colors">
@@ -91,9 +90,9 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
                 className={`mb-3 flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                  className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed shadow-sm whitespace-pre-wrap ${
                     msg.role === 'user'
-                      ? 'bg-green-600/20 text-white border border-green-500/20 rounded-tr-sm'
+                      ? 'bg-orange-600/20 text-white border border-orange-500/20 rounded-tr-sm'
                       : 'bg-white/10 backdrop-blur-sm text-gray-200 border border-white/10 rounded-tl-sm'
                   }`}
                 >
@@ -105,7 +104,7 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
               <div className="flex justify-start mb-3">
                 <div className="bg-white/5 backdrop-blur-sm p-3 rounded-2xl rounded-tl-sm border border-white/10 shadow-sm flex items-center gap-2">
                   <Loader2 className="animate-spin text-white" size={14} />
-                  <span className="text-xs text-gray-400">GigaChat думает...</span>
+                  <span className="text-xs text-gray-400">Печатает...</span>
                 </div>
               </div>
             )}
@@ -118,13 +117,13 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Спросите что-нибудь..."
-              className="flex-1 bg-white/5 border-transparent rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-green-500/50 transition-all placeholder:text-gray-500"
+              placeholder="Ваш вопрос..."
+              className="flex-1 bg-white/5 border-transparent rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-orange-500/50 transition-all placeholder:text-gray-500"
             />
             <button
               onClick={handleSend}
               disabled={isLoading}
-              className="p-2.5 bg-green-600 hover:bg-green-700 rounded-xl text-white transition-colors disabled:opacity-50 shadow-lg"
+              className="p-2.5 bg-orange-600 hover:bg-orange-700 rounded-xl text-white transition-colors disabled:opacity-50 shadow-lg"
             >
               <Send size={16} />
             </button>
@@ -134,12 +133,12 @@ const ChefBot: React.FC<ChefBotProps> = ({ visible = true, externalIsOpen, onTog
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`group hidden md:flex items-center gap-3 bg-black/60 backdrop-blur-md border border-white/10 text-white px-6 py-4 rounded-full shadow-[0_0_20px_rgba(0,255,0,0.1)] transition-all hover:bg-black/80 hover:scale-105 ${isOpen ? 'hidden' : 'flex'}`}
+        className={`group hidden md:flex items-center gap-3 bg-black/60 backdrop-blur-md border border-white/10 text-white px-6 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-black/80 hover:scale-105 ${isOpen ? 'hidden' : 'flex'}`}
       >
         <span className="font-bold text-sm hidden md:block">
-          AI Помощник
+          Вопрос / Ответ
         </span>
-        <MessageSquare size={20} className="text-green-400" />
+        <MessageSquare size={20} className="text-white" />
       </button>
     </div>
   );

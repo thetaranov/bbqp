@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, ChefHat, Flame } from 'lucide-react';
-// ИМПОРТИРУЕМ GIGACHAT
-import { generateBBQRecipe } from '../services/gigaChatService';
+import React, { useState, useRef } from 'react';
+import { Send, ChefHat, Flame } from 'lucide-react';
+// ИМПОРТ ЛОКАЛЬНОГО СЕРВИСА
+import { generateBBQRecipe } from '../services/localAIService';
 import Reveal from './Reveal';
 
 const FLOATING_IMAGES = [
@@ -21,20 +21,13 @@ const FLOATING_IMAGES = [
 
 const FloatingImage: React.FC<{ src: string, style: React.CSSProperties }> = ({ src, style }) => {
     const [isVisible, setIsVisible] = useState(true);
-
     if (!isVisible) return null;
-
     return (
         <div 
             className="absolute w-24 h-24 md:w-40 md:h-40 rounded-2xl overflow-hidden shadow-2xl border border-white/10 grayscale hover:grayscale-0 transition-all duration-700 opacity-60"
             style={style}
         >
-            <img 
-                src={src} 
-                alt="Food" 
-                className="w-full h-full object-cover" 
-                onError={() => setIsVisible(false)}
-            />
+            <img src={src} alt="Food" className="w-full h-full object-cover" onError={() => setIsVisible(false)} />
         </div>
     );
 };
@@ -70,7 +63,6 @@ const RecipeGenerator: React.FC = () => {
     const randomDelay = Math.random() * 10;
     const randomX = Math.random() * 90;
     const randomY = Math.random() * 80;
-
     return {
       animation: `float-${index} ${randomDuration}s infinite ease-in-out ${randomDelay}s`,
       left: `${randomX}%`,
@@ -103,10 +95,10 @@ const RecipeGenerator: React.FC = () => {
         {!isResultMode && (
             <Reveal className="text-center mb-8">
                <h2 className="text-3xl md:text-5xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
-                 bbqp<sup className="text-2xl md:text-3xl text-green-500 font-bold align-top top-[-1em] ml-1 drop-shadow-[0_0_10px_rgba(34,197,94,0.8)]">AI</sup>
+                 bbqp<sup className="text-2xl md:text-3xl text-orange-500 font-bold align-top top-[-1em] ml-1 drop-shadow-[0_0_10px_rgba(234,88,12,0.8)]">Chef</sup>
                </h2>
                <p className="text-gray-400 text-base max-w-xl mx-auto">
-                 Умные рецепты для вашего гриля на базе GigaChat.
+                 Генератор рецептов для вашего гриля. Просто введите продукт!
                </p>
             </Reveal>
         )}
@@ -118,8 +110,8 @@ const RecipeGenerator: React.FC = () => {
                         <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 gap-4 min-h-[150px]">
                             <ChefHat size={48} className="opacity-20" />
                             <p className="text-sm">
-                                Введите название блюда, например:<br/>
-                                <span className="text-white font-bold">"Стейк Рибай"</span> или <span className="text-white font-bold">"Плов в режиме печи"</span>
+                                Например:<br/>
+                                <span className="text-white font-bold">"Стейк"</span>, <span className="text-white font-bold">"Плов"</span>, <span className="text-white font-bold">"Курица"</span>
                             </p>
                         </div>
                     )}
@@ -127,10 +119,10 @@ const RecipeGenerator: React.FC = () => {
                     {loading && (
                         <div className="h-full flex flex-col items-center justify-center gap-4 min-h-[150px]">
                             <div className="relative">
-                                <div className="w-16 h-16 border-4 border-green-500/30 border-t-green-500 rounded-full animate-spin"></div>
-                                <Flame className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500" size={24} />
+                                <div className="w-16 h-16 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
+                                <Flame className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-orange-500" size={24} />
                             </div>
-                            <p className="text-sm text-gray-400 animate-pulse">GigaChat генерирует рецепт...</p>
+                            <p className="text-sm text-gray-400 animate-pulse">Шеф подбирает рецепт...</p>
                         </div>
                     )}
 
@@ -150,13 +142,13 @@ const RecipeGenerator: React.FC = () => {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-                            placeholder="Что готовим?"
-                            className="w-full bg-white/5 border border-white/10 text-white rounded-xl pl-4 pr-12 py-4 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:bg-white/10 transition-all placeholder:text-gray-500"
+                            placeholder="Что будем готовить?"
+                            className="w-full bg-white/5 border border-white/10 text-white rounded-xl pl-4 pr-12 py-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:bg-white/10 transition-all placeholder:text-gray-500"
                         />
                         <button 
                             onClick={handleGenerate}
                             disabled={loading}
-                            className="absolute right-2 p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors shadow-lg"
+                            className="absolute right-2 p-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 transition-colors shadow-lg"
                         >
                             <Send size={20} />
                         </button>
