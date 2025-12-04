@@ -41,35 +41,40 @@
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 0.8;
-
+        
         container.appendChild(renderer.domElement);
-
+        
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
         const controls = new OrbitControls(camera, renderer.domElement);
-
+        
         const isMobile = window.innerWidth < 1024;
-
-        // --- ФИНАЛЬНЫЕ НАСТРОЙКИ ПОЗИЦИОНИРОВАНИЯ ---
-        const modelVerticalCenter = 4.0; // Визуальный центр модели по высоте
+        
+        // --- ИСПРАВЛЕННЫЕ КООРДИНАТЫ ---
+        // 0.0 - это геометрический центр модели. Камера будет смотреть туда.
+        const targetY = 0.0; 
 
         if (isMobile) {
-            // На мобильных все по центру
-            camera.position.set(0, modelVerticalCenter, 18);
-            controls.target.set(0, modelVerticalCenter, 0); 
+            // Мобильные: камера по центру, смотрит немного сверху
+            camera.position.set(0, 5, 18);
+            controls.target.set(0, targetY, 0); 
+            
             controls.enableRotate = false;
             controls.enableZoom = false;
             controls.autoRotate = true;
             controls.autoRotateSpeed = 0.5;
         } else {
-            // На десктопе
-            // 1. Камера смещается ВПРАВО, чтобы модель оказалась СЛЕВА
-            camera.position.set(9, modelVerticalCenter, 18); 
-            // 2. "Взгляд" камеры нацелен на ВИЗУАЛЬНЫЙ ЦЕНТР модели
-            controls.target.set(0, modelVerticalCenter, 0); 
-
+            // Десктоп:
+            // X=11 -> Сдвигаем камеру вправо, модель уезжает ВЛЕВО.
+            // Y=4 -> Смотрим чуть сверху.
+            // Z=18 -> Дистанция.
+            camera.position.set(11, 4, 18); 
+            
+            // Смотрим ровно в центр модели (Y=0), это поднимет её в центр экрана
+            controls.target.set(0, targetY, 0); 
+            
             controls.enableRotate = true;
-            controls.enableZoom = false; // Зум колесиком ОТКЛЮЧЕН
+            controls.enableZoom = false; // Зум колесиком отключен
             controls.enablePan = false;
             controls.autoRotate = false;
             controls.enableDamping = true;
@@ -95,12 +100,12 @@
                 if (child.isMesh) child.material = material;
             });
 
-            // 3. Стандартное центрирование модели в (0,0,0)
+            // Центрируем саму модель в точку 0,0,0
             const box = new THREE.Box3().setFromObject(obj);
             const center = box.getCenter(new THREE.Vector3());
             obj.position.sub(center);
 
-            // 4. Модель сделана МЕНЬШЕ
+            // Масштаб
             const scale = isMobile ? 0.4 : 0.38;
             obj.scale.set(scale, scale, scale);
 
