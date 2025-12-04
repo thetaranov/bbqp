@@ -79,7 +79,7 @@
             // h * 0.15 (Y) -> Сдвигает центр вниз, модель уезжает ВВЕРХ (на 15%).
             const w = window.innerWidth;
             const h = window.innerHeight;
-            camera.setViewOffset(w, h, w * 0.20, h * 0, w, h);
+            camera.setViewOffset(w, h, w * 0.20, h * -0.1, w, h);
             
             controls.enableRotate = true;
             controls.enableZoom = false;
