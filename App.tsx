@@ -6,17 +6,18 @@ import ParallaxImage from './components/ParallaxImage';
 import Reveal from './components/Reveal';
 import ParticlesOverlay from './components/ParticlesOverlay';
 import { DETAILS_ITEMS } from './constants';
-import { Check, ArrowRight, Upload, ChevronLeft, Loader2, Settings2, X, Box, ScanLine, FileText } from 'lucide-react';
-import FloatingFormulasOverlay from './components/FloatingFormulasOverlay'; // <-- ВОТ НОВЫЙ ИМПОРТ
+import { Loader2, Settings2, Box, ScanLine } from 'lucide-react';
+import FloatingFormulasOverlay from './components/FloatingFormulasOverlay';
+import Modal from './components/Modal'; // <-- Импорт нового компонента
+import ConfiguratorPanel from './components/ConfiguratorPanel'; // <-- Импорт нового компонента
+import SiteFooter from './components/Footer'; // <-- Импорт нового компонента
+import { Option, ConfigCategory } from './types'; // <-- Импорт типов
 
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
 const RecipeGenerator = lazy(() => import('./components/RecipeGenerator'));
 
 // Configuration Data
-type Option = { label: string; price: number; value: string };
-type ConfigCategory = { id: string; name: string; options: Option[] };
-
 const CONFIG_OPTIONS: ConfigCategory[] = [
   { id: 'model', name: 'Модель', options: [ { label: 'Model V', price: 25000, value: 'v' }, { label: 'Model W', price: 35000, value: 'w' } ] },
   { id: 'color', name: 'Материал', options: [ { label: 'Black Matt (Сталь)', price: 0, value: 'black' }, { label: 'Stainless (Нержавейка)', price: 15000, value: 'stainless' } ] },
@@ -76,25 +77,6 @@ const OptimizedMarqueeRow = ({ reverse = false, items, speed = 1, itemClassName 
     );
 };
 
-const Modal: React.FC<{ isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode }> = ({ isOpen, onClose, title, children }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
-        <div className="p-6 border-b border-white/10 flex items-center justify-between flex-shrink-0">
-          <h2 className="text-xl font-bold text-white">{title}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X size={24} className="text-gray-400" /></button>
-        </div>
-        <div className="overflow-y-auto flex-1 custom-scrollbar">
-          <div className="p-6">{children}</div>
-        </div>
-        <div className="p-6 border-t border-white/10 flex-shrink-0">
-          <button onClick={onClose} className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition-colors">Закрыть</button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 function App() {
   const TELEGRAM_LINK = "https://t.me/thetaranov";
@@ -168,87 +150,6 @@ function App() {
         setCustomFile(e.target.files[0]);
     }
   };
-
-  const scrollToConfigurator = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const element = document.getElementById('models');
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-        setOpenCategory('engraving');
-        setIs3DActive(true);
-        if (isMobile) setMobileConfigOpen(true);
-    }
-  };
-
-  const ConfiguratorPanel = () => (
-    <div className="flex flex-col h-full text-white">
-         <div className="p-6 border-b border-white/10 flex-shrink-0 flex items-center justify-between">
-            <div>
-                <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2"><Settings2 size={20} className="text-orange-500"/>Конфигуратор</h2>
-                <p className="text-xs text-gray-500 mt-1 font-mono uppercase tracking-wider">Соберите свой bbqp</p>
-            </div>
-            {!isMobile && (
-                <div className="text-right">
-                    <div className="text-[10px] text-gray-400 uppercase tracking-widest">Итого</div>
-                    <div className="text-xl font-bold text-white">{calculateTotal().toLocaleString()} ₽</div>
-                </div>
-            )}
-         </div>
-         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
-            {CONFIG_OPTIONS.map((category) => (
-               <div key={category.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-all hover:bg-white/10 group backdrop-blur-sm">
-                  <button onClick={() => toggleCategory(category.id)} className={`w-full flex items-center justify-between p-4 text-left transition-colors`}>
-                     <div className="flex flex-col gap-1">
-                        <span className="font-bold text-sm text-gray-300 group-hover:text-white transition-colors">{category.name}</span>
-                        <div className="flex items-center gap-2">
-                             <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_orange]"></span>
-                             <span className="text-[11px] text-gray-500 truncate max-w-[180px]">{config[category.id].label}</span>
-                        </div>
-                     </div>
-                     <div className={`w-8 h-8 rounded-full flex items-center justify-center border border-white/10 transition-transform duration-300 ${openCategory === category.id ? 'bg-white/10 rotate-180' : 'bg-transparent'}`}><ChevronLeft size={16} className="-rotate-90 text-gray-400"/></div>
-                  </button>
-                  <div className={`transition-all duration-300 ease-in-out overflow-hidden ${openCategory === category.id ? 'max-h-[300px]' : 'max-h-0'}`}>
-                     <div className="p-4 pt-0">
-                        <div className="grid grid-cols-1 gap-2 pt-2 border-t border-white/10">
-                            {category.options.map((opt) => {
-                                const isSelected = config[category.id].value === opt.value;
-                                return (
-                                   <button key={opt.value} onClick={() => handleSelect(category.id, opt)} className={`relative flex items-center justify-between p-3 rounded-xl text-xs font-medium transition-all duration-200 border ${isSelected ? 'bg-orange-600/20 border-orange-500 text-white shadow-[0_0_15px_rgba(234,88,12,0.2)]' : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'}`}>
-                                      <span className="z-10">{opt.label}</span>
-                                      {opt.price > 0 && <span className={`z-10 ${isSelected ? 'text-orange-200' : 'text-gray-500'}`}>+{opt.price.toLocaleString()} ₽</span>}
-                                   </button>
-                                );
-                            })}
-                        </div>
-                        {category.id === 'engraving' && config.engraving.value === 'custom' && (
-                           <div className="mt-3 pt-3 border-t border-white/10 animate-fade-in">
-                              <label className="block text-[10px] font-bold mb-2 uppercase tracking-wider text-gray-400">Ваш эскиз</label>
-                              <div className="flex items-center gap-2">
-                                  <label className="cursor-pointer flex-1 flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/30 text-gray-400 px-4 py-3 rounded-xl text-xs font-bold transition-all border-dashed">
-                                      <Upload size={14} className="text-orange-500" />
-                                      <span>{customFile ? 'Файл выбран' : 'Загрузить файл'}</span>
-                                      <input type="file" accept="image/png, image/jpeg, image/jpg" onChange={handleFileChange} className="hidden" />
-                                  </label>
-                              </div>
-                           </div>
-                        )}
-                     </div>
-                  </div>
-               </div>
-            ))}
-         </div>
-         <div className="p-6 border-t border-white/10 bg-black/40 backdrop-blur-md flex-shrink-0">
-            <div className={`flex justify-between items-end mb-4 ${!isMobile ? 'lg:hidden' : ''}`}>
-               <span className="text-sm text-gray-500 font-medium">Итого:</span>
-               <span className="text-2xl font-bold tracking-tight text-white">{calculateTotal().toLocaleString()} ₽</span>
-            </div>
-            <a href={getOrderLink()} target="_blank" rel="noopener noreferrer" className="group w-full bg-orange-600 text-white py-4 rounded-xl text-sm font-bold hover:bg-orange-700 transition-all flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(234,88,12,0.4)] active:scale-[0.98]">
-               <span>Оформить заказ</span>
-               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </a>
-         </div>
-    </div>
-  );
 
   return (
     <div className="h-screen w-full overflow-hidden bg-black text-white selection:bg-orange-500 selection:text-white relative">
@@ -324,7 +225,7 @@ function App() {
                             </div>
                             <div className="flex justify-center md:justify-start">
                                 <button onClick={scrollToConfigurator} className="group inline-flex items-center gap-3 bg-black/60 backdrop-blur-md border border-white/10 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] transition-all hover:bg-black/80 hover:scale-105">
-                                   <span className="font-bold text-sm">Загрузить макет</span><ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                   <span className="font-bold text-sm">Загрузить макет</span>
                                 </button>
                             </div>
                          </Reveal>
@@ -397,7 +298,18 @@ function App() {
                <div className={`absolute top-0 right-0 w-full lg:w-1/2 h-full flex items-center justify-center pointer-events-none ${!is3DActive && 'bg-gray-200'}`}>
                    <div className="hidden lg:flex w-full max-w-[380px] h-full max-h-[600px] items-center pointer-events-auto pt-20">
                       <div className={`w-full h-full bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col transition-opacity duration-700 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
-                         <ConfiguratorPanel />
+                         <ConfiguratorPanel
+                            isMobile={isMobile}
+                            config={config}
+                            openCategory={openCategory}
+                            customFile={customFile}
+                            configOptions={CONFIG_OPTIONS}
+                            toggleCategory={toggleCategory}
+                            handleSelect={handleSelect}
+                            handleFileChange={handleFileChange}
+                            calculateTotal={calculateTotal}
+                            getOrderLink={getOrderLink}
+                         />
                       </div>
                    </div>
                </div>
@@ -405,8 +317,18 @@ function App() {
                {mobileConfigOpen && (
                  <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
                      <div className="bg-[#111] w-full sm:w-[90%] h-[80vh] sm:h-auto sm:max-h-[90vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
-                         <button onClick={() => setMobileConfigOpen(false)} className="absolute top-4 right-4 z-20 p-2 bg-white/10 rounded-full text-white hover:bg-white/20 transition-colors"><X size={24} /></button>
-                         <ConfiguratorPanel />
+                         <ConfiguratorPanel
+                            isMobile={isMobile}
+                            config={config}
+                            openCategory={openCategory}
+                            customFile={customFile}
+                            configOptions={CONFIG_OPTIONS}
+                            toggleCategory={toggleCategory}
+                            handleSelect={handleSelect}
+                            handleFileChange={handleFileChange}
+                            calculateTotal={calculateTotal}
+                            getOrderLink={getOrderLink}
+                         />
                      </div>
                  </div>
                )}
@@ -422,37 +344,11 @@ function App() {
             </Suspense>
         </div>
 
-        <footer id="contact" ref={setRef('contact')} className="snap-section h-[100svh] bg-black text-white flex flex-col justify-center items-center">
-            <Reveal className="w-full max-w-4xl mx-auto px-6 text-center">
-                <div className="mb-6">
-                    <div className="text-3xl md:text-5xl font-bold tracking-tighter mb-2">bbqp</div>
-                    <p className="text-sm text-gray-500 font-medium mb-6">Инновации в искусстве приготовления.</p>
-                    <div className="mb-6 text-left text-sm text-gray-400">
-                    <div className="mb-4">
-                        <h3 className="font-bold text-white mb-2">Официальный дистрибьютор в РФ (продажи и гарантия)</h3>
-                        <p className="mb-1">ООО «АТТА»</p>
-                        <p className="mb-1">445043, г. Тольятти, ул. Коммунальная, д. 37А</p>
-                        <p>Электронная почта: <a href="mailto:st@atta-k.ru" className="text-orange-500 hover:text-orange-400">st@atta-k.ru</a></p>
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-white mb-2">Уполномоченный представитель в РФ (жалобы и предложения)</h3>
-                        <p className="mb-1">Юридический отдел ТСЦ АО «САМТЕК»</p>
-                        <p className="mb-1">445027, г. Тольятти, а/я 3147</p>
-                        <p className="mb-1">Электронная почта: <a href="mailto:info@sam-tech.ru" className="text-orange-500 hover:text-orange-400">info@sam-tech.ru</a></p>
-                        <p>Бесплатная линия для регионов РФ: <span className="font-bold">8 800 7000 994</span></p>
-                    </div>
-                    </div>
-                </div>
-                <div className="border-t border-white/10 pt-6 mt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-600">
-                <p>© 2025 bbqp. Все права защищены.</p>
-                <div className="flex gap-6">
-                    <button onClick={() => setIsPrivacyOpen(true)} className="hover:text-white transition-colors">Конфиденциальность</button>
-                    <button onClick={() => setIsTermsOpen(true)} className="hover:text-white transition-colors">Условия</button>
-                    <a href="/assets/docs/MANUAL.pdf" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1"><FileText size={12} /> Руководство</a>
-                </div>
-                </div>
-            </Reveal>
-        </footer>
+        <SiteFooter
+          setRef={setRef('contact')}
+          onPrivacyOpen={() => setIsPrivacyOpen(true)}
+          onTermsOpen={() => setIsTermsOpen(true)}
+        />
       </main>
 
       <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Политика конфиденциальности">

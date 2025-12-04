@@ -1,3 +1,4 @@
+// types.ts
 import React from 'react';
 
 export interface DetailItem {
@@ -12,6 +13,11 @@ export interface ChatMessage {
   text: string;
   isError?: boolean;
 }
+
+// --- ДОБАВЛЕННЫЕ ТИПЫ ---
+export type Option = { label: string; price: number; value: string };
+export type ConfigCategory = { id: string; name: string; options: Option[] };
+// --- КОНЕЦ ДОБАВЛЕНИЙ ---
 
 export enum LoadingState {
   IDLE = 'IDLE',
