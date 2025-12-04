@@ -77,7 +77,6 @@ const OptimizedMarqueeRow = ({ reverse = false, items, speed = 1, itemClassName 
     );
 };
 
-
 function App() {
   const TELEGRAM_LINK = "https://t.me/thetaranov";
 
@@ -121,6 +120,13 @@ function App() {
     Object.values(sectionRefs.current).forEach((el) => { if (el) observer.observe(el); });
     return () => observer.disconnect();
   }, []);
+
+  // --- НОВАЯ ЛОГИКА: АВТОМАТИЧЕСКАЯ АКТИВАЦИЯ 3D-СЦЕНЫ ---
+  useEffect(() => {
+    if (activeSection === 'models' && !is3DActive) {
+      setIs3DActive(true);
+    }
+  }, [activeSection, is3DActive]);
 
   useEffect(() => {
     const mainContainer = document.querySelector('.snap-container');
@@ -276,76 +282,75 @@ function App() {
             </>
         </section>
 
-        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-transparent relative">
-            <div className="relative w-full h-full">
-               {is3DActive && (
-                  <div className="absolute inset-0 z-0">
-                     {!isModelLoaded && (
-                        <div className="absolute inset-0 z-10 flex items-center justify-center">
-                           <Loader2 className="w-12 h-12 animate-spin text-gray-500" />
-                        </div>
-                     )}
-                     <iframe
-                        src={`/model.html?color=${config.color.value}&v=${new Date().getTime()}`}
-                        title="BBQP 3D Model"
-                        className="w-full h-full border-0 transition-opacity duration-500"
-                        style={{ opacity: isModelLoaded ? 1 : 0 }}
-                        onLoad={() => setIsModelLoaded(true)}
-                     />
-                  </div>
-               )}
+        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 relative">
+            {is3DActive && (
+              <div className="absolute inset-0 z-0">
+                 {!isModelLoaded && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center">
+                       <Loader2 className="w-12 h-12 animate-spin text-gray-500" />
+                    </div>
+                 )}
+                 <iframe
+                    src={`/model.html?color=${config.color.value}`}
+                    title="BBQP 3D Model"
+                    className="w-full h-full border-0 transition-opacity duration-500"
+                    style={{ opacity: isModelLoaded ? 1 : 0 }}
+                    onLoad={() => setIsModelLoaded(true)}
+                 />
+              </div>
+            )}
 
-               <div className={`w-full h-full flex items-center justify-center ${is3DActive ? 'bg-transparent' : 'bg-gray-200'}`}>
-                  {!is3DActive && (
-                     <button onClick={() => setIs3DActive(true)} className="group flex flex-col items-center gap-4 transition-transform hover:scale-105">
+            <div className={`w-full h-full flex items-center justify-center ${is3DActive ? 'bg-transparent' : 'bg-gray-200'}`}>
+                {/* Этот блок пуст, если 3D активно, и содержит кнопку, если нет. */}
+                {!is3DActive && (
+                    <button onClick={() => setIs3DActive(true)} className="group flex flex-col items-center gap-4 transition-transform hover:scale-105">
                         <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors">
-                           <Box size={40} strokeWidth={1.2} className="ml-1" />
+                            <Box size={40} strokeWidth={1.2} className="ml-1" />
                         </div>
                         <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Показать модель</span></div>
-                     </button>
-                  )}
-               </div>
+                    </button>
+                )}
+            </div>
 
-               <div className={`absolute top-0 right-0 w-full lg:w-1/2 h-full flex items-center justify-center pointer-events-none ${!is3DActive && 'bg-gray-200'}`}>
-                   <div className="hidden lg:flex w-full max-w-[380px] h-full max-h-[600px] items-center pointer-events-auto pt-20">
-                      <div className={`w-full h-full bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col transition-opacity duration-700 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
-                         <ConfiguratorPanel
-                            isMobile={isMobile}
-                            config={config}
-                            openCategory={openCategory}
-                            customFile={customFile}
-                            configOptions={CONFIG_OPTIONS}
-                            toggleCategory={toggleCategory}
-                            handleSelect={handleSelect}
-                            handleFileChange={handleFileChange}
-                            calculateTotal={calculateTotal}
-                            getOrderLink={getOrderLink}
-                         />
-                      </div>
-                   </div>
+            <div className={`absolute top-0 right-0 w-full lg:w-1/2 h-full flex items-center justify-center pointer-events-none ${!is3DActive && 'bg-gray-200'}`}>
+               <div className="hidden lg:flex w-full max-w-[380px] h-full max-h-[600px] items-center pointer-events-auto pt-20">
+                  <div className={`w-full h-full bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col transition-opacity duration-700 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
+                     <ConfiguratorPanel
+                        isMobile={isMobile}
+                        config={config}
+                        openCategory={openCategory}
+                        customFile={customFile}
+                        configOptions={CONFIG_OPTIONS}
+                        toggleCategory={toggleCategory}
+                        handleSelect={handleSelect}
+                        handleFileChange={handleFileChange}
+                        calculateTotal={calculateTotal}
+                        getOrderLink={getOrderLink}
+                     />
+                  </div>
                </div>
+            </div>
 
-               {mobileConfigOpen && (
-                 <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
-                     <div className="bg-[#111] w-full sm:w-[90%] h-[80vh] sm:h-auto sm:max-h-[90vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
-                         <ConfiguratorPanel
-                            isMobile={isMobile}
-                            config={config}
-                            openCategory={openCategory}
-                            customFile={customFile}
-                            configOptions={CONFIG_OPTIONS}
-                            toggleCategory={toggleCategory}
-                            handleSelect={handleSelect}
-                            handleFileChange={handleFileChange}
-                            calculateTotal={calculateTotal}
-                            getOrderLink={getOrderLink}
-                         />
-                     </div>
+            {mobileConfigOpen && (
+             <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
+                 <div className="bg-[#111] w-full sm:w-[90%] h-[80vh] sm:h-auto sm:max-h-[90vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
+                     <ConfiguratorPanel
+                        isMobile={isMobile}
+                        config={config}
+                        openCategory={openCategory}
+                        customFile={customFile}
+                        configOptions={CONFIG_OPTIONS}
+                        toggleCategory={toggleCategory}
+                        handleSelect={handleSelect}
+                        handleFileChange={handleFileChange}
+                        calculateTotal={calculateTotal}
+                        getOrderLink={getOrderLink}
+                     />
                  </div>
-               )}
-               <div className={`lg:hidden absolute bottom-[12vh] left-0 w-full flex justify-center pointer-events-auto transition-opacity duration-500 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
-                 <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
-               </div>
+             </div>
+            )}
+            <div className={`lg:hidden absolute bottom-[12vh] left-0 w-full flex justify-center pointer-events-auto transition-opacity duration-500 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
+              <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
             </div>
         </section>
 
