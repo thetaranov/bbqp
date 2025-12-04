@@ -73,9 +73,9 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
       {isMobileMenuOpen && (
         <div className={`lg:hidden absolute top-full left-0 w-full border-t p-6 flex flex-col gap-2 shadow-2xl animate-fade-in h-screen z-40 ${mobileMenuBg} bg-gradient-to-b from-white/5 to-transparent backdrop-blur-xl border-white/10 overflow-y-auto`}>
           {NAV_LINKS.map((link) => (
-            <a key={link.name} href={link.href} onClick={(e) => handleScrollTo(e, link.href)} className={`text-2xl font-bold py-4 border-b last:border-0 flex items-center justify-between ${activeSection === link.href.substring(1) ? 'text-orange-500' : `${mobileMenuText} border-gray-500/20`}`}>
+            <a key={link.name} href={link.href} onClick={(e) => handleScrollTo(e, link.href)} className={`text-xl font-bold py-3 border-b last:border-0 flex items-center justify-between ${activeSection === link.href.substring(1) ? 'text-orange-500' : `${mobileMenuText} border-gray-500/20`}`}>
               {link.name}
-              {activeSection === link.href.substring(1) && <div className="w-3 h-3 bg-orange-500 rounded-full shadow-[0_0_10px_orange]"></div>}
+              {activeSection === link.href.substring(1) && <div className="w-2.5 h-2.5 bg-orange-500 rounded-full shadow-[0_0_10px_orange]"></div>}
             </a>
           ))}
         </div>
