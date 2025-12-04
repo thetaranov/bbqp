@@ -179,7 +179,7 @@ function App() {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => { if (entry.isIntersecting) setActiveSection(entry.target.id); });
     }, { threshold: 0.5 });
-    (Object.values(sectionRefs.current) as (Element | null)[]).forEach((el) => { if (el) observer.observe(el); });
+    Object.values(sectionRefs.current).forEach((el) => { if (el) observer.observe(el); });
     return () => observer.disconnect();
   }, []);
 
@@ -208,8 +208,7 @@ function App() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        setCustomFile(file);
+        setCustomFile(e.target.files[0]);
     }
   };
 
@@ -222,13 +221,6 @@ function App() {
         setIs3DActive(true);
         if (isMobile) setMobileConfigOpen(true);
     }
-  };
-
-  const SectionLoader = () => ( <div className="w-full h-full flex items-center justify-center bg-transparent"><Loader2 className="w-8 h-8 animate-spin text-gray-600" /></div>);
-  const shouldRenderSection = (sectionId: string) => {
-    const currentIndex = SECTION_ORDER.indexOf(activeSection);
-    const targetIndex = SECTION_ORDER.indexOf(sectionId);
-    return Math.abs(currentIndex - targetIndex) <= 1;
   };
 
   const ConfiguratorPanel = () => (
@@ -258,7 +250,7 @@ function App() {
                      </div>
                      <div className={`w-8 h-8 rounded-full flex items-center justify-center border border-white/10 transition-transform duration-300 ${openCategory === category.id ? 'bg-white/10 rotate-180' : 'bg-transparent'}`}><ChevronLeft size={16} className="-rotate-90 text-gray-400"/></div>
                   </button>
-                  <div className={`transition-all duration-300 ease-in-out overflow-hidden ${openCategory === category.id ? 'max-h-[250px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className={`transition-all duration-300 ease-in-out overflow-hidden ${openCategory === category.id ? 'max-h-[300px]' : 'max-h-0'}`}>
                      <div className="p-4 pt-0">
                         <div className="grid grid-cols-1 gap-2 pt-2 border-t border-white/10">
                             {category.options.map((opt) => {
@@ -271,7 +263,7 @@ function App() {
                                 );
                             })}
                         </div>
-                        {category.id === 'engraving' && config[category.id].value === 'custom' && (
+                        {category.id === 'engraving' && config.engraving.value === 'custom' && (
                            <div className="mt-3 pt-3 border-t border-white/10 animate-fade-in">
                               <label className="block text-[10px] font-bold mb-2 uppercase tracking-wider text-gray-400">Ваш эскиз</label>
                               <div className="flex items-center gap-2">
@@ -303,26 +295,15 @@ function App() {
 
   return (
     <div className="h-screen w-full overflow-hidden bg-black text-white selection:bg-orange-500 selection:text-white relative">
-      <style>{`@keyframes comet-move { 0% { opacity: 0; transform: translate(-100px, -100px) scale(var(--scale)); } 15% { opacity: var(--max-opacity); } 85% { opacity: var(--max-opacity); } 100% { opacity: 0; transform: translate(350px, 350px) scale(var(--scale)); } }`}</style>
-
-      <div className={`fixed inset-0 z-[100] flex items-center justify-center pointer-events-none transition-colors duration-[1500ms] ease-in-out ${introStep >= 1 ? 'bg-transparent' : 'bg-black'} ${introStep >= 2 ? 'hidden' : ''}`}>
-        <h1 className={`font-bold tracking-tighter text-white transition-all duration-[1500ms] cubic-bezier(0.16, 1, 0.3, 1) absolute z-[101] whitespace-nowrap ${introStep >= 1 ? 'top-[22px] left-[24px] lg:left-[32px] text-2xl md:text-3xl translate-x-0 translate-y-0 opacity-0' : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl md:text-8xl' } ${introStep >= 2 ? 'hidden' : 'block'}`}>bbqp</h1>
-      </div>
-
       <Navigation activeSection={activeSection} isIntroComplete={isIntroComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
-
       <main className={`snap-container h-full w-full transition-opacity duration-1000 opacity-100`}>
-
-        <div id="hero" ref={setRef('hero')} className="snap-section h-[100svh] transition-opacity duration-[2500ms] ease-in-out">
-            {shouldRenderSection('hero') && <Hero startAnimation={isIntroComplete} isActive={activeSection === 'hero'} />}
+        <div id="hero" ref={setRef('hero')} className="snap-section h-[100svh]">
+            <Hero startAnimation={isIntroComplete} isActive={activeSection === 'hero'} />
         </div>
-
-        <div id="features" ref={setRef('features')} className="snap-section h-[100svh] bg-black transition-opacity duration-[2500ms] ease-in-out">
-             {shouldRenderSection('features') && <FeaturesSection isActive={activeSection === 'features'} />}
+        <div id="features" ref={setRef('features')} className="snap-section h-[100svh] bg-black">
+            <FeaturesSection isActive={activeSection === 'features'} />
         </div>
-
-        <section id="autodraft" ref={setRef('autodraft')} className="snap-section h-[100svh] bg-white text-black relative transition-all duration-[2500ms] ease-in-out overflow-hidden flex items-center justify-center">
-           {shouldRenderSection('autodraft') && (
+        <section id="autodraft" ref={setRef('autodraft')} className="snap-section h-[100svh] bg-white text-black relative overflow-hidden flex items-center justify-center">
             <>
                <div className="hidden md:flex absolute inset-0 w-full h-full z-0 justify-center items-center pt-0 md:pt-0">
                   <img src="/assets/images/model-preview.png" alt="Grill AutoDraft System" className="w-full h-full md:h-[75%] object-contain object-center md:object-[center_right] md:mr-12 opacity-100 translate-y-0 md:translate-y-8" />
@@ -331,7 +312,7 @@ function App() {
                    <img src="/assets/images/model-preview.png" alt="Grill AutoDraft System Mobile" className="h-full object-contain mix-blend-multiply" />
                </div>
                <div className="absolute inset-0 z-[5] overflow-hidden pointer-events-none">
-                 {useMemo(() => formulaData.map((item, i) => <FloatingFormula key={i} item={item} pool={PHYSICS_FORMULAS} />), [])}
+                 {useMemo(() => formulaData.map((item, i) => <FloatingFormula key={i} item={item} pool={PHYSICS_FORMULAS} />), [formulaData])}
                </div>
                <div className="relative z-10 max-w-6xl mx-auto px-6 w-full h-full flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start pb-0 md:py-0 pt-0 md:pt-0">
                   <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start text-center md:text-left h-full pr-0 md:pr-12 pb-0 md:pb-0">
@@ -345,11 +326,8 @@ function App() {
                   </div>
                </div>
             </>
-           )}
         </section>
-
-        <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white transition-all duration-[2500ms] ease-in-out flex flex-col justify-center overflow-hidden relative group">
-          {shouldRenderSection('details') && (
+        <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex flex-col justify-center overflow-hidden relative group">
             <>
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] bg-orange-900/10 blur-[120px] rounded-full pointer-events-none"></div>
               <div className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
@@ -369,11 +347,8 @@ function App() {
                  </div>
               </div>
             </>
-          )}
         </section>
-
-        <section id="personalize" ref={setRef('personalize')} className="snap-section h-[100svh] bg-[#050505] text-white relative transition-all duration-[2500ms] ease-in-out overflow-hidden flex items-center">
-          {shouldRenderSection('personalize') && (
+        <section id="personalize" ref={setRef('personalize')} className="snap-section h-[100svh] bg-[#050505] text-white relative overflow-hidden flex items-center">
             <>
                <div className="absolute inset-0 z-0">
                     <video src="/assets/videos/personalize.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover object-[100%_50%] scale-[1.35] translate-x-0 md:translate-x-0 md:scale-100 md:object-center opacity-70" />
@@ -399,11 +374,8 @@ function App() {
                     </div>
                </div>
             </>
-           )}
         </section>
-
-        <section id="military" ref={setRef('military')} className="snap-section h-[100svh] bg-[#1c1c1c] text-white relative transition-all duration-[2500ms] ease-in-out pt-28 pb-32 md:pb-0">
-           {shouldRenderSection('military') && (
+        <section id="military" ref={setRef('military')} className="snap-section h-[100svh] bg-[#1c1c1c] text-white relative pt-28 pb-32 md:pb-0">
             <>
                <div className="hidden md:block absolute inset-0 z-0 opacity-100">
                     <ParallaxImage src="/assets/images/military-bg.png" alt="Military Background" className="w-full h-full" imageClassName="object-cover" speed={0.1} />
@@ -433,12 +405,10 @@ function App() {
                   </Reveal>
                </div>
             </>
-           )}
         </section>
 
-        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 relative">
-           {shouldRenderSection('models') && (
-            <>
+        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-transparent relative">
+            <div className="relative w-full h-full">
                {is3DActive && (
                   <div className="absolute inset-0 z-0">
                      {!isModelLoaded && (
@@ -456,16 +426,16 @@ function App() {
                   </div>
                )}
 
-               {!is3DActive && (
-                 <div className="w-full h-full flex items-center justify-center">
-                    <button onClick={() => setIs3DActive(true)} className="group flex flex-col items-center gap-4 transition-transform hover:scale-105">
-                       <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors">
-                          <Box size={40} strokeWidth={1.2} className="ml-1" />
-                       </div>
-                       <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Показать модель</span></div>
-                    </button>
-                 </div>
-               )}
+               <div className={`w-full h-full flex items-center justify-center ${is3DActive ? 'bg-transparent' : 'bg-gray-200'}`}>
+                  {!is3DActive && (
+                     <button onClick={() => setIs3DActive(true)} className="group flex flex-col items-center gap-4 transition-transform hover:scale-105">
+                        <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors">
+                           <Box size={40} strokeWidth={1.2} className="ml-1" />
+                        </div>
+                        <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Показать модель</span></div>
+                     </button>
+                  )}
+               </div>
 
                <div className="absolute top-0 right-0 w-full lg:w-1/2 h-full flex items-center justify-center pointer-events-none">
                   <div className="hidden lg:flex w-full max-w-[380px] h-full max-h-[650px] items-center pointer-events-auto">
@@ -486,15 +456,16 @@ function App() {
                <div className={`lg:hidden absolute bottom-[12vh] left-0 w-full flex justify-center pointer-events-auto transition-opacity duration-500 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
                  <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
                </div>
-            </>
-           )}
+            </div>
         </section>
 
-        <div id="ai-chef" ref={setRef('ai-chef')} className="snap-section h-[100svh] bg-[#050505] transition-all duration-[2500ms] ease-in-out pt-16 md:pt-0">
-             {shouldRenderSection('ai-chef') && <Suspense fallback={<SectionLoader />}><RecipeGenerator /></Suspense>}
+        <div id="ai-chef" ref={setRef('ai-chef')} className="snap-section h-[100svh] bg-[#050505]">
+            <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-gray-600" /></div>}>
+                <RecipeGenerator />
+            </Suspense>
         </div>
 
-        <footer id="contact" ref={setRef('contact')} className="snap-section h-[100svh] bg-black text-white flex flex-col justify-center items-center transition-opacity duration-[2500ms] ease-in-out pb-12 md:pb-0">
+        <footer id="contact" ref={setRef('contact')} className="snap-section h-[100svh] bg-black text-white flex flex-col justify-center items-center">
           <Reveal className="w-full max-w-4xl mx-auto px-6 text-center">
              <div className="mb-6">
                 <div className="text-3xl md:text-5xl font-bold tracking-tighter mb-2">bbqp</div>
