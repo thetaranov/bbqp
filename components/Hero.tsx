@@ -16,7 +16,7 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  constQP_REF = useRef<HTMLDivElement>(null);
+  // Удалена ошибочная строка constQP_REF
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
