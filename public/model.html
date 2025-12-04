@@ -41,15 +41,15 @@
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 0.8;
-        
+
         container.appendChild(renderer.domElement);
-        
+
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
         const controls = new OrbitControls(camera, renderer.domElement);
-        
+
         const isMobile = window.innerWidth < 1024;
-        
+
         // --- ФИНАЛЬНЫЕ НАСТРОЙКИ ПОЗИЦИОНИРОВАНИЯ ---
         const modelVerticalCenter = 4.0; // Визуальный центр модели по высоте
 
@@ -67,7 +67,7 @@
             camera.position.set(9, modelVerticalCenter, 18); 
             // 2. "Взгляд" камеры нацелен на ВИЗУАЛЬНЫЙ ЦЕНТР модели
             controls.target.set(0, modelVerticalCenter, 0); 
-            
+
             controls.enableRotate = true;
             controls.enableZoom = false; // Зум колесиком ОТКЛЮЧЕН
             controls.enablePan = false;
@@ -95,9 +95,9 @@
                 if (child.isMesh) child.material = material;
             });
 
+            // 3. Стандартное центрирование модели в (0,0,0)
             const box = new THREE.Box3().setFromObject(obj);
             const center = box.getCenter(new THREE.Vector3());
-            // 3. УДАЛЕНО ручное смещение модели. Центрируем ее в (0,0,0)
             obj.position.sub(center);
 
             // 4. Модель сделана МЕНЬШЕ
