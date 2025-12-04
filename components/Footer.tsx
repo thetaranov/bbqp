@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FileText } from 'lucide-react';
 import Reveal from './Reveal';
 
@@ -10,48 +10,51 @@ interface FooterProps {
 
 const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen }) => {
 
-  useEffect(() => {
-    const win = window as any;
-
-    // Функция инициализации
-    const initBackground = () => {
-      if (win.UnicornStudio) {
-        // Если метод destroy существует, пробуем очистить предыдущие инстансы (от лоадера)
-        if (win.UnicornStudio.destroy) {
-            try { win.UnicornStudio.destroy(); } catch (e) {}
-        }
-        // Инициализируем заново
-        win.UnicornStudio.init();
-      }
-    };
-
-    // Запускаем инициализацию с небольшой задержкой, 
-    // чтобы убедиться, что DOM футера полностью готов, а Лоадер исчез
-    const timer = setTimeout(initBackground, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  // HTML код для изоляции фона в iframe
+  const iframeContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: black; }
+          #canvas-container { width: 100%; height: 100%; }
+        </style>
+      </head>
+      <body>
+        <div data-us-project="OzI2W3RpiS8R2jyvFcSM" style="width:100%; height: 100%"></div>
+        <script src="https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.5.2/dist/unicornStudio.umd.js"></script>
+        <script>
+          window.onload = function() {
+            if (window.UnicornStudio) {
+              window.UnicornStudio.init();
+            }
+          };
+        </script>
+      </body>
+    </html>
+  `;
 
   return (
     <footer id="contact" ref={setRef} className="snap-section h-[100svh] relative overflow-hidden flex flex-col justify-center items-center">
 
-      {/* --- UNICORN STUDIO BACKGROUND (Слой 0) --- */}
-      {/* Важно: здесь НЕТ pointer-events-none, чтобы фон "чувствовал" мышь */}
+      {/* --- UNICORN STUDIO BACKGROUND (ISOLATED IN IFRAME) --- */}
       <div className="absolute inset-0 z-0 w-full h-full">
-         <div 
-            data-us-project="OzI2W3RpiS8R2jyvFcSM" 
-            style={{ width: '100%', height: '100%', opacity: 1 }} 
-         ></div>
+         <iframe
+            title="footer-background"
+            srcDoc={iframeContent}
+            className="w-full h-full border-0"
+            style={{ pointerEvents: 'auto' }} // Разрешаем мышь внутри iframe для эффектов
+            loading="lazy" // Ленивая загрузка для уменьшения лагов
+         />
       </div>
 
       {/* --- OVERLAY (Слой 1) --- */}
-      {/* Добавили pointer-events-none, чтобы мышь проходила сквозь затемнение */}
+      {/* Затемнение, прозрачное для кликов */}
       <div className="absolute inset-0 z-[1] bg-black/40 pointer-events-none"></div>
 
       {/* --- CONTENT (Слой 10) --- */}
-      {/* Контент кликабельный (pointer-events-auto по умолчанию) */}
-      <div className="relative z-10 w-full">
-        <Reveal className="w-full max-w-4xl mx-auto px-6 text-center">
+      <div className="relative z-10 w-full pointer-events-none">
+        <Reveal className="w-full max-w-4xl mx-auto px-6 text-center pointer-events-auto">
           <div className="mb-6">
             <div className="text-3xl md:text-5xl font-bold tracking-tighter mb-2 text-white drop-shadow-2xl">bbqp</div>
             <p className="text-sm text-gray-300 font-medium mb-6 drop-shadow-md">Инновации в искусстве приготовления.</p>

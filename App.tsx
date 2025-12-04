@@ -198,7 +198,7 @@
 
       return (
         <div className="h-screen w-full overflow-hidden bg-black text-white selection:bg-orange-500 selection:text-white relative">
-          <Loader isLoading={isLoading} />
+            {isLoading && <Loader isLoading={isLoading} />}
 
           <Navigation activeSection={activeSection} isIntroComplete={isIntroComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
           <main className={`snap-container h-full w-full`}>
