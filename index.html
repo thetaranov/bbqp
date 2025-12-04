@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>bbqp | Печь и Мангал</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- НАЧАЛО СКРИПТА-РЕДИРЕКТА -->
+    <script>
+      (function() {
+        // Устанавливаем таймаут в миллисекундах (здесь 7 секунд)
+        var timeout = 7000;
+
+        // Запускаем таймер только если пользователь зашел на основной домен
+        if (window.location.hostname === 'bbqp.pro') {
+          // Сохраняем ID таймера в глобальную переменную, чтобы React мог его отменить
+          window.fallbackTimer = setTimeout(function() {
+            // Если таймер не был отменен, перенаправляем на запасной URL
+            console.log('Основной сайт не загрузился вовремя. Перенаправление на bbqp.vercel.app...');
+            window.location.href = 'https://bbqp.vercel.app';
+          }, timeout);
+        }
+      })();
+    </script>
+    <!-- КОНЕЦ СКРИПТА-РЕДИРЕКТА -->
+    
     <!-- Исправлен путь с /src/index.css на index.css -->
     <link rel="stylesheet" href="index.css">
   </head>
