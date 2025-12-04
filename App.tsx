@@ -6,12 +6,12 @@ import ParallaxImage from './components/ParallaxImage';
 import Reveal from './components/Reveal';
 import ParticlesOverlay from './components/ParticlesOverlay';
 import { DETAILS_ITEMS } from './constants';
-import { Loader2, Settings2, Box, ScanLine } from 'lucide-react';
+import { Check, ArrowRight, Upload, ChevronLeft, Loader2, Settings2, X, Box, ScanLine, FileText } from 'lucide-react';
 import FloatingFormulasOverlay from './components/FloatingFormulasOverlay';
-import Modal from './components/Modal'; // <-- Импорт нового компонента
-import ConfiguratorPanel from './components/ConfiguratorPanel'; // <-- Импорт нового компонента
-import SiteFooter from './components/Footer'; // <-- Импорт нового компонента
-import { Option, ConfigCategory } from './types'; // <-- Импорт типов
+import Modal from './components/Modal';
+import ConfiguratorPanel from './components/ConfiguratorPanel';
+import SiteFooter from './components/Footer';
+import { Option, ConfigCategory } from './types';
 
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
@@ -148,6 +148,17 @@ function App() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
         setCustomFile(e.target.files[0]);
+    }
+  };
+
+  const scrollToConfigurator = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const element = document.getElementById('models');
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+        setOpenCategory('engraving');
+        setIs3DActive(true);
+        if (isMobile) setMobileConfigOpen(true);
     }
   };
 
