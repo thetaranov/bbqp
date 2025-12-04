@@ -438,55 +438,62 @@ function App() {
            )}
         </section>
 
-        {/* --- НАЧАЛО ИЗМЕНЕНИЙ: Полностью переработанная секция 'models' с iframe --- */}
-        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 transition-all duration-[2500ms] ease-in-out relative pt-0 pb-0 flex items-center justify-center">
+        {/* --- НАЧАЛО ИЗМЕНЕНИЙ: Полностью переработанная секция 'models' с новой версткой --- */}
+        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 relative">
            {shouldRenderSection('models') && (
             <>
-               <div className="absolute inset-0 z-0 w-full h-full lg:w-1/2 lg:left-0">
-                  {is3DActive && (
-                      <iframe
-                        src={`/model.html?color=${config.color.value}`}
-                        title="BBQP 3D Model"
-                        className="w-full h-full border-0 animate-fade-in"
-                        onLoad={() => setIsModelLoaded(true)}
-                      ></iframe>
-                  )}
-               </div>
+               <div className="relative w-full h-full flex flex-col lg:flex-row items-center justify-center lg:justify-center max-w-7xl mx-auto px-6 gap-8 pt-24 pb-12">
 
-               {/* Кнопка-плейсхолдер */}
-               <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center transition-opacity duration-500 ${is3DActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                  <button onClick={() => setIs3DActive(true)} className="relative z-30 group flex flex-col items-center gap-4 transition-transform hover:scale-105">
-                     <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors">
-                        <Box size={40} strokeWidth={1.2} className="ml-1" />
-                     </div>
-                     <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Показать модель</span></div>
-                  </button>
-               </div>
-
-               {/* UI-оверлей (конфигуратор) */}
-               <div className="relative z-30 w-full h-full pointer-events-none">
-                  {/* Мобильный конфигуратор (модальное окно) */}
-                  {mobileConfigOpen && (
-                    <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
-                        <div className="bg-[#111] w-full sm:w-[90%] h-[80vh] sm:h-auto sm:max-h-[90vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
-                            <button onClick={() => setMobileConfigOpen(false)} className="absolute top-4 right-4 z-20 p-2 bg-white/10 rounded-full text-white hover:bg-white/20 transition-colors"><X size={24} /></button>
-                            <ConfiguratorPanel />
+                  {/* --- Контейнер для модели (слева на ПК, вверху на мобильном) --- */}
+                  <div className="relative w-full lg:w-1/2 h-[50vh] lg:h-full flex items-center justify-center">
+                     {is3DActive && !isModelLoaded && (
+                        <div className="absolute inset-0 z-20 flex items-center justify-center bg-gray-200">
+                           <Loader2 className="w-12 h-12 animate-spin text-gray-500" />
                         </div>
-                    </div>
-                  )}
-                  {/* Мобильная кнопка вызова конфигуратора */}
-                  <div className={`lg:hidden absolute bottom-24 left-0 w-full flex justify-center pointer-events-auto transition-opacity duration-500 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
-                    <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
+                     )}
+
+                     {is3DActive && (
+                        <iframe
+                           src={`/model.html?color=${config.color.value}`}
+                           title="BBQP 3D Model"
+                           className="w-full h-full border-0 transition-opacity duration-500"
+                           style={{ opacity: isModelLoaded ? 1 : 0 }}
+                           onLoad={() => setIsModelLoaded(true)}
+                        ></iframe>
+                     )}
+
+                     {/* Кнопка-плейсхолдер */}
+                     {!is3DActive && (
+                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center">
+                           <button onClick={() => setIs3DActive(true)} className="group flex flex-col items-center gap-4 transition-transform hover:scale-105">
+                              <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors">
+                                 <Box size={40} strokeWidth={1.2} className="ml-1" />
+                              </div>
+                              <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Показать модель</span></div>
+                           </button>
+                        </div>
+                     )}
                   </div>
 
-                  {/* Десктопный конфигуратор (справа) */}
-                  {is3DActive && (
-                      <div className="hidden lg:flex absolute right-[10%] top-1/2 -translate-y-1/2 w-[380px] h-[85vh] max-h-[700px] pointer-events-auto">
-                          <div className={`w-full bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col transition-opacity duration-700 ${isModelLoaded ? 'opacity-100' : 'opacity-0'}`}>
-                             <ConfiguratorPanel />
-                          </div>
-                      </div>
-                  )}
+                  {/* --- Контейнер для конфигуратора (справа на ПК, скрыт на мобильном) --- */}
+                  <div className="hidden lg:flex w-full max-w-[380px] h-full max-h-[700px] pointer-events-auto">
+                     <div className={`w-full bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col transition-opacity duration-700 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
+                        <ConfiguratorPanel />
+                     </div>
+                  </div>
+               </div>
+
+               {/* --- UI для мобильных устройств --- */}
+               {mobileConfigOpen && (
+                 <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
+                     <div className="bg-[#111] w-full sm:w-[90%] h-[80vh] sm:h-auto sm:max-h-[90vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
+                         <button onClick={() => setMobileConfigOpen(false)} className="absolute top-4 right-4 z-20 p-2 bg-white/10 rounded-full text-white hover:bg-white/20 transition-colors"><X size={24} /></button>
+                         <ConfiguratorPanel />
+                     </div>
+                 </div>
+               )}
+               <div className={`lg:hidden absolute bottom-16 left-0 w-full flex justify-center pointer-events-auto transition-opacity duration-500 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
+                 <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
                </div>
             </>
            )}

@@ -15,15 +15,13 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
   const itemsRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const navRef = useRef<HTMLElement>(null);
 
-  // Always Dark Theme / Hero Style
   const bgClass = 'bg-black/60 border-white/10';
   const blurClass = 'backdrop-blur-md';
   const logoColorClass = 'text-white';
   const inactiveColorClass = 'text-gray-300 hover:text-white';
-  const mobileMenuBg = 'bg-black/80';
+  const mobileMenuBg = 'bg-black/90'; // Сделал фон темнее для контраста
   const mobileMenuText = 'text-white';
 
-  // Update the sliding indicator based on activeSection
   useEffect(() => {
     const activeIndex = NAV_LINKS.findIndex(link => link.href.substring(1) === activeSection);
 
@@ -37,7 +35,6 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
         });
       }
     } else {
-        // Hide indicator if we are in Hero or non-menu section
         setIndicatorStyle(prev => ({ ...prev, opacity: 0 }));
     }
   }, [activeSection]);
@@ -57,32 +54,18 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
   return (
     <nav
       ref={navRef}
-      className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-1000 py-4 shadow-sm ${bgClass} ${blurClass} ${isIntroComplete ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
+      className={`fixed top-0 left-0 right-0 z-[50] transition-all duration-1000 py-4 shadow-sm ${bgClass} ${blurClass} ${isIntroComplete ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
     >
       <div className="max-w-[95rem] mx-auto px-6 lg:px-8 flex justify-between items-center min-h-[40px]">
-
-        {/* DESKTOP LOGO */}
         <a 
           href="#" 
           onClick={(e) => handleScrollTo(e, "#hero")} 
-          className={`hidden lg:block text-2xl md:text-3xl font-bold tracking-tighter z-10 relative hover:opacity-80 transition-opacity duration-1000 ${logoColorClass} ${isIntroComplete ? 'opacity-100 delay-300' : 'opacity-0'}`}
+          className={`text-2xl md:text-3xl font-bold tracking-tighter z-10 relative hover:opacity-80 transition-opacity duration-1000 ${logoColorClass} ${isIntroComplete ? 'opacity-100 delay-300' : 'opacity-0'}`}
         >
           bbqp
         </a>
 
-        {/* MOBILE LOGO (Left Aligned) */}
-        <a 
-            href="#" 
-            onClick={(e) => handleScrollTo(e, "#hero")}
-            className={`lg:hidden text-2xl font-bold tracking-tighter ${logoColorClass}`}
-        >
-            bbqp
-        </a>
-
-        {/* Desktop Menu - Liquid Drop Style */}
         <div className="hidden lg:flex items-center relative rounded-full p-1 border transition-colors duration-500 bg-white/5 border-white/5 bg-gradient-to-b from-white/5 to-transparent">
-
-          {/* The "Liquid Drop" Indicator */}
           <div 
             className="absolute h-[calc(100%-8px)] top-1 bg-orange-600 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.5)]"
             style={{ 
@@ -112,7 +95,6 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
           ))}
         </div>
 
-        {/* CTA Button (Desktop Only) */}
         <div className="hidden lg:block">
            <a 
             href="https://t.me/thetaranov"
@@ -124,9 +106,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
           </a>
         </div>
 
-        {/* Mobile Buttons (Support + Menu) */}
         <div className="lg:hidden absolute right-6 flex items-center gap-4">
-           {/* Support Button (Mobile Only) */}
            <button
               className={`p-1 transition-colors ${logoColorClass} hover:text-orange-500`}
               onClick={onChatToggle}
@@ -135,9 +115,8 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
              <MessageSquare size={26} strokeWidth={2} />
            </button>
 
-           {/* Menu Toggle */}
           <button
-            className={`p-1 transition-colors ${logoColorClass}`}
+            className={`p-1 transition-colors z-20 ${isMobileMenuOpen ? 'text-white' : logoColorClass}`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Menu"
           >
@@ -146,15 +125,14 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className={`lg:hidden absolute top-full left-0 w-full border-t p-6 flex flex-col gap-2 shadow-2xl animate-fade-in h-screen z-40 ${mobileMenuBg} bg-gradient-to-b from-white/5 to-transparent backdrop-blur-2xl border-white/10`}>
+        <div className={`lg:hidden absolute top-full left-0 w-full border-t p-6 flex flex-col gap-1 shadow-2xl animate-fade-in h-screen z-10 ${mobileMenuBg} backdrop-blur-xl border-white/10`}>
           {NAV_LINKS.map((link) => (
             <a
               key={link.name}
               href={link.href}
               onClick={(e) => handleScrollTo(e, link.href)}
-              className={`text-xl font-semibold py-4 border-b last:border-0 flex items-center justify-between transition-colors duration-200 ${
+              className={`text-lg font-semibold py-3 border-b last:border-0 flex items-center justify-between transition-colors duration-200 ${
                  activeSection === link.href.substring(1) 
                  ? 'text-orange-500 border-orange-500/20' 
                  : `${mobileMenuText} border-gray-500/20`
