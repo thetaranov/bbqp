@@ -11,20 +11,32 @@ interface FooterProps {
 const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen }) => {
 
   useEffect(() => {
-    // Принудительная инициализация фона при монтировании футера
     const win = window as any;
-    if (win.UnicornStudio) {
-      setTimeout(() => {
+
+    // Функция инициализации
+    const initBackground = () => {
+      if (win.UnicornStudio) {
+        // Если метод destroy существует, пробуем очистить предыдущие инстансы (от лоадера)
+        if (win.UnicornStudio.destroy) {
+            try { win.UnicornStudio.destroy(); } catch (e) {}
+        }
+        // Инициализируем заново
         win.UnicornStudio.init();
-      }, 500); // Чуть увеличили задержку для надежности
-    }
+      }
+    };
+
+    // Запускаем инициализацию с небольшой задержкой, 
+    // чтобы убедиться, что DOM футера полностью готов, а Лоадер исчез
+    const timer = setTimeout(initBackground, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    // Убрали bg-black, чтобы он не перекрывал canvas
     <footer id="contact" ref={setRef} className="snap-section h-[100svh] relative overflow-hidden flex flex-col justify-center items-center">
 
       {/* --- UNICORN STUDIO BACKGROUND (Слой 0) --- */}
+      {/* Важно: здесь НЕТ pointer-events-none, чтобы фон "чувствовал" мышь */}
       <div className="absolute inset-0 z-0 w-full h-full">
          <div 
             data-us-project="OzI2W3RpiS8R2jyvFcSM" 
@@ -33,10 +45,11 @@ const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen 
       </div>
 
       {/* --- OVERLAY (Слой 1) --- */}
-      {/* Сделали его прозрачнее (было /60, стало /40), чтобы было видно фон */}
+      {/* Добавили pointer-events-none, чтобы мышь проходила сквозь затемнение */}
       <div className="absolute inset-0 z-[1] bg-black/40 pointer-events-none"></div>
 
       {/* --- CONTENT (Слой 10) --- */}
+      {/* Контент кликабельный (pointer-events-auto по умолчанию) */}
       <div className="relative z-10 w-full">
         <Reveal className="w-full max-w-4xl mx-auto px-6 text-center">
           <div className="mb-6">
