@@ -6,9 +6,7 @@
     <title>BBQP 3D Model</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: transparent; }
-        /* touch-action: pan-y позволяет свайпать страницу по вертикали */
-        #canvas-container { width: 100%; height: 100%; touch-action: pan-y; cursor: grab; }
-        #canvas-container:active { cursor: grabbing; }
+        #canvas-container { width: 100%; height: 100%; touch-action: none; pointer-events: none; }
     </style>
     <script type="importmap">
         {
@@ -28,7 +26,6 @@
         import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
         import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-        // --- Настройка сцены ---
         const container = document.getElementById('canvas-container');
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -40,26 +37,24 @@
         scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(10, 5, 10);
+        // --- ИЗМЕНЕНО: Камера поднята и отодвинута для лучшего обзора ---
+        camera.position.set(10, 6, 12);
 
         const controls = new OrbitControls(camera, renderer.domElement);
-        controls.target.set(0, 1, 0);
-        controls.enableDamping = true;
+        // --- ИЗМЕНЕНО: Цель камеры поднята к центру модели ---
+        controls.target.set(0, 2, 0);
+        
+        // --- ИЗМЕНЕНО: Полное отключение взаимодействия ---
+        controls.enableDamping = false;
         controls.enablePan = false;
         controls.enableZoom = false;
+        controls.enableRotate = false; // Отключаем вращение полностью
 
-        // --- Параметры из URL ---
-        const params = new URLSearchParams(window.location.search);
-        const color = params.get('color') || 'stainless';
-        const isMobile = window.innerWidth < 1024;
-
-        // --- НАСТРОЙКА ВРАЩЕНИЯ ---
-        controls.autoRotate = isMobile; // Авто-вращение на мобильных
-        controls.enableRotate = !isMobile; // Отключаем вращение касанием на мобильных
+        // Оставляем только авто-вращение
+        controls.autoRotate = true;
         controls.autoRotateSpeed = 0.5;
 
-        // --- Материал ---
-        const isBlack = color === 'black';
+        const isBlack = new URLSearchParams(window.location.search).get('color') === 'black';
         const material = new THREE.MeshStandardMaterial({
             color: isBlack ? new THREE.Color('#202020') : new THREE.Color('#e5e7eb'),
             roughness: isBlack ? 0.4 : 0.2,
@@ -67,7 +62,6 @@
             envMapIntensity: isBlack ? 1.5 : 1.0,
         });
 
-        // --- Загрузка модели ---
         const loader = new OBJLoader();
         loader.load(
             '/assets/models/mangal.obj',
@@ -82,14 +76,13 @@
                 const center = box.getCenter(new THREE.Vector3());
                 obj.position.sub(center);
 
-                const scale = isMobile ? 0.35 : 0.45; // Немного увеличил масштаб
+                const scale = window.innerWidth < 1024 ? 0.35 : 0.45;
                 obj.scale.set(scale, scale, scale);
 
                 scene.add(obj);
             },
         );
 
-        // --- Цикл рендеринга ---
         function animate() {
             requestAnimationFrame(animate);
             controls.update();

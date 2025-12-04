@@ -438,33 +438,35 @@ function App() {
            )}
         </section>
 
-        {/* --- НАЧАЛО ИЗМЕНЕНИЙ: Полностью переработанная секция 'models' с новой версткой --- */}
+        {/* --- НАЧАЛО ИЗМЕНЕНИЙ: Полностью переработанная секция 'models' --- */}
         <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 relative">
            {shouldRenderSection('models') && (
             <>
-               <div className="relative w-full h-full flex flex-col lg:flex-row items-center justify-center lg:justify-center max-w-7xl mx-auto px-6 gap-8 pt-24 pb-12">
+               {/* --- Основной контейнер --- */}
+               <div className="relative w-full h-full flex flex-col lg:flex-row items-center justify-center max-w-7xl mx-auto lg:gap-8 lg:px-6">
 
                   {/* --- Контейнер для модели (слева на ПК, вверху на мобильном) --- */}
-                  <div className="relative w-full lg:w-1/2 h-[50vh] lg:h-full flex items-center justify-center">
-                     {is3DActive && !isModelLoaded && (
-                        <div className="absolute inset-0 z-20 flex items-center justify-center bg-gray-200">
-                           <Loader2 className="w-12 h-12 animate-spin text-gray-500" />
+                  <div className="relative w-full flex-1 lg:w-1/2 h-full flex items-center justify-center">
+                     {is3DActive && (
+                        <div className="relative w-full h-full">
+                           {!isModelLoaded && (
+                              <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-200">
+                                 <Loader2 className="w-12 h-12 animate-spin text-gray-500" />
+                              </div>
+                           )}
+                           <iframe
+                              src={`/model.html?color=${config.color.value}`}
+                              title="BBQP 3D Model"
+                              className="w-full h-full border-0 transition-opacity duration-500"
+                              style={{ opacity: isModelLoaded ? 1 : 0 }}
+                              onLoad={() => setIsModelLoaded(true)}
+                           />
+                           {/* --- БЛОКИРОВЩИК ВЗАИМОДЕЙСТВИЯ --- */}
+                           <div className="absolute inset-0 z-20"></div>
                         </div>
                      )}
-
-                     {is3DActive && (
-                        <iframe
-                           src={`/model.html?color=${config.color.value}`}
-                           title="BBQP 3D Model"
-                           className="w-full h-full border-0 transition-opacity duration-500"
-                           style={{ opacity: isModelLoaded ? 1 : 0 }}
-                           onLoad={() => setIsModelLoaded(true)}
-                        ></iframe>
-                     )}
-
-                     {/* Кнопка-плейсхолдер */}
                      {!is3DActive && (
-                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center">
+                        <div className="flex flex-col items-center justify-center">
                            <button onClick={() => setIs3DActive(true)} className="group flex flex-col items-center gap-4 transition-transform hover:scale-105">
                               <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors">
                                  <Box size={40} strokeWidth={1.2} className="ml-1" />
@@ -476,7 +478,7 @@ function App() {
                   </div>
 
                   {/* --- Контейнер для конфигуратора (справа на ПК, скрыт на мобильном) --- */}
-                  <div className="hidden lg:flex w-full max-w-[380px] h-full max-h-[700px] pointer-events-auto">
+                  <div className="hidden lg:flex w-full max-w-[380px] h-full max-h-[700px] py-20 pointer-events-auto">
                      <div className={`w-full bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col transition-opacity duration-700 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
                         <ConfiguratorPanel />
                      </div>
@@ -485,14 +487,14 @@ function App() {
 
                {/* --- UI для мобильных устройств --- */}
                {mobileConfigOpen && (
-                 <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
+                 <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
                      <div className="bg-[#111] w-full sm:w-[90%] h-[80vh] sm:h-auto sm:max-h-[90vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
                          <button onClick={() => setMobileConfigOpen(false)} className="absolute top-4 right-4 z-20 p-2 bg-white/10 rounded-full text-white hover:bg-white/20 transition-colors"><X size={24} /></button>
                          <ConfiguratorPanel />
                      </div>
                  </div>
                )}
-               <div className={`lg:hidden absolute bottom-16 left-0 w-full flex justify-center pointer-events-auto transition-opacity duration-500 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
+               <div className={`lg:hidden absolute bottom-24 left-0 w-full flex justify-center pointer-events-auto transition-opacity duration-500 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
                  <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
                </div>
             </>
