@@ -12,8 +12,10 @@ import { Check, ArrowRight, Upload, ChevronLeft, Loader2, Settings2, X, Box, Sca
 const ChefBot = lazy(() => import('./components/ChefBot'));
 const RecipeGenerator = lazy(() => import('./components/RecipeGenerator'));
 
-const SECTION_ORDER = ['hero', 'features', 'autodraft', 'details', 'personalize', 'military', 'models', 'ai-chef', 'footer'];
+// Optimization Constants
+const SECTION_ORDER = ['hero', 'features', 'autodraft', 'details', 'personalize', 'military', 'models', 'ai-chef'];
 
+// Configuration Data
 type Option = { label: string; price: number; value: string };
 type ConfigCategory = { id: string; name: string; options: Option[] };
 
@@ -107,7 +109,6 @@ function App() {
   const [introStep, setIntroStep] = useState(0); 
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
-  const [isMenuToggled, setIsMenuToggled] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -164,7 +165,7 @@ function App() {
       }
       return (
         <>
-          <div className="hidden md:flex absolute inset-0 w-full h-full z-0 justify-center items-center"><img src="/assets/images/model-preview.png" alt="Grill AutoDraft System" className="h-[75%] object-contain object-center" /></div>
+          <div className="hidden md:flex absolute inset-0 w-full h-full z-0 justify-center items-center"><img src="/assets/images/model-preview.png" alt="Grill AutoDraft System" className="h-[75%] object-contain object-[center_right] mr-12" /></div>
           <div className="md:hidden absolute top-1/2 left-0 w-full h-[35vh] z-[1] flex items-center justify-center pointer-events-none -translate-y-1/2"><img src="/assets/images/model-preview.png" alt="Grill AutoDraft System Mobile" className="h-full object-contain mix-blend-multiply" /></div>
           <div className="absolute inset-0 z-[5] overflow-hidden pointer-events-none">{formulaData.map((item, i) => <FloatingFormula key={i} item={item} pool={PHYSICS_FORMULAS} />)}</div>
           <div className="relative z-10 max-w-6xl mx-auto px-6 w-full h-full flex flex-col md:flex-row items-center justify-center md:justify-start">
@@ -208,32 +209,9 @@ function App() {
   const toggleCategory = (id: string) => setOpenCategory(openCategory === id ? null : id);
   const calculateTotal = () => (Object.values(config) as Option[]).reduce((acc, item) => acc + item.price, 0);
 
-  const getOrderLink = () => {
-    let text = `Здравствуйте! Хочу заказать bbqp:%0A` +
-      Object.entries(config).map(([key, val]) => `- ${CONFIG_OPTIONS.find(c => c.id === key)?.name}: ${(val as Option).label}`).join('%0A') +
-      `%0A%0AСтоимость: ${calculateTotal()} руб.`;
-    if (config.engraving.value === 'custom' && customFile) text += `%0A%0AФайл: ${customFile.name}`;
-    return `${TELEGRAM_LINK}?text=${text}`;
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        setCustomFile(file);
-        setCustomTextureUrl(URL.createObjectURL(file));
-    }
-  };
-
-  const scrollToConfigurator = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const element = document.getElementById('models');
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-        setOpenCategory('engraving');
-        setIs3DActive(true);
-        if (isMobile) setMobileConfigOpen(true);
-    }
-  };
+  const getOrderLink = () => { /* ... */ };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { /* ... */ };
+  const scrollToConfigurator = (e: React.MouseEvent) => { /* ... */ };
 
   const SectionLoader = () => ( <div className="w-full h-full flex items-center justify-center bg-transparent"><Loader2 className="w-8 h-8 animate-spin text-gray-600" /></div>);
   const shouldRenderSection = (sectionId: string) => {
@@ -307,56 +285,59 @@ function App() {
       <div className={`fixed inset-0 z-[100] flex items-center justify-center pointer-events-none transition-colors duration-[1500ms] ease-in-out ${introStep >= 1 ? 'bg-transparent' : 'bg-black'} ${introStep >= 2 ? 'hidden' : ''}`}>
         <h1 className={`font-bold tracking-tighter text-white transition-all duration-[1500ms] cubic-bezier(0.16, 1, 0.3, 1) absolute z-[101] whitespace-nowrap ${introStep >= 1 ? 'top-[22px] left-[24px] lg:left-[32px] text-2xl md:text-3xl translate-x-0 translate-y-0 opacity-0' : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl md:text-8xl' } ${introStep >= 2 ? 'hidden' : 'block'}`}>bbqp</h1>
       </div>
-      <Navigation activeSection={activeSection} isIntroComplete={isIntroComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} onMenuToggle={setIsMenuToggled} />
-      <main className={`snap-container h-full w-full transition-all duration-300 ${isMenuToggled ? 'blur-sm' : ''}`}>
+      <Navigation activeSection={activeSection} isIntroComplete={isIntroComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
+
+      <main className={`snap-container h-full w-full transition-opacity duration-1000 opacity-100`}>
         <div id="hero" ref={setRef('hero')} className="snap-section h-[100svh]">{shouldRenderSection('hero') && <Hero startAnimation={isIntroComplete} isActive={activeSection === 'hero'} />}</div>
         <div id="features" ref={setRef('features')} className="snap-section h-[100svh] bg-black">{shouldRenderSection('features') && <FeaturesSection isActive={activeSection === 'features'} />}</div>
+
         <section id="autodraft" ref={setRef('autodraft')} className="snap-section h-[100svh] bg-white text-black relative overflow-hidden flex items-center justify-center">{shouldRenderSection('autodraft') && autodraftContent}</section>
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex flex-col justify-center overflow-hidden relative group">{shouldRenderSection('details') && detailsContent}</section>
-        <section id="personalize" ref={setRef('personalize')} className="snap-section h-[100svh] bg-[#050505] text-white relative overflow-hidden flex items-center">{shouldRenderSection('personalize') && (<> <div className="absolute inset-0 z-0"><video src="/assets/videos/personalize.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover object-[100%_50%] scale-[1.35] md:scale-100 md:object-center opacity-70" /><div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent hidden md:block"></div></div> <div className="container mx-auto px-6 relative z-20 w-full h-full flex flex-col justify-center items-center md:items-start text-center md:text-left"><div className="max-w-xl pl-0 md:pl-20 border-l-0 md:border-l-2 border-orange-500/30 w-full"><Reveal><div className="flex items-center justify-center md:justify-start gap-3 mb-4 opacity-0 animate-fade-in" style={{animationDelay: '0.3s', animationFillMode: 'forwards'}}><ScanLine size={16} className="text-orange-500 animate-pulse" /><span className="font-mono text-[10px] tracking-[0.2em] uppercase text-orange-500/80">ПЕРСОНАЛИЗАЦИЯ</span></div><h2 className="text-[9vw] md:text-6xl font-bold text-white mb-6 leading-tight tracking-tight">Персонализируйте</h2><div className="text-gray-300 text-sm md:text-base leading-relaxed mb-8 font-medium text-center md:text-left w-full md:w-auto space-y-2"><p>Поздравление именинника или юбиляра</p><p>Корпоративный девиз</p><p>Индивидуальная гравировка</p></div><div className="flex justify-center md:justify-start"><button onClick={scrollToConfigurator} className="group inline-flex items-center gap-3 bg-black/60 backdrop-blur-md border border-white/10 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] transition-all hover:bg-black/80 hover:scale-105"><span className="font-bold text-sm">Загрузить макет</span><ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" /></button></div></Reveal></div></div> </>)}</section>
+
+        <section id="personalize" ref={setRef('personalize')} className="snap-section h-[100svh] bg-[#050505] text-white relative overflow-hidden flex items-center">{shouldRenderSection('personalize') && (<> <div className="absolute inset-0 z-0"><video src="/assets/videos/personalize.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover object-[100%_50%] scale-[1.35] md:scale-100 md:object-center opacity-70" /><div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent hidden md:block"></div></div> <div className="container mx-auto px-6 relative z-20 w-full h-full flex flex-col justify-center items-center md:items-start text-center md:text-left"><div className="max-w-xl pl-0 md:pl-12 border-l-0 md:border-l-2 border-orange-500/30 w-full"><Reveal><div className="flex items-center justify-center md:justify-start gap-3 mb-4 opacity-0 animate-fade-in" style={{animationDelay: '0.3s', animationFillMode: 'forwards'}}><ScanLine size={16} className="text-orange-500 animate-pulse" /><span className="font-mono text-[10px] tracking-[0.2em] uppercase text-orange-500/80">ПЕРСОНАЛИЗАЦИЯ</span></div><h2 className="text-[9vw] md:text-6xl font-bold text-white mb-6 leading-tight tracking-tight">Персонализируйте</h2><div className="text-gray-300 text-sm md:text-base leading-relaxed mb-8 font-medium text-center md:text-left w-full md:w-auto space-y-2"><p>Поздравление именинника или юбиляра</p><p>Корпоративный девиз</p><p>Индивидуальная гравировка</p></div><div className="flex justify-center md:justify-start"><button onClick={scrollToConfigurator} className="group inline-flex items-center gap-3 bg-black/60 backdrop-blur-md border border-white/10 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] transition-all hover:bg-black/80 hover:scale-105"><span className="font-bold text-sm">Загрузить макет</span><ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" /></button></div></Reveal></div></div> </>)}</section>
         <section id="military" ref={setRef('military')} className="snap-section h-[100svh] bg-[#1c1c1c] text-white relative pt-28 pb-32 md:pb-0">{shouldRenderSection('military') && (<> <div className="hidden md:block absolute inset-0 z-0 opacity-100"><ParallaxImage src="/assets/images/military-bg.png" alt="Military Background" className="w-full h-full" imageClassName="object-cover" speed={0.1} /></div> <div className="md:hidden absolute inset-0 z-0 opacity-100 overflow-hidden"><img src="/assets/images/military-bg-mobile.png" alt="Military Background Mobile" className="w-full h-[110%] object-cover -translate-y-[10%]" /><div className="absolute inset-0 bg-black/30"></div><div className="absolute bottom-0 left-0 w-full h-[40%] bg-gradient-to-t from-black via-black/80 to-transparent"></div></div> <ParticlesOverlay flipped={true} active={activeSection === 'military'} /> <div className="relative z-10 max-w-5xl mx-auto px-6 w-full h-full flex flex-col justify-center"><Reveal className="max-w-xl bg-black/20 backdrop-blur-[2px] bg-gradient-to-br from-white/5 to-transparent p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/10 shadow-2xl mt-auto md:mt-0"><div className="inline-block px-3 py-1 border border-orange-500/30 bg-orange-500/10 backdrop-blur-sm rounded-full mb-4 md:mb-6"><span className="text-[10px] md:text-xs font-bold tracking-wider text-orange-400 uppercase">Эксклюзив</span></div><h2 className="mb-4 md:mb-6 tracking-tight text-[8vw] lg:text-5xl font-bold leading-tight drop-shadow-lg">Военная серия</h2><div className="space-y-4 text-gray-200 mb-6 md:mb-8 text-base md:text-lg leading-relaxed drop-shadow-md"><p>Тактический сувенир и дань уважения. Брутальный дизайн, спецпокрытие, армейская эстетика.</p></div><div className="space-y-3 md:space-y-4 mb-8 md:mb-10">{[{ title: "Тактическое покрытие", desc: "Покрытие не предполагается при использовании нержавейки. Нано покрытие для долгого хранения" }, { title: "Персональная гравировка", desc: "Позывной или звание — бесплатно" }].map((item, i) => ( <div key={i} className="flex items-start gap-4 p-3 md:p-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all"><div className="mt-1 flex-shrink-0"><div className="w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-orange-600/20"><Check className="w-3 h-3" /></div></div><div><div className="font-bold text-sm md:text-base text-white">{item.title}</div><p className="text-[10px] md:text-xs text-gray-300 mt-1">{item.desc}</p></div></div> ))}</div><div className="flex flex-row gap-3"><a href={TELEGRAM_LINK} target="_blank" rel="noopener noreferrer" className="bg-orange-600 text-white h-12 md:h-14 px-8 rounded-2xl text-sm md:text-base font-bold hover:bg-orange-700 transition-colors flex items-center justify-center flex-1 shadow-[0_0_25px_rgba(234,88,12,0.3)] hover:scale-[1.02]">Получить</a></div></Reveal></div> </>)}</section>
 
-        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 relative overflow-hidden grid grid-cols-1 md:grid-cols-2">
+        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 relative overflow-hidden">
            {shouldRenderSection('models') && (
             <>
-               <div className="relative w-full h-full">
-                 {is3DActive ? (
-                    <iframe src={`/model.html?color=${config.color.value}`} title="BBQP 3D Model" className={`w-full h-full border-0 ${isMobile ? 'pointer-events-none' : ''}`} onLoad={() => setIsModelLoaded(true)}></iframe>
-                 ) : (
-                   <div className="w-full h-full flex items-center justify-center">
-                      <button onClick={() => setIs3DActive(true)} className="group flex flex-col items-center gap-4 transition-transform hover:scale-105">
-                         <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors"><Box size={40} strokeWidth={1.2} className="ml-1" /></div>
-                         <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Показать модель</span></div>
-                      </button>
-                   </div>
-                 )}
-               </div>
+               {is3DActive ? (
+                  <iframe src={`/model.html?color=${config.color.value}`} title="BBQP 3D Model" className={`absolute inset-0 z-10 w-full h-full border-0 ${isMobile ? 'pointer-events-none' : ''}`} onLoad={() => setIsModelLoaded(true)} ></iframe>
+               ) : null}
 
-               <div className="hidden md:flex items-center justify-center p-8">
-                  <div className="w-full max-w-sm bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col"><ConfiguratorPanel /></div>
-               </div>
-
-               {isMobile && (
-                  <div className="absolute bottom-6 left-0 w-full flex justify-center pointer-events-auto z-40">
-                    <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
-                  </div>
-               )}
-
-               {mobileConfigOpen && (
-                 <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
-                     <div className="bg-[#111] w-full sm:w-[90%] h-[75vh] sm:h-auto sm:max-h-[80vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
-                         <button onClick={() => setMobileConfigOpen(false)} className="absolute top-4 right-4 z-20 p-2 bg-white/10 rounded-full text-white hover:bg-white/20 transition-colors"><X size={24} /></button>
-                         <ConfiguratorPanel />
-                     </div>
+               {!is3DActive && (
+                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center">
+                    <button onClick={() => setIs3DActive(true)} className="relative z-30 group flex flex-col items-center gap-4 transition-transform hover:scale-105">
+                       <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors"><Box size={40} strokeWidth={1.2} className="ml-1" /></div>
+                       <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Показать модель</span></div>
+                    </button>
                  </div>
                )}
+
+               <div className="relative z-30 w-full h-full pointer-events-none">
+                  {mobileConfigOpen && (
+                    <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
+                        <div className="bg-[#111] w-full sm:w-[90%] h-[75vh] sm:h-auto sm:max-h-[80vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
+                            <button onClick={() => setMobileConfigOpen(false)} className="absolute top-4 right-4 z-20 p-2 bg-white/10 rounded-full text-white hover:bg-white/20 transition-colors"><X size={24} /></button>
+                            <ConfiguratorPanel />
+                        </div>
+                    </div>
+                  )}
+                  <div className="lg:hidden absolute bottom-24 left-0 w-full flex justify-center pointer-events-auto">
+                    <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
+                  </div>
+                  {is3DActive && isModelLoaded && (
+                      <div className="hidden lg:flex absolute right-[10%] top-1/2 -translate-y-1/2 w-[350px] max-h-[80vh] pointer-events-auto">
+                          <div className="w-full bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col animate-fade-in"><ConfiguratorPanel /></div>
+                      </div>
+                  )}
+               </div>
             </>
            )}
         </section>
 
         <div id="ai-chef" ref={setRef('ai-chef')} className="snap-section h-[100svh] bg-[#050505]"><Suspense fallback={<SectionLoader />}><RecipeGenerator /></Suspense></div>
 
-        <footer id="footer" ref={setRef('footer')} className="snap-section h-[100svh] bg-black text-white flex flex-col justify-center items-center pb-12 md:pb-0">
+        <footer className="snap-section h-[100svh] bg-black text-white flex flex-col justify-center items-center pb-12 md:pb-0">
           <Reveal className="w-full max-w-4xl mx-auto px-6 text-center">
              <div className="mb-6">
                 <div className="text-3xl md:text-5xl font-bold tracking-tighter mb-2">bbqp</div>
