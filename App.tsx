@@ -441,23 +441,21 @@ function App() {
            )}
         </section>
 
+        {/* --- НАЧАЛО ИЗМЕНЕНИЙ: Полностью переработанная секция 'models' с iframe --- */}
         <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 transition-all duration-[2500ms] ease-in-out relative pt-0 pb-0 overflow-hidden">
            {shouldRenderSection('models') && (
             <>
-               <div className="absolute inset-0 w-full h-full z-0">
-                  <Suspense fallback={<SectionLoader />}>
-                     <Grill3D 
-                        url={is3DActive ? MODEL_URL : null}
-                        isMobile={isMobile}
-                        enableControls={!isMobile} 
-                        isVisible={activeSection === 'models'} 
-                        engravingType={config.engraving.value as 'none'|'standard'|'custom'} 
-                        textureUrl={config.engraving.value === 'custom' ? customTextureUrl : null} 
-                        color={config.color.value as 'black' | 'stainless'} 
-                        onLoad={() => setIsModelLoaded(true)} 
-                     />
-                  </Suspense>
-               </div>
+               {/* Iframe для 3D-модели */}
+               {is3DActive && (
+                  <iframe
+                    src={`/model.html?color=${config.color.value}`}
+                    title="BBQP 3D Model"
+                    className="absolute inset-0 z-10 w-full h-full border-0"
+                    onLoad={() => setIsModelLoaded(true)}
+                  ></iframe>
+               )}
+
+               {/* Кнопка-плейсхолдер */}
                <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center transition-opacity duration-500 ${is3DActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                   <button onClick={() => setIs3DActive(true)} className="relative z-30 group flex flex-col items-center gap-4 transition-transform hover:scale-105">
                      <div className="w-24 h-24 rounded-full bg-black/5 backdrop-blur-md text-gray-800 border border-black/10 flex items-center justify-center shadow-lg group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-colors">
@@ -466,6 +464,8 @@ function App() {
                      <div className="bg-black/60 backdrop-blur-md px-8 py-3 rounded-full border border-white/10 shadow-lg"><span className="text-base font-bold text-white uppercase tracking-wider">Показать модель</span></div>
                   </button>
                </div>
+
+               {/* UI-оверлей (конфигуратор) */}
                <div className="relative z-30 w-full h-full pointer-events-none">
                   {mobileConfigOpen && (
                     <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
@@ -487,6 +487,7 @@ function App() {
             </>
            )}
         </section>
+        {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
 
         <div id="ai-chef" ref={setRef('ai-chef')} className="snap-section h-[100svh] bg-[#050505] transition-all duration-[2500ms] ease-in-out pt-16 md:pt-0">
              {shouldRenderSection('ai-chef') && <Suspense fallback={<SectionLoader />}><RecipeGenerator /></Suspense>}

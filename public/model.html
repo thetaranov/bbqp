@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBQP 3D Model</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: transparent; }
+        #canvas-container { width: 100%; height: 100%; touch-action: pan-y; }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+        // --- Настройка сцены ---
+        const container = document.getElementById('canvas-container');
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        const scene = new THREE.Scene();
+        scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(10, 5, 10);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, 1, 0);
+        controls.enableDamping = true;
+        controls.enablePan = false;
+        controls.enableZoom = false;
+
+        // --- Параметры из URL ---
+        const params = new URLSearchParams(window.location.search);
+        const color = params.get('color') || 'stainless';
+        const isMobile = window.innerWidth < 1024;
+
+        controls.autoRotate = isMobile;
+        controls.enableRotate = !isMobile;
+        controls.autoRotateSpeed = 0.5;
+
+        // --- Материал ---
+        const isBlack = color === 'black';
+        const material = new THREE.MeshStandardMaterial({
+            color: isBlack ? new THREE.Color('#202020') : new THREE.Color('#e5e7eb'),
+            roughness: isBlack ? 0.4 : 0.2,
+            metalness: isBlack ? 0.4 : 0.9,
+            envMapIntensity: isBlack ? 1.5 : 1.0,
+        });
+
+        // --- Загрузка модели ---
+        const loader = new OBJLoader();
+        loader.load(
+            '/assets/models/mangal.obj',
+            function (obj) {
+                obj.traverse(function (child) {
+                    if (child.isMesh) {
+                        child.material = material;
+                    }
+                });
+
+                const box = new THREE.Box3().setFromObject(obj);
+                const center = box.getCenter(new THREE.Vector3());
+                obj.position.sub(center); // Центрируем модель
+
+                const scale = isMobile ? 0.3 : 0.4;
+                obj.scale.set(scale, scale, scale);
+
+                scene.add(obj);
+            },
+            // onProgress, onError (можно добавить, если нужно)
+        );
+
+        // --- Цикл рендеринга ---
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
