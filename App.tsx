@@ -12,6 +12,7 @@ import { Environment } from '@react-three/drei';
 
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
+const Grill3D = lazy(() => import('./components/Grill3D'));
 const RecipeGenerator = lazy(() => import('./components/RecipeGenerator'));
 
 // Optimization Constants
