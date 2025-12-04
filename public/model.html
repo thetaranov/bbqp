@@ -50,10 +50,9 @@
         
         const isMobile = window.innerWidth < 1024;
         
-        // --- НАСТРОЙКА ПОЛОЖЕНИЯ ---
+        // --- КОНФИГУРАЦИЯ ---
         
         if (isMobile) {
-            // Мобильные: все по центру
             camera.position.set(0, 5, 22);
             controls.target.set(0, 0, 0);
             
@@ -64,23 +63,23 @@
         } else {
             // Десктоп:
             
-            // 1. ТОЧКА ВРАЩЕНИЯ (Pivot): 
-            // Устанавливаем строго в (0,0,0). Это геометрический центр модели.
-            // Теперь вращение будет происходить вокруг самого мангала, а не точки под ним.
+            // 1. ЦЕНТР ВРАЩЕНИЯ:
+            // Строго (0,0,0). Это точка, вокруг которой летает камера.
+            // Модель мы тоже поставим центром в (0,0,0).
             controls.target.set(0, 0, 0);
 
             // 2. ПОЗИЦИЯ КАМЕРЫ:
-            // Поднимаем камеру по Y до 3, чтобы сохранить привычный ракурс (вид немного сверху),
-            // так как мы подняли target с -2 до 0. 
-            // Вектор (12, 3, 18) сохраняет тот же угол обзора.
+            // Y=3 дает вид "немного сверху".
+            // Вектор (12, 3, 18) сохраняет нужный вам ракурс.
             camera.position.set(12, 3, 18);
 
-            // 3. СМЕЩЕНИЕ ОКНА (View Offset):
-            // w * 0.20 (X) -> Сдвиг модели влево.
-            // h * 0.15 (Y) -> Сдвиг модели вверх на 15%.
+            // 3. СМЕЩЕНИЕ НА ЭКРАНЕ (View Offset):
+            // Это "обманывает" камеру, сдвигая окно рендеринга.
+            // w * 0.20 (X) -> Сдвигает центр вправо, модель уезжает ВЛЕВО.
+            // h * 0.15 (Y) -> Сдвигает центр вниз, модель уезжает ВВЕРХ (на 15%).
             const w = window.innerWidth;
             const h = window.innerHeight;
-            camera.setViewOffset(w, h, w * 0.20, h * 0.38, w, h);
+            camera.setViewOffset(w, h, w * 0.20, h * 0.15, w, h);
             
             controls.enableRotate = true;
             controls.enableZoom = false;
@@ -109,14 +108,21 @@
                 if (child.isMesh) child.material = material;
             });
 
-            // Центрируем геометрию модели в 0,0,0
-            const box = new THREE.Box3().setFromObject(obj);
-            const center = box.getCenter(new THREE.Vector3());
-            obj.position.sub(center);
-
-            // Масштаб
+            // 1. Сначала задаем масштаб
             const scale = isMobile ? 0.4 : 0.38;
             obj.scale.set(scale, scale, scale);
+            
+            // 2. Важно: обновляем матрицу мира перед вычислением Box,
+            // чтобы Box учитывал масштаб.
+            obj.updateMatrixWorld(true);
+
+            // 3. Вычисляем центр bounding box-а (объема модели)
+            const box = new THREE.Box3().setFromObject(obj);
+            const center = box.getCenter(new THREE.Vector3());
+
+            // 4. Сдвигаем модель так, чтобы её геометрический центр стал (0,0,0)
+            // Это гарантирует, что controls.target(0,0,0) будет ровно в центре массы.
+            obj.position.sub(center);
 
             scene.add(obj);
         });
