@@ -90,9 +90,7 @@
             // Используем environment для освещения модели
             scene.environment = texture;
 
-            // --- УМЕНЬШЕННЫЙ СКАЙБОКС ---
-            // Вместо scene.background (который бесконечен), создаем сферу вокруг.
-            // Radius 15 - это достаточно "близко" (2 times smaller than typical far clipping).
+            // --- СКАЙБОКС ---
             const sphereGeo = new THREE.SphereGeometry(15, 60, 40);
             // Инвертируем масштаб по X, чтобы текстура была внутри
             sphereGeo.scale(-1, 1, 1);
@@ -102,7 +100,11 @@
             });
             
             const backgroundMesh = new THREE.Mesh(sphereGeo, sphereMat);
-            backgroundMesh.rotation.y = Math.PI / 2; // Повернуть, если нужно
+            backgroundMesh.rotation.y = Math.PI / 2;
+            
+            // ПОДНИМАЕМ ШАР ВЫШЕ
+            backgroundMesh.position.y = 8; 
+            
             scene.add(backgroundMesh);
         });
 
