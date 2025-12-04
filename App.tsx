@@ -5,18 +5,15 @@ import FeaturesSection from './components/MenuSection';
 import ParallaxImage from './components/ParallaxImage';
 import Reveal from './components/Reveal';
 import ParticlesOverlay from './components/ParticlesOverlay';
-import { DETAILS_ITEMS } from './constants';
+import { DETAILS_ITEMS, NAV_LINKS } from './constants';
 import { Check, ArrowRight, Upload, ChevronLeft, Loader2, Settings2, X, Box, ScanLine, FileText } from 'lucide-react';
-import { Canvas } from '@react-three/fiber';
-import { Environment } from '@react-three/drei';
 
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
-const Grill3D = lazy(() => import('./components/Grill3D'));
 const RecipeGenerator = lazy(() => import('./components/RecipeGenerator'));
 
 // Optimization Constants
-const SECTION_ORDER = ['hero', 'features', 'autodraft', 'details', 'personalize', 'military', 'models', 'ai-chef'];
+const SECTION_ORDER = ['hero', 'features', 'autodraft', 'details', 'personalize', 'military', 'models', 'ai-chef', 'contact'];
 
 // Configuration Data
 type Option = { label: string; price: number; value: string };
@@ -119,7 +116,6 @@ const Modal: React.FC<{ isOpen: boolean; onClose: () => void; title: string; chi
 
 function App() {
   const TELEGRAM_LINK = "https://t.me/thetaranov";
-  const MODEL_URL = "/assets/models/mangal.obj";
 
   const [config, setConfig] = useState<Record<string, Option>>({ model: CONFIG_OPTIONS[0].options[0], color: CONFIG_OPTIONS[1].options[1], engraving: CONFIG_OPTIONS[2].options[1] });
   const [customFile, setCustomFile] = useState<File | null>(null);
@@ -236,6 +232,7 @@ function App() {
     const targetIndex = SECTION_ORDER.indexOf(sectionId);
     return Math.abs(currentIndex - targetIndex) <= 1;
   };
+
   const ConfiguratorPanel = () => (
     <div className="flex flex-col h-full text-white">
          <div className="p-6 border-b border-white/10 flex-shrink-0 flex items-center justify-between">
@@ -442,18 +439,19 @@ function App() {
         </section>
 
         {/* --- НАЧАЛО ИЗМЕНЕНИЙ: Полностью переработанная секция 'models' с iframe --- */}
-        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 transition-all duration-[2500ms] ease-in-out relative pt-0 pb-0 overflow-hidden">
+        <section id="models" ref={setRef('models')} className="snap-section h-[100svh] bg-gray-200 transition-all duration-[2500ms] ease-in-out relative pt-0 pb-0 flex items-center justify-center">
            {shouldRenderSection('models') && (
             <>
-               {/* Iframe для 3D-модели */}
-               {is3DActive && (
-                  <iframe
-                    src={`/model.html?color=${config.color.value}`}
-                    title="BBQP 3D Model"
-                    className="absolute inset-0 z-10 w-full h-full border-0"
-                    onLoad={() => setIsModelLoaded(true)}
-                  ></iframe>
-               )}
+               <div className="absolute inset-0 z-0 w-full h-full lg:w-1/2 lg:left-0">
+                  {is3DActive && (
+                      <iframe
+                        src={`/model.html?color=${config.color.value}`}
+                        title="BBQP 3D Model"
+                        className="w-full h-full border-0 animate-fade-in"
+                        onLoad={() => setIsModelLoaded(true)}
+                      ></iframe>
+                  )}
+               </div>
 
                {/* Кнопка-плейсхолдер */}
                <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center transition-opacity duration-500 ${is3DActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -467,20 +465,26 @@ function App() {
 
                {/* UI-оверлей (конфигуратор) */}
                <div className="relative z-30 w-full h-full pointer-events-none">
+                  {/* Мобильный конфигуратор (модальное окно) */}
                   {mobileConfigOpen && (
                     <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto">
-                        <div className="bg-[#111] w-full sm:w-[90%] h-[75vh] sm:h-auto sm:max-h-[80vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
+                        <div className="bg-[#111] w-full sm:w-[90%] h-[80vh] sm:h-auto sm:max-h-[90vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10">
                             <button onClick={() => setMobileConfigOpen(false)} className="absolute top-4 right-4 z-20 p-2 bg-white/10 rounded-full text-white hover:bg-white/20 transition-colors"><X size={24} /></button>
                             <ConfiguratorPanel />
                         </div>
                     </div>
                   )}
-                  <div className="lg:hidden absolute bottom-24 left-0 w-full flex justify-center pointer-events-auto">
+                  {/* Мобильная кнопка вызова конфигуратора */}
+                  <div className={`lg:hidden absolute bottom-24 left-0 w-full flex justify-center pointer-events-auto transition-opacity duration-500 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
                     <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
                   </div>
-                  {is3DActive && isModelLoaded && (
-                      <div className="hidden lg:flex absolute right-[10%] top-1/2 -translate-y-1/2 w-[350px] max-h-[80vh] pointer-events-auto">
-                          <div className="w-full bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col animate-fade-in"><ConfiguratorPanel /></div>
+
+                  {/* Десктопный конфигуратор (справа) */}
+                  {is3DActive && (
+                      <div className="hidden lg:flex absolute right-[10%] top-1/2 -translate-y-1/2 w-[380px] h-[85vh] max-h-[700px] pointer-events-auto">
+                          <div className={`w-full bg-black/60 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col transition-opacity duration-700 ${isModelLoaded ? 'opacity-100' : 'opacity-0'}`}>
+                             <ConfiguratorPanel />
+                          </div>
                       </div>
                   )}
                </div>
@@ -493,7 +497,7 @@ function App() {
              {shouldRenderSection('ai-chef') && <Suspense fallback={<SectionLoader />}><RecipeGenerator /></Suspense>}
         </div>
 
-        <footer className="snap-section h-[100svh] bg-black text-white flex flex-col justify-center items-center transition-opacity duration-[2500ms] ease-in-out pb-12 md:pb-0">
+        <footer id="contact" ref={setRef('contact')} className="snap-section h-[100svh] bg-black text-white flex flex-col justify-center items-center transition-opacity duration-[2500ms] ease-in-out pb-12 md:pb-0">
           <Reveal className="w-full max-w-4xl mx-auto px-6 text-center">
              <div className="mb-6">
                 <div className="text-3xl md:text-5xl font-bold tracking-tighter mb-2">bbqp</div>
@@ -527,14 +531,27 @@ function App() {
       </main>
 
       <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Политика конфиденциальности">
-        <div className="prose prose-invert max-w-none">
+        <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm">
           <p>Настоящая политика обработки персональных данных составлена в соответствии с требованиями Федерального закона от 27.07.2006. №152-ФЗ «О персональных данных» и определяет порядок обработки персональных данных и меры по обеспечению безопасности персональных данных, предпринимаемые ООО «АТТА» (далее – Оператор).</p>
+          <h4>1. Основные понятия</h4>
+          <p>Оператор — юридическое лицо, самостоятельно или совместно с другими лицами организующее и (или) осуществляющее обработку персональных данных, а также определяющее цели обработки персональных данных, состав персональных данных, подлежащих обработке, действия (операции), совершаемые с персональными данными.</p>
+          <h4>2. Сбор и использование данных</h4>
+          <p>Мы собираем только те данные, которые вы предоставляете добровольно при оформлении заказа или обращении в поддержку, а именно: ваше имя, контактный телефон и данные для доставки. Эти данные используются исключительно для выполнения ваших заказов и связи с вами.</p>
+          <h4>3. Передача данных третьим лицам</h4>
+          <p>Ваши персональные данные могут быть переданы третьим лицам (транспортным компаниям) исключительно с целью осуществления доставки вашего заказа. Мы не передаем ваши данные другим организациям в маркетинговых или иных целях.</p>
         </div>
       </Modal>
 
       <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Условия использования">
-        <div className="prose prose-invert max-w-none">
-          <p>Настоящие Условия использования (далее — «Условия») регулируют использование веб-сайта bbqp (далее — «Сайт»). Используя Сайт, вы соглашаетесь с настоящими Условиями.</p>
+        <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm">
+            <h4>1. Общие положения</h4>
+            <p>Настоящие Условия использования (далее — «Условия») регулируют использование веб-сайта bbqp (далее — «Сайт»). Используя Сайт, вы соглашаетесь с настоящими Условиями.</p>
+            <h4>2. Оформление заказа</h4>
+            <p>Заказ на продукцию bbqp оформляется через конфигуратор на Сайте с последующим перенаправлением в мессенджер Telegram для подтверждения деталей с менеджером. Все расчеты и условия оплаты обсуждаются индивидуально.</p>
+            <h4>3. Доставка</h4>
+            <p>Доставка осуществляется по всей территории Российской Федерации с помощью ведущих транспортных компаний, таких как "Деловые Линии", "ПЭК", "СДЭК" и другие. Стоимость и сроки доставки рассчитываются индивидуально в зависимости от вашего региона и габаритов заказа. Доставка осуществляется до терминала транспортной компании в вашем городе или до указанного адреса ("до двери"). Ответственность за сохранность товара переходит к транспортной компании с момента передачи груза.</p>
+            <h4>4. Гарантия</h4>
+            <p>На всю продукцию bbqp предоставляется гарантия. Условия гарантийного обслуживания указаны в сопроводительной документации к товару. По всем вопросам, связанным с гарантией, обращайтесь к официальному дистрибьютору.</p>
         </div>
       </Modal>
 

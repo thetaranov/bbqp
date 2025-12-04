@@ -6,7 +6,8 @@
     <title>BBQP 3D Model</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: transparent; }
-        #canvas-container { width: 100%; height: 100%; touch-action: pan-y; }
+        #canvas-container { width: 100%; height: 100%; touch-action: pan-y; cursor: grab; }
+        #canvas-container:active { cursor: grabbing; }
     </style>
     <script type="importmap">
         {
@@ -84,7 +85,6 @@
 
                 scene.add(obj);
             },
-            // onProgress, onError (можно добавить, если нужно)
         );
 
         // --- Цикл рендеринга ---

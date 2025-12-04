@@ -8,6 +8,7 @@ export const NAV_LINKS = [
   { name: "Военная серия", href: "#military" },
   { name: "Конфигуратор", href: "#models" },
   { name: "AI Шеф", href: "#ai-chef" },
+  { name: "Контакты", href: "#contact" },
 ];
 
 export const DETAILS_ITEMS: DetailItem[] = [
