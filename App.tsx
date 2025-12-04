@@ -32,59 +32,83 @@ function shuffleArray<T>(array: T[]): T[] {
     return newArray;
 }
 
-// Компонент одной клетки сетки
-const GridCell = React.memo(({ src }: { src: string }) => (
-  <div className="relative w-full aspect-square bg-[#111] overflow-hidden group">
-    {/* Картинка без скруглений, заполняет квадрат */}
-    <img 
-        src={src} 
-        alt="" 
-        loading="lazy" 
-        decoding="async" 
-        className="w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500 ease-out" 
-    />
-    {/* Тонкая рамка для эффекта клетки */}
-    <div className="absolute inset-0 border border-white/5 pointer-events-none"></div>
-  </div>
-));
+const MarqueeImage = React.memo(({ src, className }: { src: string, className?: string }) => {
+  return (
+    <div className={`relative overflow-hidden bg-black/60 border border-white/10 rounded-xl ${className} backface-hidden`}>
+        <img 
+            src={src} 
+            alt="" 
+            loading="lazy" 
+            decoding="async" 
+            className="w-full h-full object-cover opacity-90" 
+        />
+    </div>
+  );
+});
 
-// Блок 10x10 картинок
-const GridQuadrant = ({ items }: { items: typeof DETAILS_ITEMS }) => {
+// --- 3D КОЛЬЦО (Очищенная версия) ---
+const RingCarousel = ({ reverse = false, items, radius = 800 }: { reverse?: boolean, items: typeof DETAILS_ITEMS, radius?: number }) => {
+    const ringRef = useRef<HTMLDivElement>(null);
+    const rafRef = useRef<number>(0);
+    const angleRef = useRef<number>(0);
+
+    // Постоянная скорость вращения
+    const speed = reverse ? -0.0005 : 0.0005;
+
+    useEffect(() => {
+        let lastTime = performance.now();
+
+        const animate = (time: number) => {
+            if (!ringRef.current) return;
+
+            const delta = time - lastTime;
+            lastTime = time;
+
+            // Вращаем всегда с одной скоростью
+            angleRef.current += speed * (delta / 16); 
+
+            ringRef.current.style.transform = `rotateY(${angleRef.current}rad)`;
+            rafRef.current = requestAnimationFrame(animate);
+        };
+
+        rafRef.current = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(rafRef.current);
+    }, [speed]);
+
+    const ringItems = useMemo(() => [...items, ...items, ...items], [items]);
+    const count = ringItems.length;
+
     return (
-        <div className="grid grid-cols-10 gap-1 w-full"> 
-            {items.map((item, idx) => (
-                <GridCell key={`${item.id}-${idx}`} src={item.image} />
-            ))}
-        </div>
-    );
-};
-
-const InfiniteGrid = ({ items }: { items: typeof DETAILS_ITEMS }) => {
-    // Генерируем достаточное количество элементов для заполнения квадранта (100 штук для 10x10)
-    const filledItems = useMemo(() => {
-        let result = [...items];
-        while (result.length < 100) {
-            result = [...result, ...items];
-        }
-        return shuffleArray(result).slice(0, 100);
-    }, [items]);
-
-    return (
-        <div className="absolute inset-0 overflow-hidden bg-black">
-            {/* 
-                Контейнер размером 200% x 200%.
-                Состоит из 4 одинаковых квадрантов (2x2).
-                Анимация сдвигает его ровно на 50% (один квадрант), затем зацикливается.
-            */}
-            <div className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] flex flex-wrap animate-pan-diagonal">
-                <div className="w-1/2 h-1/2"><GridQuadrant items={filledItems} /></div>
-                <div className="w-1/2 h-1/2"><GridQuadrant items={filledItems} /></div>
-                <div className="w-1/2 h-1/2"><GridQuadrant items={filledItems} /></div>
-                <div className="w-1/2 h-1/2"><GridQuadrant items={filledItems} /></div>
+        <div
+            className="absolute inset-0 flex items-center justify-center pointer-events-none" // pointer-events-none чтобы не блокировать скролл
+            style={{ perspective: '1000px' }}
+        >
+            <div
+                ref={ringRef}
+                className="relative w-0 h-0"
+                style={{ transformStyle: 'preserve-3d' }}
+            >
+                {ringItems.map((item, index) => {
+                    const yAngle = (index / count) * Math.PI * 2;
+                    return (
+                        <div
+                            key={`ring-${index}`}
+                            className="absolute top-1/2 left-1/2"
+                            style={{
+                                transform: `translate(-50%, -50%) rotateY(${yAngle}rad) translateZ(${radius}px)`,
+                                backfaceVisibility: 'hidden',
+                                WebkitBackfaceVisibility: 'hidden',
+                                willChange: 'transform',
+                            }}
+                        >
+                            <MarqueeImage 
+                                src={item.image} 
+                                className="w-40 h-40 md:w-48 md:h-48 shadow-[0_0_30px_rgba(0,0,0,0.8)]" 
+                            />
+                        </div>
+                    );
+                })}
             </div>
-
-            {/* Виньетка для плавного ухода в черноту по краям */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle,transparent_0%,black_100%)] pointer-events-none opacity-80"></div>
         </div>
     );
 };
@@ -105,6 +129,9 @@ function App() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const row1Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
+  const row2Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
+  const row3Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
 
   useEffect(() => {
     const timer = setTimeout(() => setIntroComplete(true), 500);
@@ -213,22 +240,30 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS (КЛЕТЧАТАЯ СЕТКА) --- */}
+        {/* --- СЕКЦИЯ DETAILS (Обновленная 3D карусель) --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex flex-col justify-center overflow-hidden relative group">
             <>
-              {/* Фоновая сетка */}
-              <InfiniteGrid items={DETAILS_ITEMS} />
+              {/* Контейнер для колец - без лишних фонов */}
+              <div className="absolute inset-0 z-[2] overflow-hidden pointer-events-none">
+                 <div className="absolute top-[20%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(-5deg) translateY(-20%) scale(1.0)' }}>
+                    <RingCarousel items={row1Items} radius={800} />
+                 </div>
+                 <div className="absolute top-[50%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(0deg) translateY(-50%) scale(1.0)' }}>
+                    <RingCarousel items={row2Items} reverse radius={900} />
+                 </div>
+                 <div className="absolute top-[80%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(5deg) translateY(-80%) scale(1.0)' }}>
+                    <RingCarousel items={row3Items} radius={800} />
+                 </div>
+              </div>
 
-              {/* Текст сдвинут ВПРАВО + Черный градиент для читаемости */}
-              <div className="relative z-20 w-full h-full flex flex-col items-end justify-center p-8 md:p-12 bg-gradient-to-l from-black via-black/80 to-transparent pointer-events-none">
-                 <Reveal className="max-w-3xl text-right pr-0 md:pr-16">
-                     <h2 className="text-[9vw] md:text-6xl lg:text-7xl font-bold tracking-tighter text-white drop-shadow-2xl mb-8">Для тех,<br />кто ценит детали</h2>
-                     <div className="flex justify-end">
-                        <p className="text-gray-200 text-sm md:text-base font-medium tracking-wide max-w-xl leading-relaxed drop-shadow-lg">
-                            Каждая деталь создана с одержимостью качеством на основе опыта ведущих дизайнеров, материаловедов и испытательных тестов топ-пользователей.
-                        </p>
-                     </div>
+              {/* Текст с черным градиентом для читаемости */}
+              <div className="relative z-20 pointer-events-none w-full h-full flex flex-col items-start justify-center p-8 md:p-12 md:pl-24 bg-gradient-to-r from-black via-black/60 to-transparent">
+                 <Reveal className="max-w-3xl">
+                     <h2 className="text-[9vw] md:text-6xl lg:text-7xl font-bold tracking-tighter text-white drop-shadow-2xl mb-8 text-left">Для тех,<br />кто ценит детали</h2>
                  </Reveal>
+                 <div className="flex justify-start max-w-xl">
+                     <p className="text-gray-200 text-sm md:text-base font-medium tracking-wide m-0 text-left leading-relaxed drop-shadow-lg">Каждая деталь создана с одержимостью качеством на основе опыта ведущих дизайнеров, материаловедов и испытательных тестов топ-пользователей</p>
+                 </div>
               </div>
             </>
         </section>
