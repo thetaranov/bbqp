@@ -293,7 +293,7 @@ function App() {
   return (
     <div className="h-screen w-full overflow-hidden bg-black text-white selection:bg-orange-500 selection:text-white relative">
       <Navigation activeSection={activeSection} isIntroComplete={isIntroComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
-      <main className={`snap-container h-full w-full transition-opacity duration-1000 opacity-100`}>
+      <main className={`snap-container h-full w-full`}>
         <div id="hero" ref={setRef('hero')} className="snap-section h-[100svh]">
             <Hero startAnimation={isIntroComplete} isActive={activeSection === 'hero'} />
         </div>
