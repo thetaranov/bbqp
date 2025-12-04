@@ -34,14 +34,12 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-        // --- ДОБАВЛЕНО: Загрузчик для HDR-текстур ---
         import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
         const container = document.getElementById('canvas-container');
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
-        // --- ДОБАВЛЕНО: Настройка рендерера для корректной работы с HDR ---
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 0.8;
         
@@ -50,21 +48,25 @@
         const scene = new THREE.Scene();
 
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 3.5, 17);
         
         const controls = new OrbitControls(camera, renderer.domElement);
-        controls.target.set(0, 2.5, 0); 
         
         const isMobile = window.innerWidth < 1024;
+        const verticalOffset = 3.0; // Общий сдвиг вверх для лучшей композиции
         
+        // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: СДВИГ КАМЕРЫ НА ПК ---
         if (isMobile) {
-            // На мобильных - нет управления, только авто-вращение
+            // На мобильных камера смотрит прямо
+            camera.position.set(0, verticalOffset, 17);
+            controls.target.set(0, verticalOffset, 0); 
             controls.enableRotate = false;
             controls.enableZoom = false;
             controls.autoRotate = true;
             controls.autoRotateSpeed = 0.5;
         } else {
-            // На десктопе - вращение и зум, без перемещения
+            // На десктопе сдвигаем камеру ВПРАВО, чтобы модель оказалась СЛЕВА
+            camera.position.set(6, verticalOffset, 17);
+            controls.target.set(0, verticalOffset, 0); 
             controls.enableRotate = true;
             controls.enableZoom = true;
             controls.enablePan = false;
@@ -77,16 +79,15 @@
         const isBlack = new URLSearchParams(window.location.search).get('color') === 'black';
         const material = new THREE.MeshStandardMaterial({
             color: isBlack ? new THREE.Color('#202020') : new THREE.Color('#e5e7eb'),
-            roughness: isBlack ? 0.4 : 0.2, // Шероховатость (меньше = более глянцевый)
-            metalness: isBlack ? 0.4 : 0.9, // Металличность (больше = более зеркальный)
-            envMapIntensity: 1.2, // Сила отражений от окружения
+            roughness: isBlack ? 0.4 : 0.2,
+            metalness: isBlack ? 0.4 : 0.9,
+            envMapIntensity: 1.2,
         });
 
-        // --- НОВЫЙ КОД: Загрузка фона (скайбокса) и установка его как окружения для отражений ---
         new RGBELoader().load('/assets/textures/park.hdr', (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.background = texture;
-            scene.environment = texture; // Эта строка включает отражения!
+            scene.environment = texture;
         });
 
         const loader = new OBJLoader();
@@ -99,8 +100,8 @@
             const center = box.getCenter(new THREE.Vector3());
             obj.position.sub(center);
 
-            // Принудительно поднимаем модель вверх
-            obj.position.y += 7.0; 
+            // Поднимаем модель вверх, чтобы она была в центре кадра
+            obj.position.y += 3.5; 
 
             const scale = isMobile ? 0.4 : 0.5;
             obj.scale.set(scale, scale, scale);
@@ -110,7 +111,7 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            controls.update(); // Необходимо для Damping
+            controls.update();
             renderer.render(scene, camera);
         }
         animate();
@@ -119,6 +120,10 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            // Перезагрузка при смене ориентации для пересчета позиции камеры
+            if ((window.innerWidth < 1024) !== isMobile) {
+                window.location.reload();
+            }
         });
     </script>
 </body>
