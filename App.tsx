@@ -32,43 +32,59 @@ function shuffleArray<T>(array: T[]): T[] {
     return newArray;
 }
 
-// --- НОВЫЙ КОМПОНЕНТ СЕТКИ ---
-const GridImage = React.memo(({ src }: { src: string }) => (
-  <div className="relative w-full aspect-square overflow-hidden bg-white/5 border border-white/10">
+// Компонент одной клетки сетки
+const GridCell = React.memo(({ src }: { src: string }) => (
+  <div className="relative w-full aspect-square bg-[#111] overflow-hidden group">
+    {/* Картинка без скруглений, заполняет квадрат */}
     <img 
         src={src} 
         alt="" 
         loading="lazy" 
         decoding="async" 
-        className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity duration-500" 
+        className="w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500 ease-out" 
     />
+    {/* Тонкая рамка для эффекта клетки */}
+    <div className="absolute inset-0 border border-white/5 pointer-events-none"></div>
   </div>
 ));
 
+// Блок 10x10 картинок
+const GridQuadrant = ({ items }: { items: typeof DETAILS_ITEMS }) => {
+    return (
+        <div className="grid grid-cols-10 gap-1 w-full"> 
+            {items.map((item, idx) => (
+                <GridCell key={`${item.id}-${idx}`} src={item.image} />
+            ))}
+        </div>
+    );
+};
+
 const InfiniteGrid = ({ items }: { items: typeof DETAILS_ITEMS }) => {
-    // Создаем большой массив изображений (повторяем несколько раз, чтобы заполнить сетку)
-    const gridItems = useMemo(() => {
-        const base = shuffleArray(items);
-        return [...base, ...base, ...base, ...base, ...base, ...base]; // 6x повтор
+    // Генерируем достаточное количество элементов для заполнения квадранта (100 штук для 10x10)
+    const filledItems = useMemo(() => {
+        let result = [...items];
+        while (result.length < 100) {
+            result = [...result, ...items];
+        }
+        return shuffleArray(result).slice(0, 100);
     }, [items]);
 
     return (
-        <div className="absolute inset-0 overflow-hidden bg-[#050505]">
-            {/* Контейнер, который движется по диагонали */}
-            {/* -top-[50%] -left-[50%] w-[200%] h-[200%] нужны чтобы покрыть экран при движении */}
-            <div className="absolute -top-[50%] -left-[50%] w-[250%] h-[250%] animate-pan-diagonal flex flex-wrap content-start opacity-50 rotate-12">
-                {/* Рендерим сетку */}
-                <div className="w-full h-full grid grid-cols-6 md:grid-cols-8 gap-4">
-                    {/* Дублируем контент 4 раза для бесшовной склейки (техника 2x2 quad) */}
-                    {[0, 1, 2, 3].map((quadKey) => (
-                         <React.Fragment key={quadKey}>
-                            {gridItems.map((item, idx) => (
-                                <GridImage key={`${quadKey}-${item.id}-${idx}`} src={item.image} />
-                            ))}
-                         </React.Fragment>
-                    ))}
-                </div>
+        <div className="absolute inset-0 overflow-hidden bg-black">
+            {/* 
+                Контейнер размером 200% x 200%.
+                Состоит из 4 одинаковых квадрантов (2x2).
+                Анимация сдвигает его ровно на 50% (один квадрант), затем зацикливается.
+            */}
+            <div className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] flex flex-wrap animate-pan-diagonal">
+                <div className="w-1/2 h-1/2"><GridQuadrant items={filledItems} /></div>
+                <div className="w-1/2 h-1/2"><GridQuadrant items={filledItems} /></div>
+                <div className="w-1/2 h-1/2"><GridQuadrant items={filledItems} /></div>
+                <div className="w-1/2 h-1/2"><GridQuadrant items={filledItems} /></div>
             </div>
+
+            {/* Виньетка для плавного ухода в черноту по краям */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle,transparent_0%,black_100%)] pointer-events-none opacity-80"></div>
         </div>
     );
 };
@@ -197,14 +213,14 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS (БЕСКОНЕЧНАЯ СЕТКА) --- */}
+        {/* --- СЕКЦИЯ DETAILS (КЛЕТЧАТАЯ СЕТКА) --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex flex-col justify-center overflow-hidden relative group">
             <>
-              {/* Фон - бесконечная сетка */}
+              {/* Фоновая сетка */}
               <InfiniteGrid items={DETAILS_ITEMS} />
 
-              {/* Текст сдвинут ВПРАВО + Черный градиент справа налево */}
-              <div className="relative z-20 w-full h-full flex flex-col items-end justify-center p-8 md:p-12 bg-gradient-to-l from-black via-black/90 to-transparent pointer-events-none">
+              {/* Текст сдвинут ВПРАВО + Черный градиент для читаемости */}
+              <div className="relative z-20 w-full h-full flex flex-col items-end justify-center p-8 md:p-12 bg-gradient-to-l from-black via-black/80 to-transparent pointer-events-none">
                  <Reveal className="max-w-3xl text-right pr-0 md:pr-16">
                      <h2 className="text-[9vw] md:text-6xl lg:text-7xl font-bold tracking-tighter text-white drop-shadow-2xl mb-8">Для тех,<br />кто ценит детали</h2>
                      <div className="flex justify-end">
