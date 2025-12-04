@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, ChefHat, Flame } from 'lucide-react';
-//import { generateBBQRecipe } from '../services/deepseekService';
-import { generateBBQRecipe } from '../services/localAIService';
+// ИМПОРТИРУЕМ GIGACHAT
+import { generateBBQRecipe } from '../services/gigaChatService';
 import Reveal from './Reveal';
 
 const FLOATING_IMAGES = [
@@ -59,7 +59,7 @@ const RecipeGenerator: React.FC = () => {
       const result = await generateBBQRecipe(input);
       setRecipe(result);
     } catch (error) {
-      setRecipe({ text: "Что-то пошло не так. Попробуйте еще раз, возможно угли отсырели!" });
+      setRecipe({ text: "Что-то пошло не так. Попробуйте еще раз!" });
     } finally {
       setLoading(false);
     }
@@ -81,9 +81,7 @@ const RecipeGenerator: React.FC = () => {
   const isResultMode = !!recipe;
 
   return (
-    // --- НАЧАЛО ИЗМЕНЕНИЙ: Центрирование всего блока ---
     <section id="ai-chef" className="relative w-full h-full min-h-screen bg-[#111] text-white overflow-hidden flex items-center justify-center p-4">
-    {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
         <style>{`
             ${FLOATING_IMAGES.map((_, i) => `
               @keyframes float-${i} {
@@ -101,30 +99,27 @@ const RecipeGenerator: React.FC = () => {
         ))}
       </div>
 
-      {/* --- НАЧАЛО ИЗМЕНЕНИЙ: Изменение структуры для центрирования --- */}
       <div className={`relative z-10 max-w-4xl w-full flex flex-col transition-all duration-500`}>
         {!isResultMode && (
             <Reveal className="text-center mb-8">
                <h2 className="text-3xl md:text-5xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
-                 bbqp<sup className="text-2xl md:text-3xl text-orange-500 font-bold align-top top-[-1em] ml-1 drop-shadow-[0_0_10px_rgba(234,88,12,0.8)]">AI Chef</sup>
+                 bbqp<sup className="text-2xl md:text-3xl text-green-500 font-bold align-top top-[-1em] ml-1 drop-shadow-[0_0_10px_rgba(34,197,94,0.8)]">AI</sup>
                </h2>
                <p className="text-gray-400 text-base max-w-xl mx-auto">
-                 Генерируйте уникальные рецепты стейков и гриля. <br/>
-                 Ваш персональный су-шеф.
+                 Умные рецепты для вашего гриля на базе GigaChat.
                </p>
             </Reveal>
         )}
 
         <Reveal delay={200} className={`flex-1 flex flex-col overflow-hidden`}>
             <div className={`flex-1 bg-black/60 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl relative transition-all duration-500 max-h-[70vh]`}>
-        {/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */}
                 <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
                     {!recipe && !loading && (
                         <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 gap-4 min-h-[150px]">
                             <ChefHat size={48} className="opacity-20" />
                             <p className="text-sm">
                                 Введите название блюда, например:<br/>
-                                <span className="text-white font-bold">"Стейк Рибай Medium Rare"</span> или <span className="text-white font-bold">"Сочные немецкие колбаски"</span>
+                                <span className="text-white font-bold">"Стейк Рибай"</span> или <span className="text-white font-bold">"Плов в режиме печи"</span>
                             </p>
                         </div>
                     )}
@@ -132,10 +127,10 @@ const RecipeGenerator: React.FC = () => {
                     {loading && (
                         <div className="h-full flex flex-col items-center justify-center gap-4 min-h-[150px]">
                             <div className="relative">
-                                <div className="w-16 h-16 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
-                                <Flame className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-orange-500" size={24} />
+                                <div className="w-16 h-16 border-4 border-green-500/30 border-t-green-500 rounded-full animate-spin"></div>
+                                <Flame className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500" size={24} />
                             </div>
-                            <p className="text-sm text-gray-400 animate-pulse">Шеф разогревает гриль...</p>
+                            <p className="text-sm text-gray-400 animate-pulse">GigaChat генерирует рецепт...</p>
                         </div>
                     )}
 
@@ -155,13 +150,13 @@ const RecipeGenerator: React.FC = () => {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-                            placeholder="Что будем готовить сегодня?"
-                            className="w-full bg-white/5 border border-white/10 text-white rounded-xl pl-4 pr-12 py-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:bg-white/10 transition-all placeholder:text-gray-500"
+                            placeholder="Что готовим?"
+                            className="w-full bg-white/5 border border-white/10 text-white rounded-xl pl-4 pr-12 py-4 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:bg-white/10 transition-all placeholder:text-gray-500"
                         />
                         <button 
                             onClick={handleGenerate}
                             disabled={loading}
-                            className="absolute right-2 p-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 transition-colors shadow-lg"
+                            className="absolute right-2 p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors shadow-lg"
                         >
                             <Send size={20} />
                         </button>
