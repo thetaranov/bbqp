@@ -15,7 +15,7 @@ import { Option, ConfigCategory } from './types';
 
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
-const RecipeGenerator = lazy(() => import('./components/RecipeGenerator'));
+// RecipeGenerator удален, так как блок убран
 
 const CONFIG_OPTIONS: ConfigCategory[] = [
   { id: 'model', name: 'Модель', options: [ { label: 'Model V', price: 25000, value: 'v' }, { label: 'Model W', price: 35000, value: 'w' } ] },
@@ -46,13 +46,11 @@ const MarqueeImage = React.memo(({ src, className }: { src: string, className?: 
   );
 });
 
-// --- 3D КОЛЬЦО (Очищенная версия) ---
+// --- 3D КОЛЬЦО ---
 const RingCarousel = ({ reverse = false, items, radius = 800 }: { reverse?: boolean, items: typeof DETAILS_ITEMS, radius?: number }) => {
     const ringRef = useRef<HTMLDivElement>(null);
     const rafRef = useRef<number>(0);
     const angleRef = useRef<number>(0);
-
-    // Постоянная скорость вращения
     const speed = reverse ? -0.0005 : 0.0005;
 
     useEffect(() => {
@@ -64,7 +62,6 @@ const RingCarousel = ({ reverse = false, items, radius = 800 }: { reverse?: bool
             const delta = time - lastTime;
             lastTime = time;
 
-            // Вращаем всегда с одной скоростью
             angleRef.current += speed * (delta / 16); 
 
             ringRef.current.style.transform = `rotateY(${angleRef.current}rad)`;
@@ -80,7 +77,7 @@ const RingCarousel = ({ reverse = false, items, radius = 800 }: { reverse?: bool
 
     return (
         <div
-            className="absolute inset-0 flex items-center justify-center pointer-events-none" // pointer-events-none чтобы не блокировать скролл
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
             style={{ perspective: '1000px' }}
         >
             <div
@@ -121,7 +118,9 @@ function App() {
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [mobileConfigOpen, setMobileConfigOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  // Состояние для AI чата (управляется кнопкой в футере)
+  const [isChatOpen, setIsChatOpen] = useState(false); 
+
   const [is3DActive, setIs3DActive] = useState(false);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
@@ -207,7 +206,10 @@ function App() {
 
   return (
     <div className="h-screen w-full overflow-hidden bg-black text-white selection:bg-orange-500 selection:text-white relative">
-      <Navigation activeSection={activeSection} isIntroComplete={introComplete} onChatToggle={() => setIsChatOpen(!isChatOpen)} />
+
+      {/* Убрали кнопку чата из навигации, если она была */}
+      <Navigation activeSection={activeSection} isIntroComplete={introComplete} />
+
       <main className={`snap-container h-full w-full`}>
         <div id="hero" ref={setRef('hero')} className="snap-section h-[100svh]">
             <Hero startAnimation={introComplete} isActive={activeSection === 'hero'} />
@@ -240,10 +242,10 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS (Обновленная 3D карусель) --- */}
+        {/* --- СЕКЦИЯ DETAILS --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex flex-col justify-center overflow-hidden relative group">
             <>
-              {/* Контейнер для колец - без лишних фонов */}
+              {/* Контейнер для колец */}
               <div className="absolute inset-0 z-[2] overflow-hidden pointer-events-none">
                  <div className="absolute top-[20%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(-5deg) translateY(-20%) scale(1.0)' }}>
                     <RingCarousel items={row1Items} radius={800} />
@@ -256,7 +258,7 @@ function App() {
                  </div>
               </div>
 
-              {/* Текст с черным градиентом для читаемости */}
+              {/* Текст с черным градиентом */}
               <div className="relative z-20 pointer-events-none w-full h-full flex flex-col items-start justify-center p-8 md:p-12 md:pl-24 bg-gradient-to-r from-black via-black/60 to-transparent">
                  <Reveal className="max-w-3xl">
                      <h2 className="text-[9vw] md:text-6xl lg:text-7xl font-bold tracking-tighter text-white drop-shadow-2xl mb-8 text-left">Для тех,<br />кто ценит детали</h2>
@@ -392,28 +394,37 @@ function App() {
               <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
             </div>
         </section>
-        <div id="ai-chef" ref={setRef('ai-chef')} className="snap-section h-[100svh] bg-[#050505]">
-            <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><div className="text-gray-600">Загрузка...</div></div>}>
-                <RecipeGenerator />
-            </Suspense>
-        </div>
+
+        {/* --- БЛОК AI-CHEF УДАЛЕН ИЗ СКРОЛЛА (он теперь в футере) --- */}
+
         <SiteFooter
           setRef={setRef('contact')}
-          onPrivacyOpen={() => setIsPrivacyOpen(false)}
-          onTermsOpen={() => setIsTermsOpen(false)}
+          onPrivacyOpen={() => setIsPrivacyOpen(true)}
+          onTermsOpen={() => setIsTermsOpen(true)}
+          onAIOpen={() => setIsChatOpen(true)} // ОТКРЫТИЕ ЧАТА ИЗ ФУТЕРА
         />
       </main>
+
       <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Политика конфиденциальности">
         <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
           <p>...</p>
         </div>
       </Modal>
+
       <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Условия использования">
         <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
              <p>...</p>
         </div>
       </Modal>
-      <Suspense fallback={null}><ChefBot visible={introComplete} externalIsOpen={isChatOpen} onToggle={setIsChatOpen} /></Suspense>
+
+      <Suspense fallback={null}>
+          <ChefBot 
+            visible={true} 
+            externalIsOpen={isChatOpen} 
+            onToggle={setIsChatOpen} 
+            showFloatingButton={false} // СКРЫВАЕМ ПЛАВАЮЩУЮ КНОПКУ
+          />
+      </Suspense>
     </div>
   );
 }

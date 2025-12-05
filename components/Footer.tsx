@@ -1,14 +1,15 @@
-import React from 'react';
-import { FileText } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { FileText, Sparkles } from 'lucide-react'; // Добавлена иконка Sparkles
 import Reveal from './Reveal';
 
 interface FooterProps {
   setRef: (el: HTMLDivElement | null) => void;
   onPrivacyOpen: () => void;
   onTermsOpen: () => void;
+  onAIOpen: () => void; // Новый проп для открытия AI
 }
 
-const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen }) => {
+const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen, onAIOpen }) => {
 
   // HTML код для изоляции фона в iframe
   const iframeContent = `
@@ -37,27 +38,21 @@ const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen 
   return (
     <footer id="contact" ref={setRef} className="snap-section h-[100svh] relative overflow-hidden flex flex-col justify-center items-center">
 
-      {/* --- UNICORN STUDIO BACKGROUND (ISOLATED IN IFRAME) --- */}
-      {/* 
-          Мы задаем высоту 118% (это примерно 100% / 0.85).
-          Так как блок прижат к верху (top-0), нижние 15-18% iframe уйдут за пределы 
-          экрана и будут обрезаны overflow-hidden родителя.
-      */}
+      {/* --- BACKGROUND --- */}
       <div className="absolute top-0 left-0 w-full h-[118%] z-0">
          <iframe
             title="footer-background"
             srcDoc={iframeContent}
             className="w-full h-full border-0"
-            style={{ pointerEvents: 'auto' }} // Разрешаем мышь внутри iframe для эффектов
-            loading="lazy" // Ленивая загрузка для уменьшения лагов
+            style={{ pointerEvents: 'auto' }}
+            loading="lazy"
          />
       </div>
 
-      {/* --- OVERLAY (Слой 1) --- */}
-      {/* Затемнение, прозрачное для кликов */}
+      {/* --- OVERLAY --- */}
       <div className="absolute inset-0 z-[1] bg-black/40 pointer-events-none"></div>
 
-      {/* --- CONTENT (Слой 10) --- */}
+      {/* --- CONTENT --- */}
       <div className="relative z-10 w-full pointer-events-none">
         <Reveal className="w-full max-w-4xl mx-auto px-6 text-center pointer-events-auto">
           <div className="mb-6">
@@ -83,12 +78,22 @@ const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen 
 
           <div className="border-t border-white/10 pt-6 mt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-400">
             <p>© 2025 bbqp. Все права защищены.</p>
-            <div className="flex gap-6">
+
+            <div className="flex flex-wrap justify-center gap-6 items-center">
               <button onClick={onPrivacyOpen} className="hover:text-white transition-colors">Конфиденциальность</button>
               <button onClick={onTermsOpen} className="hover:text-white transition-colors">Условия</button>
               <a href="/assets/docs/MANUAL.pdf" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1">
                 <FileText size={12} /> Руководство
               </a>
+
+              {/* Кнопка AI */}
+              <button 
+                onClick={onAIOpen} 
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-orange-400 hover:bg-white/20 hover:text-orange-300 transition-all"
+              >
+                <Sparkles size={12} />
+                <span className="font-mono font-bold tracking-wide">bbqp AI (v0.1)</span>
+              </button>
             </div>
           </div>
         </Reveal>

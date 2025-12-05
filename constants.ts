@@ -7,7 +7,7 @@ export const NAV_LINKS = [
   { name: "Персонализация", href: "#personalize" },
   { name: "Военная серия", href: "#military" },
   { name: "Конфигуратор", href: "#models" },
-  { name: "AI Шеф", href: "#ai-chef" },
+  // { name: "AI Шеф", href: "#ai-chef" }, // УДАЛЕНО
   { name: "Контакты", href: "#contact" },
 ];
 
