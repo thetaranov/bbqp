@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { FileText, Sparkles } from 'lucide-react'; // Добавлена иконка Sparkles
+import { FileText, Sparkles } from 'lucide-react';
 import Reveal from './Reveal';
 
 interface FooterProps {
   setRef: (el: HTMLDivElement | null) => void;
   onPrivacyOpen: () => void;
   onTermsOpen: () => void;
-  onAIOpen: () => void; // Новый проп для открытия AI
+  onAIOpen: () => void;
 }
 
 const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen, onAIOpen }) => {
@@ -76,24 +76,25 @@ const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen,
             </div>
           </div>
 
-          <div className="border-t border-white/10 pt-6 mt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-400">
+          <div className="border-t border-white/10 pt-6 mt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-500">
             <p>© 2025 bbqp. Все права защищены.</p>
 
             <div className="flex flex-wrap justify-center gap-6 items-center">
               <button onClick={onPrivacyOpen} className="hover:text-white transition-colors">Конфиденциальность</button>
               <button onClick={onTermsOpen} className="hover:text-white transition-colors">Условия</button>
+
+              {/* Кнопка AI в стиле обычной ссылки */}
+              <button 
+                onClick={onAIOpen} 
+                className="flex items-center gap-2 hover:text-white transition-colors text-gray-500"
+              >
+                <Sparkles size={12} />
+                <span>bbqp AI (v0.1)</span>
+              </button>
+
               <a href="/assets/docs/MANUAL.pdf" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1">
                 <FileText size={12} /> Руководство
               </a>
-
-              {/* Кнопка AI */}
-              <button 
-                onClick={onAIOpen} 
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-orange-400 hover:bg-white/20 hover:text-orange-300 transition-all"
-              >
-                <Sparkles size={12} />
-                <span className="font-mono font-bold tracking-wide">bbqp AI (v0.1)</span>
-              </button>
             </div>
           </div>
         </Reveal>

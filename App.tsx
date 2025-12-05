@@ -15,100 +15,13 @@ import { Option, ConfigCategory } from './types';
 
 // Lazy Load Heavy Components
 const ChefBot = lazy(() => import('./components/ChefBot'));
-// RecipeGenerator удален, так как блок убран
+// RecipeGenerator удален
 
 const CONFIG_OPTIONS: ConfigCategory[] = [
   { id: 'model', name: 'Модель', options: [ { label: 'Model V', price: 25000, value: 'v' }, { label: 'Model W', price: 35000, value: 'w' } ] },
   { id: 'color', name: 'Материал', options: [ { label: 'Black Matt (Сталь)', price: 0, value: 'black' }, { label: 'Stainless (Нержавейка)', price: 15000, value: 'stainless' } ] },
   { id: 'engraving', name: 'Гравировка', options: [ { label: 'Без гравировки', price: 0, value: 'none' }, { label: 'Стандартная', price: 1000, value: 'standard' }, { label: 'Свой эскиз', price: 5000, value: 'custom' } ] }
 ];
-
-function shuffleArray<T>(array: T[]): T[] {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
-}
-
-const MarqueeImage = React.memo(({ src, className }: { src: string, className?: string }) => {
-  return (
-    <div className={`relative overflow-hidden bg-black/60 border border-white/10 rounded-xl ${className} backface-hidden`}>
-        <img 
-            src={src} 
-            alt="" 
-            loading="lazy" 
-            decoding="async" 
-            className="w-full h-full object-cover opacity-90" 
-        />
-    </div>
-  );
-});
-
-// --- 3D КОЛЬЦО ---
-const RingCarousel = ({ reverse = false, items, radius = 800 }: { reverse?: boolean, items: typeof DETAILS_ITEMS, radius?: number }) => {
-    const ringRef = useRef<HTMLDivElement>(null);
-    const rafRef = useRef<number>(0);
-    const angleRef = useRef<number>(0);
-    const speed = reverse ? -0.0005 : 0.0005;
-
-    useEffect(() => {
-        let lastTime = performance.now();
-
-        const animate = (time: number) => {
-            if (!ringRef.current) return;
-
-            const delta = time - lastTime;
-            lastTime = time;
-
-            angleRef.current += speed * (delta / 16); 
-
-            ringRef.current.style.transform = `rotateY(${angleRef.current}rad)`;
-            rafRef.current = requestAnimationFrame(animate);
-        };
-
-        rafRef.current = requestAnimationFrame(animate);
-        return () => cancelAnimationFrame(rafRef.current);
-    }, [speed]);
-
-    const ringItems = useMemo(() => [...items, ...items, ...items], [items]);
-    const count = ringItems.length;
-
-    return (
-        <div
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
-            style={{ perspective: '1000px' }}
-        >
-            <div
-                ref={ringRef}
-                className="relative w-0 h-0"
-                style={{ transformStyle: 'preserve-3d' }}
-            >
-                {ringItems.map((item, index) => {
-                    const yAngle = (index / count) * Math.PI * 2;
-                    return (
-                        <div
-                            key={`ring-${index}`}
-                            className="absolute top-1/2 left-1/2"
-                            style={{
-                                transform: `translate(-50%, -50%) rotateY(${yAngle}rad) translateZ(${radius}px)`,
-                                backfaceVisibility: 'hidden',
-                                WebkitBackfaceVisibility: 'hidden',
-                                willChange: 'transform',
-                            }}
-                        >
-                            <MarqueeImage 
-                                src={item.image} 
-                                className="w-40 h-40 md:w-48 md:h-48 shadow-[0_0_30px_rgba(0,0,0,0.8)]" 
-                            />
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-};
 
 function App() {
   const TELEGRAM_LINK = "https://t.me/thetaranov";
@@ -118,19 +31,29 @@ function App() {
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [mobileConfigOpen, setMobileConfigOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  // Состояние для AI чата (управляется кнопкой в футере)
-  const [isChatOpen, setIsChatOpen] = useState(false); 
-
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [is3DActive, setIs3DActive] = useState(false);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
+  // Состояние для слайдера деталей
+  const [activeDetailIndex, setActiveDetailIndex] = useState(0);
+  const [isHoveringDetails, setIsHoveringDetails] = useState(false);
+
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const row1Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
-  const row2Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
-  const row3Items = useMemo(() => shuffleArray(DETAILS_ITEMS), []);
+
+  // Авто-переключение деталей
+  useEffect(() => {
+    let interval: number;
+    if (!isHoveringDetails && activeSection === 'details') {
+        interval = setInterval(() => {
+            setActiveDetailIndex((prev) => (prev + 1) % DETAILS_ITEMS.length);
+        }, 4000); // 4 секунды на слайд
+    }
+    return () => clearInterval(interval);
+  }, [isHoveringDetails, activeSection]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIntroComplete(true), 500);
@@ -206,8 +129,6 @@ function App() {
 
   return (
     <div className="h-screen w-full overflow-hidden bg-black text-white selection:bg-orange-500 selection:text-white relative">
-
-      {/* Убрали кнопку чата из навигации, если она была */}
       <Navigation activeSection={activeSection} isIntroComplete={introComplete} />
 
       <main className={`snap-container h-full w-full`}>
@@ -242,32 +163,71 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS --- */}
-        <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex flex-col justify-center overflow-hidden relative group">
-            <>
-              {/* Контейнер для колец */}
-              <div className="absolute inset-0 z-[2] overflow-hidden pointer-events-none">
-                 <div className="absolute top-[20%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(-5deg) translateY(-20%) scale(1.0)' }}>
-                    <RingCarousel items={row1Items} radius={800} />
-                 </div>
-                 <div className="absolute top-[50%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(0deg) translateY(-50%) scale(1.0)' }}>
-                    <RingCarousel items={row2Items} reverse radius={900} />
-                 </div>
-                 <div className="absolute top-[80%] left-0 w-full h-full origin-center" style={{ transform: 'rotateX(5deg) translateY(-80%) scale(1.0)' }}>
-                    <RingCarousel items={row3Items} radius={800} />
-                 </div>
-              </div>
+        {/* --- СЕКЦИЯ DETAILS (НОВЫЙ ДИЗАЙН) --- */}
+        <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex items-center justify-center overflow-hidden relative">
+            <div className="container mx-auto px-6 h-full flex flex-col md:flex-row">
 
-              {/* Текст с черным градиентом */}
-              <div className="relative z-20 pointer-events-none w-full h-full flex flex-col items-start justify-center p-8 md:p-12 md:pl-24 bg-gradient-to-r from-black via-black/60 to-transparent">
-                 <Reveal className="max-w-3xl">
-                     <h2 className="text-[9vw] md:text-6xl lg:text-7xl font-bold tracking-tighter text-white drop-shadow-2xl mb-8 text-left">Для тех,<br />кто ценит детали</h2>
-                 </Reveal>
-                 <div className="flex justify-start max-w-xl">
-                     <p className="text-gray-200 text-sm md:text-base font-medium tracking-wide m-0 text-left leading-relaxed drop-shadow-lg">Каждая деталь создана с одержимостью качеством на основе опыта ведущих дизайнеров, материаловедов и испытательных тестов топ-пользователей</p>
-                 </div>
-              </div>
-            </>
+                {/* ЛЕВАЯ ЧАСТЬ: Карусель (Галерея) */}
+                <div className="w-full md:w-1/2 h-[40vh] md:h-full flex items-center justify-center relative order-1 md:order-1 p-4">
+                     <div className="relative w-full h-full max-h-[60vh] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+                        {DETAILS_ITEMS.map((item, idx) => (
+                            <div 
+                                key={item.id}
+                                className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${idx === activeDetailIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
+                            >
+                                <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent md:hidden"></div>
+                                <div className="absolute bottom-6 left-6 md:hidden">
+                                    <h3 className="text-xl font-bold text-white">{item.title}</h3>
+                                </div>
+                            </div>
+                        ))}
+                     </div>
+                </div>
+
+                {/* ПРАВАЯ ЧАСТЬ: Текст и список */}
+                <div className="w-full md:w-1/2 h-auto md:h-full flex flex-col justify-center order-2 md:order-2 p-4 md:pl-12 relative z-10">
+                    <Reveal>
+                        <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tighter">
+                            Внимание к <span className="text-orange-500">деталям</span>
+                        </h2>
+
+                        <div 
+                            className="space-y-2"
+                            onMouseEnter={() => setIsHoveringDetails(true)}
+                            onMouseLeave={() => setIsHoveringDetails(false)}
+                        >
+                            {DETAILS_ITEMS.map((item, idx) => (
+                                <div 
+                                    key={item.id}
+                                    onClick={() => setActiveDetailIndex(idx)}
+                                    className={`group cursor-pointer p-4 rounded-2xl transition-all duration-300 border border-transparent ${
+                                        idx === activeDetailIndex 
+                                        ? 'bg-white/10 border-white/10' 
+                                        : 'hover:bg-white/5 hover:pl-6'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <h3 className={`text-lg font-bold transition-colors ${idx === activeDetailIndex ? 'text-white' : 'text-gray-500 group-hover:text-gray-300'}`}>
+                                            {item.title}
+                                        </h3>
+                                        {idx === activeDetailIndex && <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>}
+                                    </div>
+
+                                    <div className={`overflow-hidden transition-all duration-500 ${idx === activeDetailIndex ? 'max-h-40 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
+                                        <p className="text-sm text-gray-400 leading-relaxed">
+                                            {item.description}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </Reveal>
+                </div>
+
+            </div>
+            {/* Фоновый градиент для текста на мобилках */}
+            <div className="absolute inset-0 bg-black/40 pointer-events-none z-0 md:hidden"></div>
         </section>
 
         <section id="personalize" ref={setRef('personalize')} className="snap-section h-[100svh] bg-[#050505] text-white relative overflow-hidden flex items-center">
@@ -395,13 +355,11 @@ function App() {
             </div>
         </section>
 
-        {/* --- БЛОК AI-CHEF УДАЛЕН ИЗ СКРОЛЛА (он теперь в футере) --- */}
-
         <SiteFooter
           setRef={setRef('contact')}
           onPrivacyOpen={() => setIsPrivacyOpen(true)}
           onTermsOpen={() => setIsTermsOpen(true)}
-          onAIOpen={() => setIsChatOpen(true)} // ОТКРЫТИЕ ЧАТА ИЗ ФУТЕРА
+          onAIOpen={() => setIsChatOpen(true)}
         />
       </main>
 
@@ -422,7 +380,7 @@ function App() {
             visible={true} 
             externalIsOpen={isChatOpen} 
             onToggle={setIsChatOpen} 
-            showFloatingButton={false} // СКРЫВАЕМ ПЛАВАЮЩУЮ КНОПКУ
+            showFloatingButton={false} 
           />
       </Suspense>
     </div>

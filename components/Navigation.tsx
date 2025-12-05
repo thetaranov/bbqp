@@ -15,12 +15,11 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
   const itemsRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const navRef = useRef<HTMLElement>(null);
 
-  const bgClass = 'bg-black/60 border-white/10';
-  const blurClass = 'backdrop-blur-md';
-  const logoColorClass = 'text-white';
-  const inactiveColorClass = 'text-gray-300 hover:text-white';
-  const mobileMenuBg = 'bg-black/90'; 
-  const mobileMenuText = 'text-white';
+  // Исправлено: удалена сложная логика классов, теперь фон стабилен
+  const baseNavClasses = `fixed top-0 left-0 right-0 z-[100] py-4 transition-all duration-700`;
+  const loadedClasses = isIntroComplete 
+    ? 'opacity-100 translate-y-0 bg-black/60 backdrop-blur-md border-b border-white/10' 
+    : 'opacity-0 -translate-y-4';
 
   useEffect(() => {
     const activeIndex = NAV_LINKS.findIndex(link => link.href.substring(1) === activeSection);
@@ -60,15 +59,12 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
   };
 
   return (
-    <nav
-      ref={navRef}
-      className={`fixed top-0 left-0 right-0 z-[50] transition-all duration-1000 py-4 shadow-sm ${bgClass} ${blurClass} ${isIntroComplete ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
-    >
+    <nav ref={navRef} className={`${baseNavClasses} ${loadedClasses}`}>
       <div className="max-w-[95rem] mx-auto px-6 lg:px-8 flex justify-between items-center min-h-[40px]">
         <a 
           href="#" 
           onClick={(e) => handleScrollTo(e, "#hero")} 
-          className={`text-2xl md:text-3xl font-bold tracking-tighter z-10 relative hover:opacity-80 transition-opacity duration-1000 ${logoColorClass} ${isIntroComplete ? 'opacity-100 delay-300' : 'opacity-0'}`}
+          className={`text-2xl md:text-3xl font-bold tracking-tighter z-10 relative hover:opacity-80 transition-opacity duration-1000 text-white`}
         >
           bbqp
         </a>
@@ -95,7 +91,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
               className={`relative z-10 px-5 py-2 text-sm font-medium transition-all duration-500 ${
                 activeSection === link.href.substring(1) 
                   ? 'text-white drop-shadow-md' 
-                  : inactiveColorClass
+                  : 'text-gray-300 hover:text-white'
               }`}
             >
               {link.name}
@@ -114,16 +110,8 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
         </div>
 
         <div className="lg:hidden absolute right-6 flex items-center gap-4">
-           <button
-              className={`p-1 transition-colors ${logoColorClass} hover:text-orange-500`}
-              onClick={onChatToggle}
-              aria-label="Support"
-           >
-             <MessageSquare size={26} strokeWidth={2} />
-           </button>
-
           <button
-            className={`p-1 transition-colors z-20 ${isMobileMenuOpen ? 'text-white' : logoColorClass}`}
+            className={`p-1 transition-colors z-20 text-white`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Menu"
           >
@@ -133,7 +121,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
       </div>
 
       {isMobileMenuOpen && (
-        <div className={`lg:hidden absolute top-full left-0 w-full border-t p-6 flex flex-col gap-1 shadow-2xl animate-fade-in h-screen z-10 ${mobileMenuBg} backdrop-blur-xl border-white/10`}>
+        <div className={`lg:hidden absolute top-full left-0 w-full border-t p-6 flex flex-col gap-1 shadow-2xl animate-fade-in h-screen z-10 bg-black/95 backdrop-blur-xl border-white/10`}>
           {NAV_LINKS.map((link) => (
             <a
               key={link.name}
@@ -142,7 +130,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete 
               className={`text-lg font-semibold py-3 border-b last:border-0 flex items-center justify-between transition-colors duration-200 ${
                  activeSection === link.href.substring(1) 
                  ? 'text-orange-500 border-orange-500/20' 
-                 : `${mobileMenuText} border-gray-500/20`
+                 : `text-white border-gray-500/20`
               }`}
             >
               {link.name}
