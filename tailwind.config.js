@@ -22,8 +22,8 @@ export default {
         'shimmer': 'shimmer 5s infinite',
         'pulse-orange': 'pulseOrange 3s infinite',
         'scan': 'scan 3s linear infinite',
-        // Диагональное движение для сетки (120s для очень плавного хода)
-        'pan-diagonal': 'panDiagonal 120s linear infinite',
+        // Изменили скорость: 240s (было 120s)
+        'pan-diagonal': 'panDiagonal 240s linear infinite',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
@@ -33,10 +33,9 @@ export default {
         pulseOrange: { '0%, 100%': { borderColor: 'rgba(255, 255, 255, 0.1)' }, '50%': { borderColor: 'rgba(234, 88, 12, 0.6)' } },
         shimmer: { '0%': { transform: 'translateX(-150%) skewX(-12deg)' }, '100%': { transform: 'translateX(150%) skewX(-12deg)' } },
         scan: { '0%': { top: '-10%', opacity: '0' }, '100%': { top: '110%', opacity: '0' } },
-        // Движение контейнера
         panDiagonal: {
           '0%': { transform: 'translate(0, 0)' },
-          '100%': { transform: 'translate(-50%, -50%)' }
+          '100%': { transform: 'translate(-25%, -25%)' } // Уменьшили сдвиг, чтобы реже повторялся паттерн движения
         }
       }
     },

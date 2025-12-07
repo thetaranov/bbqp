@@ -6,27 +6,37 @@ interface InfiniteGridBackgroundProps {
 
 const InfiniteGridBackground: React.FC<InfiniteGridBackgroundProps> = ({ images }) => {
   const gridImages = useMemo(() => {
-    const pool = [];
-    // Много копий для заполнения сетки
-    for (let i = 0; i < 50; i++) {
-        pool.push(...images); 
+    // Создаем большой пул
+    let pool: string[] = [];
+    for (let i = 0; i < 60; i++) {
+        pool = pool.concat(images);
     }
-    return pool.sort(() => 0.5 - Math.random()).slice(0, 600);
+
+    // Умное перемешивание (Fisher-Yates Shuffle)
+    for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    // Дополнительная проверка: стараемся не ставить одинаковые картинки подряд
+    for (let i = 1; i < pool.length; i++) {
+        if (pool[i] === pool[i-1]) {
+            // Если текущая совпадает с предыдущей, меняем её со следующей (или случайной)
+            const swapIdx = (i + Math.floor(Math.random() * 10)) % pool.length;
+            [pool[i], pool[swapIdx]] = [pool[swapIdx], pool[i]];
+        }
+    }
+
+    return pool.slice(0, 800); // Возвращаем много элементов
   }, [images]);
 
   return (
     <div className="absolute inset-0 overflow-hidden select-none pointer-events-none z-0 bg-[#050505]">
-      {/* 
-         Используем grid-cols-12 (десктоп) и gap-1.
-         ВАЖНО: aspect-square здесь работает для контейнера грида, 
-         но нам нужно применить его к детям или использовать хак с padding.
-      */}
-      <div className="w-[200%] grid grid-cols-12 md:grid-cols-20 gap-1 animate-pan-diagonal -ml-[20%] -mt-[20%]">
+      <div className="w-[300%] grid grid-cols-12 md:grid-cols-24 gap-1 animate-pan-diagonal -ml-[50%] -mt-[50%]">
         {gridImages.map((src, index) => (
           <div 
             key={`grid-img-${index}`} 
-            className="relative w-full pt-[100%] overflow-hidden bg-[#111]" 
-            // pt-[100%] — это padding-top: 100%, гарантирующий квадрат
+            className="relative w-full pt-[100%] overflow-hidden bg-[#111]"
           >
             <img 
               src={src} 
