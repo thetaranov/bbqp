@@ -149,34 +149,49 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS (ОБНОВЛЕННАЯ) --- */}
+        {/* --- СЕКЦИЯ DETAILS (ПОЛНАЯ ПЕРЕРАБОТКА) --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white relative flex items-center overflow-hidden">
 
-            {/* Фоновая динамичная сетка изображений */}
-            <div className="absolute inset-0 w-full h-full opacity-20 pointer-events-none z-0 grid grid-cols-3 md:grid-cols-4 gap-2 p-2">
-                 {[...BACKGROUND_IMAGES, ...BACKGROUND_IMAGES].sort(() => 0.5 - Math.random()).map((src, i) => (
-                    <div key={i} className="w-full h-full overflow-hidden rounded-lg">
-                        <img src={src} alt="" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" />
+            {/* ФОНОВАЯ СЕТКА ИЗОБРАЖЕНИЙ */}
+            <div className="absolute inset-0 z-0 flex flex-wrap content-start p-2 gap-2 opacity-30 select-none pointer-events-none overflow-hidden">
+                 {/* Дублируем массив изображений несколько раз, чтобы заполнить весь экран */}
+                 {[...BACKGROUND_IMAGES, ...BACKGROUND_IMAGES, ...BACKGROUND_IMAGES].slice(0, 20).map((src, i) => (
+                    <div key={i} className="flex-grow h-32 md:h-56 relative rounded-lg overflow-hidden border border-white/5 bg-white/5 basis-32 md:basis-56 flex-shrink-1">
+                        <img 
+                            src={src} 
+                            alt="" 
+                            className="w-full h-full object-cover grayscale opacity-70 hover:opacity-100 hover:grayscale-0 transition-all duration-700 hover:scale-105" 
+                            loading="lazy"
+                        />
                     </div>
                  ))}
             </div>
-            {/* Градиент для затемнения фона, чтобы текст читался */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/90 to-black z-[1]"></div>
 
+            {/* ЗАТЕМНЕНИЕ ФОНА (СИЛЬНЕЕ СПРАВА, ЧТОБЫ ЧИТАЛСЯ ТЕКСТ) */}
+            <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black/40 via-black/80 to-black"></div>
+
+            {/* КОНТЕНТ */}
             <div className="container mx-auto px-6 h-full flex items-center relative z-10">
-                <div className="w-full md:w-1/2 hidden md:block"></div> {/* Пустой блок слева, чтобы открыть фон */}
+                {/* Левая часть пустая, чтобы было видно фон */}
+                <div className="hidden md:block w-1/2"></div>
 
-                <div className="w-full md:w-1/2 flex flex-col justify-center h-full pl-0 md:pl-12">
+                {/* Правая часть с текстом */}
+                <div className="w-full md:w-1/2 flex flex-col justify-center h-full pl-0 md:pl-16">
                     <Reveal>
-                        <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tighter text-right md:text-left">
+                        <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tighter text-right md:text-left drop-shadow-2xl">
                             Внимание к <span className="text-orange-500">деталям</span>
                         </h2>
 
-                        <div className="space-y-6 overflow-y-auto max-h-[70vh] pr-4 custom-scrollbar">
+                        <div className="space-y-4 overflow-y-auto max-h-[65vh] pr-4 custom-scrollbar">
                             {DETAILS_ITEMS.map((item) => (
-                                <div key={item.id} className="group p-4 border-r-2 md:border-l-2 md:border-r-0 border-white/10 hover:border-orange-500 transition-colors bg-white/5 backdrop-blur-sm rounded-l-2xl md:rounded-l-none md:rounded-r-2xl">
-                                    <h3 className="text-xl font-bold text-white mb-2 text-right md:text-left">{item.title}</h3>
-                                    <p className="text-sm text-gray-400 leading-relaxed text-right md:text-left">
+                                <div 
+                                    key={item.id} 
+                                    className="group p-5 border-r-4 md:border-l-4 md:border-r-0 border-white/10 hover:border-orange-500 bg-black/40 hover:bg-white/5 transition-all duration-300 backdrop-blur-md rounded-l-xl md:rounded-l-none md:rounded-r-xl"
+                                >
+                                    <h3 className="text-xl font-bold text-white mb-2 text-right md:text-left group-hover:text-orange-400 transition-colors">
+                                        {item.title}
+                                    </h3>
+                                    <p className="text-sm text-gray-300 leading-relaxed text-right md:text-left group-hover:text-white transition-colors">
                                         {item.description}
                                     </p>
                                 </div>
