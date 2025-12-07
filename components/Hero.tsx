@@ -105,8 +105,8 @@ const Hero: React.FC<HeroProps> = ({ startAnimation = true, isActive = true }) =
         </h1>
       </div>
 
-      {/* Кнопка Исследовать */}
-      <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 z-20 transition-opacity duration-1000 ${startAnimation ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Кнопка Исследовать - поднята выше на мобильных (bottom-20) */}
+      <div className={`absolute bottom-24 md:bottom-10 left-1/2 -translate-x-1/2 z-20 transition-opacity duration-1000 ${startAnimation ? 'opacity-100' : 'opacity-0'}`}>
         <button 
             onClick={handleExplore}
             className="flex flex-col items-center gap-2 text-white/80 hover:text-white transition-colors group"
