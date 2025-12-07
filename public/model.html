@@ -91,9 +91,7 @@
             scene.environment = texture;
 
             // --- СКАЙБОКС ---
-            // Увеличили радиус с 15 до 20 (примерно +33%)
             const sphereGeo = new THREE.SphereGeometry(17, 60, 40);
-            // Инвертируем масштаб по X, чтобы текстура была внутри
             sphereGeo.scale(-1, 1, 1);
             
             const sphereMat = new THREE.MeshBasicMaterial({ 
@@ -115,7 +113,8 @@
                 if (child.isMesh) child.material = material;
             });
 
-            const scale = isMobile ? 0.4 : 0.38;
+            // УМЕНЬШЕНО В 2 РАЗА (0.4 -> 0.22)
+            const scale = isMobile ? 0.22 : 0.38;
             obj.scale.set(scale, scale, scale);
             obj.updateMatrixWorld(true);
 
