@@ -67,7 +67,7 @@ const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen,
                 <p>Электронная почта: <a href="mailto:st@atta-k.ru" className="text-orange-500 hover:text-orange-400 transition-colors">st@atta-k.ru</a></p>
               </div>
               <div>
-                <h3 className="font-bold text-white mb-2 text-base">Уполномоченный представитель в РФ (жалобы и предложения)</h3>
+                <h3 className="font-bold text-white mb-2 text-base">Уполномоченный представитель в РФ (запросы и предложения)</h3>
                 <p className="mb-1">Юридический отдел ТСЦ АО «САМТЕК»</p>
                 <p className="mb-1">445027, г. Тольятти, а/я 3147</p>
                 <p className="mb-1">Электронная почта: <a href="mailto:info@sam-tech.ru" className="text-orange-500 hover:text-orange-400 transition-colors">info@sam-tech.ru</a></p>
