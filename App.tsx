@@ -5,7 +5,7 @@ import FeaturesSection from './components/MenuSection';
 import ParallaxImage from './components/ParallaxImage';
 import Reveal from './components/Reveal';
 import ParticlesOverlay from './components/ParticlesOverlay';
-import { BACKGROUND_IMAGES } from './constants'; // DETAILS_ITEMS больше не используется в верстке
+import { BACKGROUND_IMAGES } from './constants';
 import { Check, Box, ScanLine, Settings2 } from 'lucide-react';
 import FloatingFormulasOverlay from './components/FloatingFormulasOverlay';
 import Modal from './components/Modal';
@@ -150,7 +150,7 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS (FINAL CENTERED) --- */}
+        {/* --- СЕКЦИЯ DETAILS (FINAL CORRECTED) --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white relative flex items-center justify-center overflow-hidden">
 
             {/* Бесконечная сетка */}
@@ -159,16 +159,11 @@ function App() {
             {/* Контент по центру */}
             <div className="container mx-auto px-6 relative z-10 flex flex-col items-center justify-center text-center">
                 <Reveal>
-                    <div className="max-w-4xl mx-auto">
-                        <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter leading-tight drop-shadow-2xl">
-                            Каждая деталь создана с<br/>
-                            одержимостью<br/>
-                            качеством
-                        </h2>
-                        <h3 className="text-3xl md:text-5xl font-bold tracking-tight text-white mt-4 md:mt-6">
-                            Надежность
-                        </h3>
-                    </div>
+                    <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter leading-tight text-white drop-shadow-2xl">
+                        Каждая деталь создана с<br/>
+                        одержимостью<br/>
+                        качеством
+                    </h2>
                 </Reveal>
             </div>
         </section>
