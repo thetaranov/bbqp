@@ -150,18 +150,18 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS (FINAL CENTERED) --- */}
+        {/* --- СЕКЦИЯ DETAILS (FINAL FIXED) --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white relative flex items-center justify-center overflow-hidden">
 
-            {/* Бесконечная сетка */}
             <InfiniteGridBackground images={BACKGROUND_IMAGES} />
 
-            {/* Контент по центру */}
             <div className="container mx-auto px-6 relative z-10 flex flex-col items-center justify-center text-center">
                 <Reveal>
-                    <h2 className="text-[7vw] md:text-5xl font-bold tracking-tight text-white drop-shadow-2xl">
-                        Каждая деталь создана с<br/>
-                        одержимостью качеством
+                    {/* Используем text-[7vw] для масштабирования как в блоке про угли */}
+                    <h2 className="text-[7vw] md:text-6xl font-bold tracking-tighter leading-[1.1] text-white drop-shadow-2xl">
+                        Каждая деталь создана с<br />
+                        одержимостью<br />
+                        качеством
                     </h2>
                 </Reveal>
             </div>
