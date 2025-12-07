@@ -9,6 +9,7 @@ const InfiniteGridBackground: React.FC<InfiniteGridBackgroundProps> = ({ images 
     if (!images || images.length === 0) return [];
     let pool: string[] = [];
     for (let i = 0; i < 60; i++) pool = pool.concat(images);
+
     for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -23,26 +24,36 @@ const InfiniteGridBackground: React.FC<InfiniteGridBackgroundProps> = ({ images 
   }, [images]);
 
   return (
-    <div className="absolute inset-0 overflow-hidden select-none pointer-events-none z-0 bg-[#050505] perspective-[1000px]">
-        {/* Добавили стили для 3D перспективы и анимации стены */}
+    <div className="absolute inset-0 overflow-hidden select-none pointer-events-none z-0 bg-[#050505]" style={{ perspective: '1000px' }}>
         <style>{`
             @keyframes wall-sway {
-                0%, 100% { transform: rotateY(-5deg) rotateX(2deg) scale(1.1); }
-                50% { transform: rotateY(5deg) rotateX(-2deg) scale(1.1); }
+                0%, 100% { transform: rotateY(-8deg) rotateX(2deg) scale(1.2); }
+                50% { transform: rotateY(8deg) rotateX(-2deg) scale(1.2); }
             }
-            .wall-3d {
-                animation: wall-sway 20s ease-in-out infinite;
+            .wall-3d-wrapper {
+                width: 100%;
+                height: 100%;
+                animation: wall-sway 25s ease-in-out infinite;
                 transform-style: preserve-3d;
+                /* Важно: центрируем контент */
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
         `}</style>
 
-      {/* Обертка для 3D трансформации */}
-      <div className="absolute inset-0 wall-3d">
-          <div className="w-[250%] grid grid-cols-16 md:grid-cols-32 gap-1 animate-pan-diagonal -ml-[50%] -mt-[50%]">
+      {/* Обертка для 3D вращения */}
+      <div className="wall-3d-wrapper">
+          {/* Сетка. 
+              grid-cols-[repeat(16,1fr)] - жестко задаем 16 колонок
+              aspectRatio: 1/1 в ячейках - жестко задаем квадрат
+          */}
+          <div className="w-[250%] h-[250%] grid grid-cols-[repeat(16,1fr)] md:grid-cols-[repeat(32,1fr)] gap-1 animate-pan-diagonal -ml-[50%] -mt-[50%]">
             {gridImages.map((src, index) => (
               <div 
                 key={`grid-img-${index}`} 
-                className="relative w-full aspect-square bg-[#0a0a0a] overflow-hidden shadow-lg"
+                className="relative w-full bg-[#0a0a0a] overflow-hidden"
+                style={{ aspectRatio: '1/1' }} // Принудительный квадрат
               >
                 <img 
                   src={src} 
