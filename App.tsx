@@ -11,6 +11,7 @@ import FloatingFormulasOverlay from './components/FloatingFormulasOverlay';
 import Modal from './components/Modal';
 import ConfiguratorPanel from './components/ConfiguratorPanel';
 import SiteFooter from './components/Footer';
+import InfiniteGridBackground from './components/InfiniteGridBackground'; // Импорт нового компонента
 import { Option, ConfigCategory } from './types';
 
 const CONFIG_OPTIONS: ConfigCategory[] = [
@@ -149,49 +150,32 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS (ПОЛНАЯ ПЕРЕРАБОТКА) --- */}
+        {/* --- СЕКЦИЯ DETAILS (FINAL) --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white relative flex items-center overflow-hidden">
 
-            {/* ФОНОВАЯ СЕТКА ИЗОБРАЖЕНИЙ */}
-            <div className="absolute inset-0 z-0 flex flex-wrap content-start p-2 gap-2 opacity-30 select-none pointer-events-none overflow-hidden">
-                 {/* Дублируем массив изображений несколько раз, чтобы заполнить весь экран */}
-                 {[...BACKGROUND_IMAGES, ...BACKGROUND_IMAGES, ...BACKGROUND_IMAGES].slice(0, 20).map((src, i) => (
-                    <div key={i} className="flex-grow h-32 md:h-56 relative rounded-lg overflow-hidden border border-white/5 bg-white/5 basis-32 md:basis-56 flex-shrink-1">
-                        <img 
-                            src={src} 
-                            alt="" 
-                            className="w-full h-full object-cover grayscale opacity-70 hover:opacity-100 hover:grayscale-0 transition-all duration-700 hover:scale-105" 
-                            loading="lazy"
-                        />
-                    </div>
-                 ))}
-            </div>
+            {/* Бесконечная диагональная сетка (Компонент) */}
+            <InfiniteGridBackground images={BACKGROUND_IMAGES} />
 
-            {/* ЗАТЕМНЕНИЕ ФОНА (СИЛЬНЕЕ СПРАВА, ЧТОБЫ ЧИТАЛСЯ ТЕКСТ) */}
-            <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black/40 via-black/80 to-black"></div>
+            {/* Контейнер */}
+            <div className="container mx-auto h-full flex items-center relative z-10">
+                {/* Левая часть пустая, чтобы было видно движущийся фон */}
+                <div className="hidden lg:block w-7/12 h-full"></div>
 
-            {/* КОНТЕНТ */}
-            <div className="container mx-auto px-6 h-full flex items-center relative z-10">
-                {/* Левая часть пустая, чтобы было видно фон */}
-                <div className="hidden md:block w-1/2"></div>
-
-                {/* Правая часть с текстом */}
-                <div className="w-full md:w-1/2 flex flex-col justify-center h-full pl-0 md:pl-16">
+                {/* Правая часть с текстом (Стекломорфизм) */}
+                <div className="w-full lg:w-5/12 h-full bg-black/85 backdrop-blur-2xl border-l border-white/10 flex flex-col justify-center px-8 md:px-12 lg:px-16 shadow-[-20px_0_50px_rgba(0,0,0,0.8)]">
                     <Reveal>
-                        <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tighter text-right md:text-left drop-shadow-2xl">
-                            Внимание к <span className="text-orange-500">деталям</span>
+                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-10 tracking-tighter leading-[1.1]">
+                            Каждая деталь создана с <span className="text-orange-500">одержимостью</span> качеством
                         </h2>
 
-                        <div className="space-y-4 overflow-y-auto max-h-[65vh] pr-4 custom-scrollbar">
+                        <div className="space-y-6 overflow-y-auto max-h-[60vh] pr-2 custom-scrollbar">
                             {DETAILS_ITEMS.map((item) => (
-                                <div 
-                                    key={item.id} 
-                                    className="group p-5 border-r-4 md:border-l-4 md:border-r-0 border-white/10 hover:border-orange-500 bg-black/40 hover:bg-white/5 transition-all duration-300 backdrop-blur-md rounded-l-xl md:rounded-l-none md:rounded-r-xl"
-                                >
-                                    <h3 className="text-xl font-bold text-white mb-2 text-right md:text-left group-hover:text-orange-400 transition-colors">
+                                <div key={item.id} className="group pb-6 border-b border-white/10 last:border-0 hover:border-orange-500/50 transition-colors">
+                                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                         {item.title}
                                     </h3>
-                                    <p className="text-sm text-gray-300 leading-relaxed text-right md:text-left group-hover:text-white transition-colors">
+                                    <p className="text-sm text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
                                         {item.description}
                                     </p>
                                 </div>
