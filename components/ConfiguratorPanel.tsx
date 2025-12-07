@@ -1,7 +1,7 @@
 // components/ConfiguratorPanel.tsx
 import React from 'react';
 import { ArrowRight, ChevronLeft, Settings2, Upload } from 'lucide-react';
-import { Option, ConfigCategory } from '../types'; // Мы вынесем типы в types.ts
+import { Option, ConfigCategory } from '../types'; 
 
 interface ConfiguratorPanelProps {
   isMobile: boolean;
@@ -65,10 +65,22 @@ const ConfiguratorPanel: React.FC<ConfiguratorPanelProps> = ({
                 <div className="grid grid-cols-1 gap-2 pt-2 border-t border-white/10">
                   {category.options.map((opt) => {
                     const isSelected = config[category.id].value === opt.value;
+                    const isDisabled = opt.disabled;
                     return (
-                      <button key={opt.value} onClick={() => handleSelect(category.id, opt)} className={`relative flex items-center justify-between p-3 rounded-xl text-xs font-medium transition-all duration-200 border ${isSelected ? 'bg-orange-600/20 border-orange-500 text-white shadow-[0_0_15px_rgba(234,88,12,0.2)]' : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'}`}>
+                      <button 
+                        key={opt.value} 
+                        onClick={() => handleSelect(category.id, opt)} 
+                        disabled={isDisabled}
+                        className={`relative flex items-center justify-between p-3 rounded-xl text-xs font-medium transition-all duration-200 border 
+                            ${isSelected 
+                                ? 'bg-orange-600/20 border-orange-500 text-white shadow-[0_0_15px_rgba(234,88,12,0.2)]' 
+                                : isDisabled 
+                                    ? 'bg-white/5 border-white/5 text-gray-600 cursor-not-allowed'
+                                    : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+                            }`}
+                      >
                         <span className="z-10">{opt.label}</span>
-                        {opt.price > 0 && <span className={`z-10 ${isSelected ? 'text-orange-200' : 'text-gray-500'}`}>+{opt.price.toLocaleString()} ₽</span>}
+                        {opt.price > 0 && !isDisabled && <span className={`z-10 ${isSelected ? 'text-orange-200' : 'text-gray-500'}`}>+{opt.price.toLocaleString()} ₽</span>}
                       </button>
                     );
                   })}

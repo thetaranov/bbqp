@@ -6,7 +6,7 @@ import ParallaxImage from './components/ParallaxImage';
 import Reveal from './components/Reveal';
 import ParticlesOverlay from './components/ParticlesOverlay';
 import { BACKGROUND_IMAGES } from './constants';
-import { Check, Box, ScanLine, Settings2, X } from 'lucide-react'; // X imported
+import { Check, Box, ScanLine, Settings2, X } from 'lucide-react'; 
 import FloatingFormulasOverlay from './components/FloatingFormulasOverlay';
 import Modal from './components/Modal';
 import ConfiguratorPanel from './components/ConfiguratorPanel';
@@ -14,8 +14,16 @@ import SiteFooter from './components/Footer';
 import InfiniteGridBackground from './components/InfiniteGridBackground';
 import { Option, ConfigCategory } from './types';
 
+// Обновленная конфигурация с отключенной Model W
 const CONFIG_OPTIONS: ConfigCategory[] = [
-  { id: 'model', name: 'Модель', options: [ { label: 'Model V', price: 25000, value: 'v' }, { label: 'Model W', price: 35000, value: 'w' } ] },
+  { 
+    id: 'model', 
+    name: 'Модель', 
+    options: [ 
+      { label: 'Model V', price: 25000, value: 'v' }, 
+      { label: 'Model W (Скоро будет...)', price: 35000, value: 'w', disabled: true } // DISABLED
+    ] 
+  },
   { id: 'color', name: 'Материал', options: [ { label: 'Black Matt (Сталь)', price: 0, value: 'black' }, { label: 'Stainless (Нержавейка)', price: 15000, value: 'stainless' } ] },
   { id: 'engraving', name: 'Гравировка', options: [ { label: 'Без гравировки', price: 0, value: 'none' }, { label: 'Стандартная', price: 1000, value: 'standard' }, { label: 'Свой эскиз', price: 5000, value: 'custom' } ] }
 ];
@@ -88,7 +96,11 @@ function App() {
     sectionRefs.current[id] = el;
   };
 
-  const handleSelect = (categoryId: string, option: Option) => setConfig(prev => ({ ...prev, [categoryId]: option }));
+  const handleSelect = (categoryId: string, option: Option) => {
+      if (option.disabled) return;
+      setConfig(prev => ({ ...prev, [categoryId]: option }));
+  };
+
   const toggleCategory = (id: string) => setOpenCategory(openCategory === id ? null : id);
   const calculateTotal = () => (Object.values(config) as Option[]).reduce((acc, item) => acc + item.price, 0);
   const getOrderLink = () => {
@@ -150,11 +162,8 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS (FINAL FIXED) --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white relative flex items-center justify-center overflow-hidden">
-
             <InfiniteGridBackground images={BACKGROUND_IMAGES} />
-
             <div className="container mx-auto px-6 relative z-10 flex flex-col items-center justify-center text-center">
                 <Reveal>
                     <h2 className="text-[7vw] md:text-6xl font-bold tracking-tighter leading-[1.1] text-white drop-shadow-2xl">
@@ -269,7 +278,6 @@ function App() {
                </div>
             </div>
 
-            {/* МОБИЛЬНЫЙ КОНФИГУРАТОР */}
             {mobileConfigOpen && (
              <div 
                 className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md lg:hidden flex items-end sm:items-center justify-center animate-fade-in pointer-events-auto"
@@ -279,7 +287,6 @@ function App() {
                     className="bg-[#111] w-full sm:w-[90%] h-[80vh] sm:h-auto sm:max-h-[90vh] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl flex flex-col relative animate-slide-up overflow-hidden border border-white/10"
                     onClick={(e) => e.stopPropagation()}
                  >
-                     {/* КНОПКА ЗАКРЫТИЯ */}
                      <button 
                         onClick={() => setMobileConfigOpen(false)}
                         className="absolute top-4 right-4 z-50 p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-gray-300 active:scale-95"
@@ -303,7 +310,6 @@ function App() {
              </div>
             )}
 
-            {/* Кнопка открытия мобильного конфигуратора (ПОДНЯТА ВЫШЕ) */}
             <div className={`lg:hidden absolute bottom-[18vh] left-0 w-full flex justify-center pointer-events-auto transition-opacity duration-500 ${is3DActive ? 'opacity-100' : 'opacity-0'}`}>
               <button onClick={() => setMobileConfigOpen(true)} className="flex items-center gap-3 bg-orange-600 text-white px-8 py-4 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all hover:bg-orange-700 active:scale-95"><Settings2 size={20} /><span className="font-bold text-sm">Настроить конфигурацию</span></button>
             </div>
@@ -316,17 +322,18 @@ function App() {
         />
       </main>
 
-      <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Политика конфиденциальности">
-        <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
-          <p>...</p>
-        </div>
-      </Modal>
+        <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Политика конфиденциальности">
+          <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
+            <p>...</p>
+          </div>
+        </Modal>
 
-      <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Условия использования">
-        <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
-             <p>...</p>
-        </div>
-      </Modal>
+        <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Условия использования">
+          <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
+              <p>...</p>
+          </div>
+        </Modal>
+
     </div>
   );
 }

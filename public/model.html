@@ -79,15 +79,15 @@
         const isBlack = new URLSearchParams(window.location.search).get('color') === 'black';
         const material = new THREE.MeshStandardMaterial({
             color: isBlack ? new THREE.Color('#202020') : new THREE.Color('#e5e7eb'),
-            roughness: isBlack ? 0.4 : 0.2,
-            metalness: isBlack ? 0.4 : 0.9,
-            envMapIntensity: 1.2,
+            // Снижаем зеркальность, делаем более матовым
+            roughness: isBlack ? 0.7 : 0.4, 
+            metalness: isBlack ? 0.1 : 0.8,
+            envMapIntensity: 0.5, // Меньше отражений окружающей среды
         });
 
         new RGBELoader().load('/assets/textures/park.hdr', (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             
-            // Используем environment для освещения модели
             scene.environment = texture;
 
             // --- СКАЙБОКС ---
@@ -100,8 +100,6 @@
             
             const backgroundMesh = new THREE.Mesh(sphereGeo, sphereMat);
             backgroundMesh.rotation.y = Math.PI / 2;
-            
-            // ПОДНИМАЕМ ШАР ВЫШЕ
             backgroundMesh.position.y = 0; 
             
             scene.add(backgroundMesh);

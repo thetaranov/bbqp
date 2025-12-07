@@ -15,7 +15,12 @@ export interface ChatMessage {
 }
 
 // --- ДОБАВЛЕННЫЕ ТИПЫ ---
-export type Option = { label: string; price: number; value: string };
+export type Option = { 
+    label: string; 
+    price: number; 
+    value: string;
+    disabled?: boolean; // New field
+};
 export type ConfigCategory = { id: string; name: string; options: Option[] };
 // --- КОНЕЦ ДОБАВЛЕНИЙ ---
 
