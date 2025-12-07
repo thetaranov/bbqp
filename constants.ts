@@ -70,5 +70,9 @@ export const BACKGROUND_IMAGES = [
     "/assets/images/photo1.png", 
     "/assets/images/photo2.png",  
     "/assets/images/photo3.png",  
-    "/assets/images/photo4.png"
+    "/assets/images/photo4.png",
+    "/assets/images/photo5.png",
+    "/assets/images/photo6.png",
+    "/assets/images/photo7.png",
+    "/assets/images/photo8.png"
 ];
