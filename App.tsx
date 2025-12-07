@@ -11,7 +11,7 @@ import FloatingFormulasOverlay from './components/FloatingFormulasOverlay';
 import Modal from './components/Modal';
 import ConfiguratorPanel from './components/ConfiguratorPanel';
 import SiteFooter from './components/Footer';
-import InfiniteGridBackground from './components/InfiniteGridBackground'; // Импорт нового компонента
+import InfiniteGridBackground from './components/InfiniteGridBackground';
 import { Option, ConfigCategory } from './types';
 
 const CONFIG_OPTIONS: ConfigCategory[] = [
@@ -34,6 +34,9 @@ function App() {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
+  // Состояние для слайдера деталей
+  const [activeDetailIndex, setActiveDetailIndex] = useState(0);
+
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -41,11 +44,21 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-    useEffect(() => {
-  if (window.markPageAsLoaded) {
-    window.markPageAsLoaded();
-  }
-}, []);
+  // Автоматическое переключение деталей
+  useEffect(() => {
+    if (activeSection === 'details') {
+        const interval = setInterval(() => {
+            setActiveDetailIndex((prev) => (prev + 1) % DETAILS_ITEMS.length);
+        }, 5000); // Переключение каждые 5 секунд
+        return () => clearInterval(interval);
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
+    if (window.markPageAsLoaded) {
+      window.markPageAsLoaded();
+    }
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -150,39 +163,75 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS (FINAL) --- */}
+        {/* --- СЕКЦИЯ DETAILS (FINAL REVISION) --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white relative flex items-center overflow-hidden">
 
-            {/* Бесконечная диагональная сетка (Компонент) */}
+            {/* Бесконечная диагональная сетка */}
             <InfiniteGridBackground images={BACKGROUND_IMAGES} />
 
-            {/* Контейнер */}
-            <div className="container mx-auto h-full flex items-center relative z-10">
-                {/* Левая часть пустая, чтобы было видно движущийся фон */}
-                <div className="hidden lg:block w-7/12 h-full"></div>
+            <div className="container mx-auto h-full flex flex-col md:flex-row items-center relative z-10">
 
-                {/* Правая часть с текстом (Стекломорфизм) */}
-                <div className="w-full lg:w-5/12 h-full bg-black/85 backdrop-blur-2xl border-l border-white/10 flex flex-col justify-center px-8 md:px-12 lg:px-16 shadow-[-20px_0_50px_rgba(0,0,0,0.8)]">
-                    <Reveal>
-                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-10 tracking-tighter leading-[1.1]">
-                            Каждая деталь создана с <span className="text-orange-500">одержимостью</span> качеством
-                        </h2>
-
-                        <div className="space-y-6 overflow-y-auto max-h-[60vh] pr-2 custom-scrollbar">
-                            {DETAILS_ITEMS.map((item) => (
-                                <div key={item.id} className="group pb-6 border-b border-white/10 last:border-0 hover:border-orange-500/50 transition-colors">
-                                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                        {item.title}
-                                    </h3>
-                                    <p className="text-sm text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
+                {/* ЛЕВАЯ ЧАСТЬ: Динамический текст */}
+                <div className="w-full md:w-1/2 h-[40vh] md:h-full flex flex-col justify-center items-center md:items-start px-6 md:pl-0 md:pr-12 relative">
+                    <div className="relative w-full max-w-lg min-h-[200px]">
+                        {DETAILS_ITEMS.map((item, index) => (
+                            <div 
+                                key={item.id}
+                                className={`absolute top-0 left-0 w-full transition-all duration-1000 ease-in-out flex flex-col justify-center ${
+                                    index === activeDetailIndex 
+                                    ? 'opacity-100 translate-y-0 scale-100 blur-0' 
+                                    : 'opacity-0 translate-y-8 scale-95 blur-sm pointer-events-none'
+                                }`}
+                            >
+                                <div className="inline-block px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-full w-fit mb-4">
+                                    <span className="text-xs font-bold text-orange-500 uppercase tracking-widest">
+                                        Деталь №{index + 1}
+                                    </span>
+                                </div>
+                                <h3 className="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-2xl">
+                                    {item.title}
+                                </h3>
+                                <div className="bg-black/60 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-2xl">
+                                    <p className="text-lg md:text-xl text-gray-200 leading-relaxed font-medium">
                                         {item.description}
                                     </p>
                                 </div>
-                            ))}
-                        </div>
-                    </Reveal>
+
+                                {/* Индикаторы прогресса */}
+                                <div className="flex gap-2 mt-8">
+                                    {DETAILS_ITEMS.map((_, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setActiveDetailIndex(idx)}
+                                            className={`h-1.5 rounded-full transition-all duration-500 ${
+                                                idx === activeDetailIndex ? 'w-12 bg-orange-500' : 'w-2 bg-white/20 hover:bg-white/40'
+                                            }`}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
+
+                {/* ПРАВАЯ ЧАСТЬ: Заголовок и градиент */}
+                <div className="w-full md:w-1/2 h-[40vh] md:h-full flex flex-col justify-center items-center md:items-end px-6 md:px-12 relative">
+                    {/* Градиент под текстом заголовка */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent md:bg-gradient-to-l md:from-black md:via-black/70 md:to-transparent z-0"></div>
+
+                    <div className="relative z-10 text-center md:text-right max-w-xl">
+                        <Reveal>
+                            <h2 className="text-5xl md:text-7xl font-bold tracking-tighter text-white leading-[0.9] drop-shadow-2xl">
+                                Каждая деталь создана с <br/>
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+                                    одержимостью
+                                </span> <br/>
+                                качеством
+                            </h2>
+                        </Reveal>
+                    </div>
+                </div>
+
             </div>
         </section>
 

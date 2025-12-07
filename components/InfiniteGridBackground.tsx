@@ -5,43 +5,45 @@ interface InfiniteGridBackgroundProps {
 }
 
 const InfiniteGridBackground: React.FC<InfiniteGridBackgroundProps> = ({ images }) => {
-  // Создаем массив изображений достаточного размера для заполнения большой сетки.
-  // Дублируем исходный массив, чтобы заполнить сетку 8x12 (96 элементов) для плавности на больших экранах
+  // Генерация "случайного" паттерна без явных повторений рядом
   const gridImages = useMemo(() => {
-    const repeated = [];
-    // Нам нужно достаточно много картинок, чтобы заполнить 200% ширины и высоты
-    // При 10 исходных картинках, повторим их 10 раз -> 100 картинок
-    for (let i = 0; i < 12; i++) {
-        repeated.push(...images);
+    // Нам нужно много картинок, чтобы заполнить огромную область
+    const pool = [...images, ...images, ...images, ...images, ...images];
+
+    // Простой шаффл для создания ощущения неповторяющегося паттерна
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
     }
-    return repeated;
+
+    // Возвращаем достаточно элементов для сетки 12x12
+    return pool.slice(0, 144);
   }, [images]);
 
   return (
     <div className="absolute inset-0 overflow-hidden select-none pointer-events-none z-0 bg-[#050505]">
       {/* 
-         Контейнер 200% ширины и высоты. 
-         Анимация pan-diagonal двигает его от 0,0 до -50%,-50%.
-         Это создает эффект бесконечного движения.
+         Анимация: pan-diagonal (определена в tailwind.config.js).
+         Размер контейнера 250% чтобы при движении не было видно краев.
       */}
-      <div className="w-[250%] h-[250%] -ml-[20%] -mt-[20%] grid grid-cols-8 md:grid-cols-10 gap-4 animate-pan-diagonal opacity-60">
+      <div className="w-[250%] h-[250%] -ml-[50%] -mt-[50%] grid grid-cols-8 md:grid-cols-12 gap-1 animate-pan-diagonal">
         {gridImages.map((src, index) => (
           <div 
             key={`grid-img-${index}`} 
-            className="relative w-full aspect-square rounded-xl overflow-hidden shadow-lg border border-white/5 bg-white/5"
+            className="relative w-full aspect-square overflow-hidden bg-[#111]"
           >
             <img 
               src={src} 
               alt="" 
-              className="w-full h-full object-cover transform scale-105"
+              className="w-full h-full object-cover"
               loading="lazy"
             />
           </div>
         ))}
       </div>
 
-      {/* Легкая виньетка по краям экрана для эстетики, не перекрывающая картинки полностью */}
-      <div className="absolute inset-0 bg-radial-gradient from-transparent via-transparent to-black/80"></div>
+      {/* Легкое затемнение, чтобы картинки не спорили с контентом, но были хорошо видны */}
+      <div className="absolute inset-0 bg-black/40"></div>
     </div>
   );
 };
