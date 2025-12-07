@@ -17,30 +17,31 @@ const InfiniteGridBackground: React.FC<InfiniteGridBackgroundProps> = ({ images 
   }, [images]);
 
   return (
-    <div className="absolute inset-0 overflow-hidden select-none pointer-events-none z-0 bg-black">
+    <div className="absolute inset-0 overflow-hidden select-none pointer-events-none z-0 bg-[#0a0a0a]">
       {/* 
          Контейнер 200% ширины и высоты.
          Анимация pan-diagonal двигает его.
          Используем grid-cols-8 (моб) и grid-cols-12 (десктоп) для создания мелкой сетки.
+         gap-px создает тонкие линии между квадратами для четкости.
       */}
-      <div className="w-[250%] h-[250%] grid grid-cols-12 md:grid-cols-20 gap-1 animate-pan-diagonal -ml-[20%] -mt-[20%]">
+      <div className="w-[200%] h-[200%] grid grid-cols-12 md:grid-cols-20 gap-px animate-pan-diagonal -ml-[20%] -mt-[20%]">
         {gridImages.map((src, index) => (
           <div 
             key={`grid-img-${index}`} 
-            className="relative w-full aspect-square overflow-hidden bg-[#111]"
+            className="relative w-full aspect-square bg-[#111] overflow-hidden"
           >
             <img 
               src={src} 
               alt="" 
-              className="w-full h-full object-cover opacity-60 hover:opacity-80 transition-opacity duration-500"
+              className="w-full h-full object-cover opacity-70"
               loading="lazy"
             />
           </div>
         ))}
       </div>
 
-      {/* Равномерное затемнение для читаемости текста */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px]"></div>
+      {/* Затемнение для читаемости текста */}
+      <div className="absolute inset-0 bg-black/60"></div>
     </div>
   );
 };

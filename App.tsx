@@ -150,7 +150,7 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS (FINAL CORRECTED) --- */}
+        {/* --- СЕКЦИЯ DETAILS (FINAL CENTERED) --- */}
         <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white relative flex items-center justify-center overflow-hidden">
 
             {/* Бесконечная сетка */}
@@ -159,10 +159,9 @@ function App() {
             {/* Контент по центру */}
             <div className="container mx-auto px-6 relative z-10 flex flex-col items-center justify-center text-center">
                 <Reveal>
-                    <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter leading-tight text-white drop-shadow-2xl">
+                    <h2 className="text-[7vw] md:text-5xl font-bold tracking-tight text-white drop-shadow-2xl">
                         Каждая деталь создана с<br/>
-                        одержимостью<br/>
-                        качеством
+                        одержимостью качеством
                     </h2>
                 </Reveal>
             </div>
