@@ -60,6 +60,13 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
+    useEffect(() => {
+  // Помечаем страницу как загруженную
+  if (window.markPageAsLoaded) {
+    window.markPageAsLoaded();
+  }
+}, []);
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();

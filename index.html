@@ -6,21 +6,48 @@
     <title>bbqp | Печь и Мангал</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- НАЧАЛО СКРИПТА-РЕДИРЕКТА -->
     <script>
       (function() {
-        // Устанавливаем таймаут в миллисекундах (здесь 7 секунд)
-        var timeout = 7000;
+        // Устанавливаем таймауты
+        var redirectTimeout = 5000; // 5 секунд для переадресации
+        var cancelTimeout = 3000;   // 3 секунды для проверки загрузки
+
+        // Флаг для отслеживания состояния загрузки
+        window.pageLoaded = false;
 
         // Запускаем таймер только если пользователь зашел на основной домен
         if (window.location.hostname === 'bbqp.pro') {
-          // Сохраняем ID таймера в глобальную переменную, чтобы React мог его отменить
+          // Таймер для переадресации на запасной сайт
           window.fallbackTimer = setTimeout(function() {
             // Если таймер не был отменен, перенаправляем на запасной URL
             console.log('Основной сайт не загрузился вовремя. Перенаправление на bbqp.vercel.app...');
             window.location.href = 'https://bbqp.vercel.app';
-          }, timeout);
+          }, redirectTimeout);
+
+          // Таймер для проверки загрузки через 3 секунды
+          setTimeout(function() {
+            if (window.pageLoaded) {
+              console.log('Сайт загрузился, отмена переадресации...');
+              clearTimeout(window.fallbackTimer);
+              window.fallbackTimer = null;
+            } else {
+              console.log('Сайт еще не загрузился, продолжаем ожидание...');
+            }
+          }, cancelTimeout);
         }
+
+        // Функция для отметки загрузки страницы
+        window.markPageAsLoaded = function() {
+          window.pageLoaded = true;
+          console.log('Страница загружена, установлен флаг pageLoaded');
+
+          // Если таймер еще активен, отменяем его
+          if (window.fallbackTimer) {
+            console.log('Отмена таймера переадресации...');
+            clearTimeout(window.fallbackTimer);
+            window.fallbackTimer = null;
+          }
+        };
       })();
     </script>
     <!-- КОНЕЦ СКРИПТА-РЕДИРЕКТА -->
