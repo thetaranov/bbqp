@@ -8,24 +8,31 @@ const InfiniteGridBackground: React.FC<InfiniteGridBackgroundProps> = ({ images 
   const gridImages = useMemo(() => {
     if (!images || images.length === 0) return [];
     let pool: string[] = [];
-    for (let i = 0; i < 60; i++) pool = pool.concat(images);
+    // Увеличиваем количество элементов, так как сетка стала мельче (нужно заполнить больше ячеек)
+    for (let i = 0; i < 100; i++) pool = pool.concat(images);
+
+    // Перемешивание
     for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
     }
+    // Убираем соседей
     for (let i = 1; i < pool.length; i++) {
         if (pool[i] === pool[i-1]) {
             const swapIdx = (i + 5 + Math.floor(Math.random() * 20)) % pool.length;
             [pool[i], pool[swapIdx]] = [pool[swapIdx], pool[i]];
         }
     }
-    return pool.slice(0, 600);
+    return pool.slice(0, 1200); // Берем с запасом
   }, [images]);
 
   return (
     <div className="absolute inset-0 overflow-hidden select-none pointer-events-none z-0 bg-[#050505]">
-      {/* Используем Grid, но без фиксированной высоты контейнера, чтобы он не тянул ячейки */}
-      <div className="w-[250%] grid grid-cols-8 md:grid-cols-16 gap-1 animate-pan-diagonal -ml-[50%] -mt-[50%]">
+      {/* 
+         Уменьшаем размер картинок (увеличиваем кол-во колонок в 2 раза):
+         grid-cols-16 (моб) / grid-cols-32 (десктоп)
+      */}
+      <div className="w-[250%] grid grid-cols-16 md:grid-cols-32 gap-1 animate-pan-diagonal -ml-[50%] -mt-[50%]">
         {gridImages.map((src, index) => (
           <div 
             key={`grid-img-${index}`} 
