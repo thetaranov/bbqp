@@ -7,7 +7,6 @@ export const NAV_LINKS = [
   { name: "Персонализация", href: "#personalize" },
   { name: "Военная серия", href: "#military" },
   { name: "Конфигуратор", href: "#models" },
-  // { name: "AI Шеф", href: "#ai-chef" }, // УДАЛЕНО
   { name: "Контакты", href: "#contact" },
 ];
 
@@ -54,4 +53,18 @@ export const DETAILS_ITEMS: DetailItem[] = [
     description: "Использование стали высокого класса для максимальной долговечности.",
     image: "/assets/images/steel.png"
   }
+];
+
+// Список всех изображений для фоновой сетки
+export const BACKGROUND_IMAGES = [
+    "/assets/images/design.png",
+    "/assets/images/military-bg.png",
+    "/assets/images/model-preview.png",
+    "/assets/images/modular.png",
+    "/assets/images/partition-mechanism.png",
+    "/assets/images/reliability.png",
+    "/assets/images/steel.png",
+    "/assets/images/termo.png",
+    "/assets/images/turbo.png",
+    "/assets/images/wheel.png"
 ];

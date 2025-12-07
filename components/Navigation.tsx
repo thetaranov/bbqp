@@ -1,21 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NAV_LINKS } from '../constants';
-import { Menu, X, MessageSquare } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 interface NavigationProps {
   activeSection: string;
   isIntroComplete?: boolean;
-  onChatToggle?: () => void;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete = true, onChatToggle }) => {
+const Navigation: React.FC<NavigationProps> = ({ activeSection, isIntroComplete = true }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
 
   const itemsRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const navRef = useRef<HTMLElement>(null);
 
-  // Исправлено: удалена сложная логика классов, теперь фон стабилен
   const baseNavClasses = `fixed top-0 left-0 right-0 z-[100] py-4 transition-all duration-700`;
   const loadedClasses = isIntroComplete 
     ? 'opacity-100 translate-y-0 bg-black/60 backdrop-blur-md border-b border-white/10' 

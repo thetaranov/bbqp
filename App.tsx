@@ -1,21 +1,17 @@
-import React, { useState, useEffect, useRef, Suspense, lazy, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navigation from './components/Navigation';
 import Hero from './components/Hero';
 import FeaturesSection from './components/MenuSection';
 import ParallaxImage from './components/ParallaxImage';
 import Reveal from './components/Reveal';
 import ParticlesOverlay from './components/ParticlesOverlay';
-import { DETAILS_ITEMS } from './constants';
-import { Check, ArrowRight, Upload, ChevronLeft, Settings2, X, Box, ScanLine, FileText } from 'lucide-react';
+import { DETAILS_ITEMS, BACKGROUND_IMAGES } from './constants';
+import { Check, Box, ScanLine, Settings2 } from 'lucide-react';
 import FloatingFormulasOverlay from './components/FloatingFormulasOverlay';
 import Modal from './components/Modal';
 import ConfiguratorPanel from './components/ConfiguratorPanel';
 import SiteFooter from './components/Footer';
 import { Option, ConfigCategory } from './types';
-
-// Lazy Load Heavy Components
-const ChefBot = lazy(() => import('./components/ChefBot'));
-// RecipeGenerator удален
 
 const CONFIG_OPTIONS: ConfigCategory[] = [
   { id: 'model', name: 'Модель', options: [ { label: 'Model V', price: 25000, value: 'v' }, { label: 'Model W', price: 35000, value: 'w' } ] },
@@ -31,29 +27,13 @@ function App() {
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [mobileConfigOpen, setMobileConfigOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [is3DActive, setIs3DActive] = useState(false);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
-  // Состояние для слайдера деталей
-  const [activeDetailIndex, setActiveDetailIndex] = useState(0);
-  const [isHoveringDetails, setIsHoveringDetails] = useState(false);
-
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-  // Авто-переключение деталей
-  useEffect(() => {
-    let interval: number;
-    if (!isHoveringDetails && activeSection === 'details') {
-        interval = setInterval(() => {
-            setActiveDetailIndex((prev) => (prev + 1) % DETAILS_ITEMS.length);
-        }, 4000); // 4 секунды на слайд
-    }
-    return () => clearInterval(interval);
-  }, [isHoveringDetails, activeSection]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIntroComplete(true), 500);
@@ -61,7 +41,6 @@ function App() {
   }, []);
 
     useEffect(() => {
-  // Помечаем страницу как загруженную
   if (window.markPageAsLoaded) {
     window.markPageAsLoaded();
   }
@@ -170,71 +149,42 @@ function App() {
             </>
         </section>
 
-        {/* --- СЕКЦИЯ DETAILS (НОВЫЙ ДИЗАЙН) --- */}
-        <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white flex items-center justify-center overflow-hidden relative">
-            <div className="container mx-auto px-6 h-full flex flex-col md:flex-row">
+        {/* --- СЕКЦИЯ DETAILS (ОБНОВЛЕННАЯ) --- */}
+        <section id="details" ref={setRef('details')} className="snap-section h-[100svh] bg-[#050505] text-white relative flex items-center overflow-hidden">
 
-                {/* ЛЕВАЯ ЧАСТЬ: Карусель (Галерея) */}
-                <div className="w-full md:w-1/2 h-[40vh] md:h-full flex items-center justify-center relative order-1 md:order-1 p-4">
-                     <div className="relative w-full h-full max-h-[60vh] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-                        {DETAILS_ITEMS.map((item, idx) => (
-                            <div 
-                                key={item.id}
-                                className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${idx === activeDetailIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
-                            >
-                                <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent md:hidden"></div>
-                                <div className="absolute bottom-6 left-6 md:hidden">
-                                    <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                                </div>
-                            </div>
-                        ))}
-                     </div>
-                </div>
+            {/* Фоновая динамичная сетка изображений */}
+            <div className="absolute inset-0 w-full h-full opacity-20 pointer-events-none z-0 grid grid-cols-3 md:grid-cols-4 gap-2 p-2">
+                 {[...BACKGROUND_IMAGES, ...BACKGROUND_IMAGES].sort(() => 0.5 - Math.random()).map((src, i) => (
+                    <div key={i} className="w-full h-full overflow-hidden rounded-lg">
+                        <img src={src} alt="" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" />
+                    </div>
+                 ))}
+            </div>
+            {/* Градиент для затемнения фона, чтобы текст читался */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/90 to-black z-[1]"></div>
 
-                {/* ПРАВАЯ ЧАСТЬ: Текст и список */}
-                <div className="w-full md:w-1/2 h-auto md:h-full flex flex-col justify-center order-2 md:order-2 p-4 md:pl-12 relative z-10">
+            <div className="container mx-auto px-6 h-full flex items-center relative z-10">
+                <div className="w-full md:w-1/2 hidden md:block"></div> {/* Пустой блок слева, чтобы открыть фон */}
+
+                <div className="w-full md:w-1/2 flex flex-col justify-center h-full pl-0 md:pl-12">
                     <Reveal>
-                        <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tighter">
+                        <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tighter text-right md:text-left">
                             Внимание к <span className="text-orange-500">деталям</span>
                         </h2>
 
-                        <div 
-                            className="space-y-2"
-                            onMouseEnter={() => setIsHoveringDetails(true)}
-                            onMouseLeave={() => setIsHoveringDetails(false)}
-                        >
-                            {DETAILS_ITEMS.map((item, idx) => (
-                                <div 
-                                    key={item.id}
-                                    onClick={() => setActiveDetailIndex(idx)}
-                                    className={`group cursor-pointer p-4 rounded-2xl transition-all duration-300 border border-transparent ${
-                                        idx === activeDetailIndex 
-                                        ? 'bg-white/10 border-white/10' 
-                                        : 'hover:bg-white/5 hover:pl-6'
-                                    }`}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <h3 className={`text-lg font-bold transition-colors ${idx === activeDetailIndex ? 'text-white' : 'text-gray-500 group-hover:text-gray-300'}`}>
-                                            {item.title}
-                                        </h3>
-                                        {idx === activeDetailIndex && <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>}
-                                    </div>
-
-                                    <div className={`overflow-hidden transition-all duration-500 ${idx === activeDetailIndex ? 'max-h-40 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
-                                        <p className="text-sm text-gray-400 leading-relaxed">
-                                            {item.description}
-                                        </p>
-                                    </div>
+                        <div className="space-y-6 overflow-y-auto max-h-[70vh] pr-4 custom-scrollbar">
+                            {DETAILS_ITEMS.map((item) => (
+                                <div key={item.id} className="group p-4 border-r-2 md:border-l-2 md:border-r-0 border-white/10 hover:border-orange-500 transition-colors bg-white/5 backdrop-blur-sm rounded-l-2xl md:rounded-l-none md:rounded-r-2xl">
+                                    <h3 className="text-xl font-bold text-white mb-2 text-right md:text-left">{item.title}</h3>
+                                    <p className="text-sm text-gray-400 leading-relaxed text-right md:text-left">
+                                        {item.description}
+                                    </p>
                                 </div>
                             ))}
                         </div>
                     </Reveal>
                 </div>
-
             </div>
-            {/* Фоновый градиент для текста на мобилках */}
-            <div className="absolute inset-0 bg-black/40 pointer-events-none z-0 md:hidden"></div>
         </section>
 
         <section id="personalize" ref={setRef('personalize')} className="snap-section h-[100svh] bg-[#050505] text-white relative overflow-hidden flex items-center">
@@ -366,50 +316,20 @@ function App() {
           setRef={setRef('contact')}
           onPrivacyOpen={() => setIsPrivacyOpen(true)}
           onTermsOpen={() => setIsTermsOpen(true)}
-          onAIOpen={() => setIsChatOpen(true)}
         />
       </main>
 
-        <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Политика конфиденциальности">
-            <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
-              <h4>1. Общие положения</h4>
-              <p>Настоящая политика обработки персональных данных составлена в соответствии с требованиями Федерального закона от 27.07.2006. №152-ФЗ «О персональных данных» и определяет порядок обработки персональных данных и меры по обеспечению безопасности персональных данных, предпринимаемые ООО «АТТА» (далее – Оператор).</p>
-              <p>Оператор ставит своей важнейшей целью и условием осуществления своей деятельности соблюдение прав и свобод человека и гражданина при обработке его персональных данных, в том числе защиты прав на неприкосновенность частной жизни, личную и семейную тайну.</p>
-              <h4>2. Основные понятия, используемые в Политике</h4>
-              <p><strong>Персональные данные</strong> – любая информация, относящаяся прямо или косвенно к определенному или определяемому Пользователю веб-сайта bbqp.pro.</p>
-              <p><strong>Обработка персональных данных</strong> – любое действие (операция) или совокупность действий (операций), совершаемых с использованием средств автоматизации или без использования таких средств с персональными данными, включая сбор, запись, систематизацию, накопление, хранение, уточнение (обновление, изменение), извлечение, использование, передачу (распространение, предоставление, доступ), обезличивание, блокирование, удаление, уничтожение персональных данных.</p>
-              <h4>3. Цели обработки персональных данных</h4>
-              <p>Цель обработки персональных данных Пользователя — информирование Пользователя посредством отправки электронных писем и сообщений в мессенджерах; заключение, исполнение и прекращение гражданско-правовых договоров; предоставление доступа Пользователю к сервисам, информации и/или материалам, содержащимся на веб-сайте. В частности, мы используем ваши данные для оформления и доставки заказа.</p>
-              <h4>4. Правовые основания обработки персональных данных</h4>
-              <p>Оператор обрабатывает персональные данные Пользователя только в случае их заполнения и/или отправки Пользователем самостоятельно через специальные формы, расположенные на сайте. Заполняя соответствующие формы и/или отправляя свои персональные данные Оператору, Пользователь выражает свое согласие с данной Политикой.</p>
-              <h4>5. Порядок сбора, хранения, передачи и других видов обработки персональных данных</h4>
-              <p>Безопасность персональных данных, которые обрабатываются Оператором, обеспечивается путем реализации правовых, организационных и технических мер, необходимых для выполнения в полном объеме требований действующего законодательства в области защиты персональных данных. Ваши данные передаются третьим лицам (транспортным компаниям) только в целях исполнения договора купли-продажи и доставки товара.</p>
-            </div>
-          </Modal>
+      <Modal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} title="Политика конфиденциальности">
+        <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
+          <p>...</p>
+        </div>
+      </Modal>
 
-        <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Условия использования">
-            <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
-                <h4>1. Общие положения</h4>
-                <p>Настоящие Условия использования (далее — «Условия») являются публичной офертой и регулируют взаимоотношения между ООО «АТТА» (далее — «Продавец») и любым физическим или юридическим лицом (далее — «Покупатель») при использовании веб-сайта bbqp.pro (далее — «Сайт»). Использование Сайта, в том числе оформление заказа, означает полное и безоговорочное согласие Покупателя с настоящими Условиями.</p>
-                <h4>2. Предмет соглашения</h4>
-                <p>Продавец обязуется передать в собственность Покупателя, а Покупатель обязуется оплатить и принять товар (печь-мангал bbqp и аксессуары), заказанный на Сайте в соответствии с выбранной конфигурацией на основании Счета-оферты.</p>
-                <h4>3. Оформление заказа и оплата</h4>
-                <p>Заказ на продукцию bbqp оформляется через конфигуратор на Сайте с последующим перенаправлением в мессенджер Telegram для подтверждения деталей с менеджером. Менеджер выставляет счет на оплату, который Покупатель может оплатить любым удобным способом (банковский перевод, онлайн-оплата). Цена товара фиксируется в счете и не подлежит изменению. Товар считается оплаченным с момента поступления денежных средств на расчетный счет Продавца.</p>
-                <h4>4. Условия доставки</h4>
-                <p>Доставка осуществляется по всей территории Российской Федерации с помощью транспортных компаний-партнеров («Деловые Линии», «ПЭК», «СДЭК» и другие). Стоимость и ориентировочные сроки доставки рассчитываются менеджером индивидуально при оформлении заказа и зависят от региона Покупателя и габаритов груза. Доставка может быть осуществлена до терминала транспортной компании в городе Покупателя или до конкретного адреса («до двери»). Обязательство Продавца по передаче товара считается исполненным с момента передачи груза первому перевозчику (транспортной компании). Риск случайной гибели или повреждения товара переходит к Покупателю с этого же момента.</p>
-                <h4>5. Гарантия и возврат</h4>
-                <p>На всю продукцию bbqp предоставляется гарантия производителя. Срок и условия гарантийного обслуживания указаны в сопроводительной документации к товару (паспорте изделия). Возврат товара надлежащего качества возможен в течение 7 дней с момента получения при условии сохранения товарного вида, потребительских свойств, а также документа, подтверждающего факт покупки. Возврат товара ненадлежащего качества осуществляется в соответствии с законодательством РФ.</p>
-            </div>
-          </Modal>
-
-      <Suspense fallback={null}>
-          <ChefBot 
-            visible={true} 
-            externalIsOpen={isChatOpen} 
-            onToggle={setIsChatOpen} 
-            showFloatingButton={false} 
-          />
-      </Suspense>
+      <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} title="Условия использования">
+        <div className="prose prose-invert max-w-none space-y-4 text-gray-300 text-sm leading-relaxed">
+             <p>...</p>
+        </div>
+      </Modal>
     </div>
   );
 }

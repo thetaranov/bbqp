@@ -1,17 +1,15 @@
-import React, { useEffect } from 'react';
-import { FileText, Sparkles } from 'lucide-react';
+import React from 'react';
+import { FileText } from 'lucide-react';
 import Reveal from './Reveal';
 
 interface FooterProps {
   setRef: (el: HTMLDivElement | null) => void;
   onPrivacyOpen: () => void;
   onTermsOpen: () => void;
-  onAIOpen: () => void;
 }
 
-const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen, onAIOpen }) => {
+const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen }) => {
 
-  // HTML код для изоляции фона в iframe
   const iframeContent = `
     <!DOCTYPE html>
     <html>
@@ -38,7 +36,6 @@ const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen,
   return (
     <footer id="contact" ref={setRef} className="snap-section h-[100svh] relative overflow-hidden flex flex-col justify-center items-center">
 
-      {/* --- BACKGROUND --- */}
       <div className="absolute top-0 left-0 w-full h-[118%] z-0">
          <iframe
             title="footer-background"
@@ -49,10 +46,8 @@ const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen,
          />
       </div>
 
-      {/* --- OVERLAY --- */}
       <div className="absolute inset-0 z-[1] bg-black/40 pointer-events-none"></div>
 
-      {/* --- CONTENT --- */}
       <div className="relative z-10 w-full pointer-events-none">
         <Reveal className="w-full max-w-4xl mx-auto px-6 text-center pointer-events-auto">
           <div className="mb-6">
@@ -82,15 +77,6 @@ const SiteFooter: React.FC<FooterProps> = ({ setRef, onPrivacyOpen, onTermsOpen,
             <div className="flex flex-wrap justify-center gap-6 items-center">
               <button onClick={onPrivacyOpen} className="hover:text-white transition-colors">Конфиденциальность</button>
               <button onClick={onTermsOpen} className="hover:text-white transition-colors">Условия</button>
-
-              {/* Кнопка AI в стиле обычной ссылки */}
-              <button 
-                onClick={onAIOpen} 
-                className="flex items-center gap-2 hover:text-white transition-colors text-gray-500"
-              >
-                <Sparkles size={12} />
-                <span>bbqp AI (v0.1)</span>
-              </button>
 
               <a href="/assets/docs/MANUAL.pdf" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1">
                 <FileText size={12} /> Руководство
